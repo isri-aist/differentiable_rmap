@@ -1,0 +1,37 @@
+<package format="2">
+  <name>differentiable_rmap</name>
+  <version>0.1.0</version>
+  <description>
+    Differentiable reachability map
+  </description>
+  <maintainer email="m-murooka@aist.go.jp">Masaki Murooka</maintainer>
+  <license>GPL</license>
+
+  <url>http://ros.org/wiki/differentiable_rmap</url>
+  <author>Masaki Murooka</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>roscpp</depend>
+  <depend>rosbag</depend>
+  <depend>rviz</depend>
+  <depend>urdf</depend>
+  <depend>tf2</depend>
+  <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
+  <depend>eigen_conversions</depend>
+  <depend>geometry_msgs</depend>
+  <depend>visualization_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>grid_map_ros</depend>
+  <depend>optmotiongen</depend>
+  <depend>libsvm-dev</depend>
+
+  <build_depend>message_generation</build_depend>
+  <build_depend>eigen</build_depend>
+
+  <exec_depend>message_runtime</exec_depend>
+  <exec_depend>rospy</exec_depend>
+
+  <doc_depend>doxygen</doc_depend>
+</package>
