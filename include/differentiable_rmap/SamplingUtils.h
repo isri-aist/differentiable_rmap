@@ -5,6 +5,9 @@
 #include <string>
 #include <stdexcept>
 
+#include <SpaceVecAlg/SpaceVecAlg>
+#include <mc_rtc/logging.h>
+
 
 namespace DiffRmap
 {
@@ -19,22 +22,23 @@ enum class SamplingSpace
   SE3 = 33
 };
 
-/** \brief Return whether sampling space is on 2D or not. */
-inline bool is2DSamplingSpace(SamplingSpace sampling_space)
-{
-  return static_cast<int>(sampling_space) / 10 == 2;
-}
-
 /** \brief Convert string to sampling space. */
 SamplingSpace strToSamplingSpace(const std::string& sampling_space_str);
 
+/** \brief Get dimension of sample.
+    \tparam SamplingSpaceType sampling space
+*/
+template <SamplingSpace SamplingSpaceType>
+constexpr int sampleDim();
+
 /** \brief Convert pose to sample.
+    \tparam SamplingSpaceType sampling space
     \param pose input pose
-    \param sampling_space sampling space
-    \return sample (Eigen::VectorXd)
+    \return sample (fixed size Eigen::Vector)
  */
-Eigen::VectorXd poseToSample(const sva::PTransformd& pose,
-                             SamplingSpace sampling_space);
+template <SamplingSpace SamplingSpaceType>
+Eigen::Matrix<double, sampleDim<SamplingSpaceType>(), 1> poseToSample(
+    const sva::PTransformd& pose);
 }
 
 namespace std
@@ -56,8 +60,11 @@ inline string to_string(SamplingSpace sampling_space)
   } else if (sampling_space == SamplingSpace::SE3) {
     return std::string("SE3");
   } else {
-    throw std::runtime_error("Unsupported SamplingSpace: " +
-                             std::to_string(static_cast<int>(sampling_space)));
+    mc_rtc::log::error_and_throw<std::runtime_error>(
+        "[to_string] Unsupported SamplingSpace: {}", static_cast<int>(sampling_space));
   }
 }
 }
+
+// See method 3 in https://www.codeproject.com/Articles/48575/How-to-Define-a-Template-Class-in-a-h-File-and-Imp
+#include <differentiable_rmap/SamplingUtils.hpp>

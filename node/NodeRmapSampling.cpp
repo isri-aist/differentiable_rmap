@@ -37,9 +37,9 @@ int main(int argc, char **argv)
   std::vector<std::string> joint_name_list;
   pnh.param<std::vector<std::string>>("joint_name_list", joint_name_list, joint_name_list);
 
-  RmapSampling rmap_sampling(
-      rb,
+  auto rmap_sampling = createRmapSampling(
       sampling_space,
+      rb,
       body_name,
       joint_name_list);
 
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
   double sleep_rate = 0;
   pnh.param<double>("sleep_rate", sleep_rate, sleep_rate);
 
-  rmap_sampling.run(bag_path, sample_num, sleep_rate);
+  rmap_sampling->run(bag_path, sample_num, sleep_rate);
 
   return 0;
 }
