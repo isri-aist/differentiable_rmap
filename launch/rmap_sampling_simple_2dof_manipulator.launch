@@ -1,6 +1,6 @@
 <launch>
-  <!-- only r2 is supported -->
-  <arg name="sampling_space" value="r2" />
+  <!-- only R2 is supported -->
+  <arg name="sampling_space" value="R2" />
 
   <!-- load robot description -->
   <arg name="robot_model_path" value="$(find differentiable_rmap)/urdf/Simple2DoFManipulator.urdf.xacro" />
@@ -8,11 +8,11 @@
 
   <node pkg="differentiable_rmap" type="NodeRmapSampling" name="rmap_sampling"
         output="screen">
-    <rosparam subst_value="true" if="$(eval arg('sampling_space') == 'r2')">
-      sampling_space: R2
+    <rosparam subst_value="true">
+      sampling_space: $(arg sampling_space)
+      bag_path: /tmp/rmap_sample_set_$(arg sampling_space).bag
       body_name: EEF
       joint_name_list: [Joint1, Joint2]
-      bag_path: /tmp/rmap_sample_set_r2.bag
       sample_num: 10000
       sleep_rate: 2000
     </rosparam>

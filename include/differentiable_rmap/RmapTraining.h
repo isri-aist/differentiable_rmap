@@ -23,7 +23,7 @@ class RmapTrainingBase
     \tparam SamplingSpaceType sampling space
  */
 template <SamplingSpace SamplingSpaceType>
-class RmapTraining
+class RmapTraining: public RmapTrainingBase
 {
  public:
   /*! \brief Dimension of sample. */
@@ -53,4 +53,10 @@ class RmapTraining
 
   ros::Publisher rmap_cloud_pub_;
 };
+
+/** \brief Constructor.
+    \param sampling_space sampling space
+*/
+std::shared_ptr<RmapTrainingBase> createRmapTraining(
+    SamplingSpace sampling_space);
 }

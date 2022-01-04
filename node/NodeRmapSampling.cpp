@@ -54,5 +54,11 @@ int main(int argc, char **argv)
 
   rmap_sampling->run(bag_path, sample_num, sleep_rate);
 
+  bool keep_alive = true;
+  pnh.param<bool>("keep_alive", keep_alive, keep_alive);
+  if (keep_alive) {
+    ros::spin();
+  }
+
   return 0;
 }

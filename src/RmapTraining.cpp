@@ -47,7 +47,7 @@ void RmapTraining<SamplingSpaceType>::loadBag(const std::string& bag_path)
   rosbag::Bag bag(bag_path, rosbag::bagmode::Read);
   int cnt = 0;
   for (rosbag::MessageInstance const m :
-           rosbag::View(bag, rosbag::TopicQuery(std::vector<std::string>{"rmap_sample_set"}))) {
+           rosbag::View(bag, rosbag::TopicQuery(std::vector<std::string>{"/rmap_sample_set"}))) {
     if (cnt >= 1) {
       ROS_WARN("Multiple messages are stored in bag file. load only first one.");
       break;
@@ -74,5 +74,26 @@ void RmapTraining<SamplingSpaceType>::loadBag(const std::string& bag_path)
   }
   if (cnt == 0) {
     mc_rtc::log::error_and_throw<std::runtime_error>("Sample set message not found.");
+  }
+}
+
+std::shared_ptr<RmapTrainingBase> DiffRmap::createRmapTraining(
+    SamplingSpace sampling_space)
+{
+  if (sampling_space == SamplingSpace::R2) {
+    return std::make_shared<RmapTraining<SamplingSpace::R2>>();
+  } else if (sampling_space == SamplingSpace::SO2) {
+    return std::make_shared<RmapTraining<SamplingSpace::SO2>>();
+  } else if (sampling_space == SamplingSpace::SE2) {
+    return std::make_shared<RmapTraining<SamplingSpace::SE2>>();
+  } else if (sampling_space == SamplingSpace::R3) {
+    return std::make_shared<RmapTraining<SamplingSpace::R3>>();
+  } else if (sampling_space == SamplingSpace::SO3) {
+    return std::make_shared<RmapTraining<SamplingSpace::SO3>>();
+  } else if (sampling_space == SamplingSpace::SE3) {
+    return std::make_shared<RmapTraining<SamplingSpace::SE3>>();
+  } else {
+    mc_rtc::log::error_and_throw<std::runtime_error>(
+        "[createRmapTraining] Unsupported SamplingSpace: {}", std::to_string(sampling_space));
   }
 }
