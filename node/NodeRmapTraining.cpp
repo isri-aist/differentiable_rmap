@@ -17,13 +17,18 @@ int main(int argc, char **argv)
   pnh.param<std::string>("sampling_space", sampling_space_str, sampling_space_str);
   SamplingSpace sampling_space = strToSamplingSpace(sampling_space_str);
 
-  auto rmap_training = createRmapTraining(
-      sampling_space);
-
   std::string bag_path = "/tmp/rmap_sample_set.bag";
   pnh.param<std::string>("bag_path", bag_path, bag_path);
 
-  rmap_training->run(bag_path);
+  std::string svm_path = "/tmp/rmap_svm_model.libsvm";
+  pnh.param<std::string>("svm_path", svm_path, svm_path);
+
+  auto rmap_training = createRmapTraining(
+      sampling_space,
+      bag_path,
+      svm_path);
+
+  rmap_training->run();
 
   bool keep_alive = true;
   pnh.param<bool>("keep_alive", keep_alive, keep_alive);

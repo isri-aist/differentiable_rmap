@@ -1,7 +1,5 @@
 /* Author: Masaki Murooka */
 
-#include <mc_rtc/logging.h>
-
 #include <rosbag/bag.h>
 #include <sensor_msgs/PointCloud.h>
 #include <optmotiongen_msgs/RobotStateArray.h>
@@ -28,7 +26,7 @@ RmapSampling<SamplingSpaceType>::RmapSampling(
   rb_arr_.setup();
   rbc_arr_ = OmgCore::RobotConfigArray(rb_arr_);
 
-  // Setup callback
+  // Setup ROS
   rs_arr_pub_ = nh_.advertise<optmotiongen_msgs::RobotStateArray>("robot_state_arr", 1, true);
   rmap_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("rmap_cloud", 1, true);
 
@@ -98,6 +96,7 @@ void RmapSampling<SamplingSpaceType>::run(
     loop_idx++;
   }
 
+  // Dump sample set
   dumpBag(bag_path);
 }
 
@@ -110,7 +109,7 @@ void RmapSampling<SamplingSpaceType>::dumpBag(const std::string& bag_path) const
   sample_set_msg.type = static_cast<size_t>(SamplingSpaceType);
   sample_set_msg.samples.resize(sample_list_.size());
   for (size_t i = 0; i < sample_list_.size(); i++) {
-    const auto& sample = sample_list_[i];
+    const SampleVector& sample = sample_list_[i];
     sample_set_msg.samples[i].position.resize(sample_dim_);
     for (int j = 0; j < sample_dim_; j++) {
       sample_set_msg.samples[i].position[j] = sample[j];

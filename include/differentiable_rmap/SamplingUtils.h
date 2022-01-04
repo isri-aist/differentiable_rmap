@@ -31,6 +31,12 @@ SamplingSpace strToSamplingSpace(const std::string& sampling_space_str);
 template <SamplingSpace SamplingSpaceType>
 constexpr int sampleDim();
 
+/** \brief Get dimension of SVM input.
+    \tparam SamplingSpaceType sampling space
+*/
+template <SamplingSpace SamplingSpaceType>
+constexpr int inputDim();
+
 /** \brief Convert pose to sample.
     \tparam SamplingSpaceType sampling space
     \param[in] pose pose
@@ -47,6 +53,15 @@ Eigen::Matrix<double, sampleDim<SamplingSpaceType>(), 1> poseToSample(
  */
 template <SamplingSpace SamplingSpaceType>
 Eigen::Vector3d sampleToCloudPos(
+    const Eigen::Matrix<double, sampleDim<SamplingSpaceType>(), 1>& sample);
+
+/** \brief Convert sample to SVM input.
+    \tparam SamplingSpaceType sampling space
+    \param[in] sample sample
+    \return SVM input (fixed size Eigen::Vector)
+*/
+template <SamplingSpace SamplingSpaceType>
+Eigen::Matrix<double, inputDim<SamplingSpaceType>(), 1> sampleToInput(
     const Eigen::Matrix<double, sampleDim<SamplingSpaceType>(), 1>& sample);
 }
 

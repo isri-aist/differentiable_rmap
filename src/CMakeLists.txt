@@ -9,5 +9,6 @@ target_link_libraries(DiffRmap PUBLIC
   RBDyn::Parsers
   sch-core::sch-core
   mc_rtc::mc_rtc_utils
+  svm
   ${catkin_LIBRARIES}
   )
