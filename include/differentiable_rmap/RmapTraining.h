@@ -51,6 +51,9 @@ class RmapTraining: public RmapTrainingBase
   /*! \brief Type of sample vector. */
   using SampleVector = Eigen::Matrix<double, sample_dim_, 1>;
 
+  /*! \brief Type of input vector. */
+  using InputVector = Eigen::Matrix<double, input_dim_, 1>;
+
  public:
   /** \brief Constructor.
       \param bag_path path of ROS bag file (empty for loading trained SVM model directly)

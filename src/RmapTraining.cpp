@@ -242,6 +242,8 @@ void RmapTraining<SamplingSpaceType>::predict()
   {
     auto start_time = std::chrono::system_clock::now();
 
+    setInputNode<SamplingSpaceType>(input_node_, InputVector::Zero());
+
     size_t grid_idx = 0;
     for (grid_map::GridMapIterator it(*grid_map_); !it.isPastEnd(); ++it) {
       grid_map::Position pos;
@@ -252,7 +254,7 @@ void RmapTraining<SamplingSpaceType>::predict()
       if constexpr (sample_dim_ > 1) {
           sample.y() = pos.y();
         }
-      setInputNode<SamplingSpaceType>(input_node_, sampleToInput<SamplingSpaceType>(sample));
+      setInputNodeOnlyValue<SamplingSpaceType>(input_node_, sampleToInput<SamplingSpaceType>(sample));
 
       double svm_value;
       svm_predict_values(svm_mo_, input_node_, &svm_value);
@@ -263,7 +265,7 @@ void RmapTraining<SamplingSpaceType>::predict()
     double duration = 1e3 * std::chrono::duration_cast<std::chrono::duration<double>>(
         std::chrono::system_clock::now() - start_time).count();
     ROS_INFO_STREAM("SVM predict duration: " << duration << " [ms] (predict-one: " <<
-                    duration / grid_idx <<")");
+                    duration / grid_idx <<" [ms])");
   }
 
   // Publish
