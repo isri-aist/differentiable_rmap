@@ -1,6 +1,7 @@
 add_library(DiffRmap
   SamplingUtils.cpp
   RmapSampling.cpp
+  RmapTraining.cpp
   )
 target_link_libraries(DiffRmap PUBLIC
   SpaceVecAlg::SpaceVecAlg

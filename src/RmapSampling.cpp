@@ -3,7 +3,6 @@
 #include <mc_rtc/logging.h>
 
 #include <rosbag/bag.h>
-#include <rosbag/view.h>
 #include <sensor_msgs/PointCloud.h>
 #include <optmotiongen_msgs/RobotStateArray.h>
 #include <differentiable_rmap/RmapSampleSet.h>
