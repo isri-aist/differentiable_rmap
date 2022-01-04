@@ -1,0 +1,11 @@
+# Margin ratio of grid map
+grid_map_margin_ratio: 0.5
+
+# Resolution of grid map
+grid_map_resolution: 0.02
+
+# Height scale of grid map
+grid_map_height_scale: 1.0
+
+# Height of xy plane marker
+xy_plane_height: -0.05

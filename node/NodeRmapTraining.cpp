@@ -1,5 +1,7 @@
 /* Author: Masaki Murooka */
 
+#include <mc_rtc/Configuration.h>
+
 #include <optmotiongen_msgs/RobotStateArray.h>
 
 #include <differentiable_rmap/RmapTraining.h>
@@ -31,7 +33,7 @@ int main(int argc, char **argv)
   if (pnh.hasParam("config_path")) {
     std::string config_path;
     pnh.getParam("config_path", config_path);
-    rmap_training->configure(config_path);
+    rmap_training->configure(mc_rtc::Configuration(config_path));
   }
 
   rmap_training->run();

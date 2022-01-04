@@ -18,9 +18,10 @@
 using namespace DiffRmap;
 
 
-void RmapTrainingBase::configure(const std::string& config_path)
+void RmapTrainingBase::configure(const mc_rtc::Configuration& mc_rtc_config)
 {
-  config_ = mc_rtc::Configuration(config_path);
+  mc_rtc_config_ = mc_rtc_config;
+  config_ = mc_rtc_config;
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -33,6 +34,11 @@ RmapTraining<SamplingSpaceType>::RmapTraining(const std::string& bag_path,
   rmap_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("rmap_cloud", 1, true);
   marker_arr_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("marker_arr", 1, true);
   grid_map_pub_ = nh_.advertise<grid_map_msgs::GridMap>("grid_map", 1, true);
+
+  xy_plane_height_manager_ =
+      std::make_shared<SubscVariableManager<std_msgs::Float64, double>>(
+          "variable/xy_plane_height",
+          0.0);
 
   // Load
   if (svm_loaded_) {
@@ -65,15 +71,35 @@ RmapTraining<SamplingSpaceType>::~RmapTraining()
 }
 
 template <SamplingSpace SamplingSpaceType>
+void RmapTraining<SamplingSpaceType>::configure(const mc_rtc::Configuration& mc_rtc_config)
+{
+  RmapTrainingBase::configure(mc_rtc_config);
+
+  if (mc_rtc_config_.has("xy_plane_height")) {
+    xy_plane_height_manager_->setValue(static_cast<double>(mc_rtc_config_("xy_plane_height")));
+  }
+}
+
+template <SamplingSpace SamplingSpaceType>
 void RmapTraining<SamplingSpaceType>::run()
 {
-  if (!svm_loaded_) {
-    train();
+  ros::Rate rate(100);
+  while (ros::ok()) {
+    if (!svm_loaded_ && train_required_) {
+      train_required_ = false;
+      train();
+    }
+
+    if (train_updated_) {
+      train_updated_ = false;
+      predict();
+    }
+
+    publishMarkerArray();
+
+    rate.sleep();
+    ros::spinOnce();
   }
-
-  predict();
-
-  publishMarkerArray();
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -250,6 +276,8 @@ void RmapTraining<SamplingSpaceType>::train()
         std::chrono::system_clock::now() - start_time).count();
     ROS_INFO_STREAM("SVM save duration: " << duration << " [ms]");
   }
+
+  train_updated_ = true;
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -343,7 +371,7 @@ void RmapTraining<SamplingSpaceType>::publishMarkerArray() const
   xy_plane_marker.scale.y = 100.0;
   xy_plane_marker.scale.z = plane_thickness;
   xy_plane_marker.pose = OmgCore::toPoseMsg(
-      sva::PTransformd(Eigen::Vector3d(0, 0, config_.xy_plane_height - 0.5 * plane_thickness)));
+      sva::PTransformd(Eigen::Vector3d(0, 0, xy_plane_height_manager_->value() - 0.5 * plane_thickness)));
   marker_arr_msg.markers.push_back(xy_plane_marker);
 
   marker_arr_pub_.publish(marker_arr_msg);

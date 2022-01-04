@@ -5,12 +5,14 @@
 #include <mc_rtc/Configuration.h>
 
 #include <ros/ros.h>
+#include <std_msgs/Float64.h>
 #include <grid_map_ros/grid_map_ros.hpp>
 #include <grid_map_msgs/GridMap.h>
 
 #include <libsvm/svm.h>
 
 #include <differentiable_rmap/SamplingUtils.h>
+#include <differentiable_rmap/RosUtils.h>
 
 
 namespace DiffRmap
@@ -30,19 +32,21 @@ class RmapTrainingBase
 
     //! Height scale of grid map
     double grid_map_height_scale = 1.0;
-
-    //! Height of xy plane marker
-    double xy_plane_height = 0.0;
   };
 
  public:
   /** \brief Run SVM training. */
   virtual void run() = 0;
 
-  /** \brief Configure from YAML file. */
-  void configure(const std::string& config_path);
+  /** \brief Configure from mc_rtc configuration.
+      \param mc_rtc_config mc_rtc configuration
+   */
+  virtual void configure(const mc_rtc::Configuration& mc_rtc_config);
 
  protected:
+  //! mc_rtc Configuration
+  mc_rtc::Configuration mc_rtc_config_;
+
   //! Configuration
   Configuration config_;
 };
@@ -77,6 +81,11 @@ class RmapTraining: public RmapTrainingBase
 
   /** \brief Destructor. */
   ~RmapTraining();
+
+  /** \brief Configure from mc_rtc configuration.
+      \param mc_rtc_config mc_rtc configuration
+   */
+  virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
 
   /** \brief Run SVM training. */
   virtual void run() override;
@@ -134,12 +143,20 @@ class RmapTraining: public RmapTrainingBase
   //! Grid map
   std::shared_ptr<grid_map::GridMap> grid_map_;
 
+  //! Whether SVM training is required
+  bool train_required_ = true;
+
+  //! Whether SVM training is updated
+  bool train_updated_ = false;
+
   //! ROS related members
   ros::NodeHandle nh_;
 
   ros::Publisher rmap_cloud_pub_;
   ros::Publisher marker_arr_pub_;
   ros::Publisher grid_map_pub_;
+
+  std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> xy_plane_height_manager_;
 };
 
 /** \brief Constructor.
@@ -160,12 +177,11 @@ struct ConfigurationLoader<DiffRmap::RmapTrainingBase::Configuration>
   static DiffRmap::RmapTrainingBase::Configuration load(
       const mc_rtc::Configuration & mc_rtc_config)
   {
-    DiffRmap::RmapTrainingBase::Configuration inst_config;
-    mc_rtc_config("grid_map_margin_ratio", inst_config.grid_map_margin_ratio);
-    mc_rtc_config("grid_map_resolution", inst_config.grid_map_resolution);
-    mc_rtc_config("grid_map_height_scale", inst_config.grid_map_height_scale);
-    mc_rtc_config("xy_plane_height", inst_config.xy_plane_height);
-    return inst_config;
+    DiffRmap::RmapTrainingBase::Configuration config;
+    mc_rtc_config("grid_map_margin_ratio", config.grid_map_margin_ratio);
+    mc_rtc_config("grid_map_resolution", config.grid_map_resolution);
+    mc_rtc_config("grid_map_height_scale", config.grid_map_height_scale);
+    return config;
   }
 };
 }

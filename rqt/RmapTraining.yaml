@@ -1,0 +1,18 @@
+publish_interval: 100
+settings:
+  /variable/svm_gamma/data:
+    is_repeat: false
+    max: 100.0
+    min: 1.0
+  /variable/svm_nu/data:
+    is_repeat: false
+    max: 0.99
+    min: 0.01
+  /variable/xy_plane_height/data:
+    is_repeat: false
+    max: 0.5
+    min: -0.5
+texts:
+- /variable/svm_gamma/data
+- /variable/svm_nu/data
+- /variable/xy_plane_height/data
