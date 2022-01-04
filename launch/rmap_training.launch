@@ -6,6 +6,7 @@
         output="screen">
     <rosparam subst_value="true">
       sampling_space: $(arg sampling_space)
+      config_path: $(find differentiable_rmap)/config/RmapTraining.yaml
       bag_path: /tmp/rmap_sample_set_$(arg sampling_space).bag
       svm_path: /tmp/rmap_svm_model_$(arg sampling_space).libsvm
     </rosparam>

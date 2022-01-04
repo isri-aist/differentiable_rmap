@@ -28,6 +28,12 @@ int main(int argc, char **argv)
       bag_path,
       svm_path);
 
+  if (pnh.hasParam("config_path")) {
+    std::string config_path;
+    pnh.getParam("config_path", config_path);
+    rmap_training->configure(config_path);
+  }
+
   rmap_training->run();
 
   bool keep_alive = true;

@@ -19,17 +19,6 @@ namespace DiffRmap
 class RmapTrainingBase
 {
  public:
-  /** \brief Run SVM training. */
-  virtual void run() = 0;
-};
-
-/** \brief Class to train SVM for differentiable reachability map.
-    \tparam SamplingSpaceType sampling space
- */
-template <SamplingSpace SamplingSpaceType>
-class RmapTraining: public RmapTrainingBase
-{
- public:
   /*! \brief Configuration. */
   struct Configuration
   {
@@ -42,10 +31,28 @@ class RmapTraining: public RmapTrainingBase
     //! Height scale of grid map
     double grid_map_height_scale = 1.0;
 
-    //! height of xy plane marker
-    double xy_plane_height_ = 0.0;
+    //! Height of xy plane marker
+    double xy_plane_height = 0.0;
   };
 
+ public:
+  /** \brief Run SVM training. */
+  virtual void run() = 0;
+
+  /** \brief Configure from YAML file. */
+  void configure(const std::string& config_path);
+
+ protected:
+  //! Configuration
+  Configuration config_;
+};
+
+/** \brief Class to train SVM for differentiable reachability map.
+    \tparam SamplingSpaceType sampling space
+ */
+template <SamplingSpace SamplingSpaceType>
+class RmapTraining: public RmapTrainingBase
+{
  public:
   /*! \brief Dimension of sample. */
   static constexpr int sample_dim_ = sampleDim<SamplingSpaceType>();
@@ -97,10 +104,6 @@ class RmapTraining: public RmapTrainingBase
   void publishMarkerArray() const;
 
  protected:
-  //! Configuration
-  // \todo Load from yaml file
-  Configuration config_;
-
   //! Sample list
   std::vector<SampleVector> sample_list_;
 
@@ -146,4 +149,23 @@ std::shared_ptr<RmapTrainingBase> createRmapTraining(
     SamplingSpace sampling_space,
     const std::string& bag_path = "/tmp/rmap_sample_set.bag",
     const std::string& svm_path = "/tmp/rmap_svm_model.libsvm");
+}
+
+namespace mc_rtc
+{
+/*! \brief Configuration loader. */
+template<>
+struct ConfigurationLoader<DiffRmap::RmapTrainingBase::Configuration>
+{
+  static DiffRmap::RmapTrainingBase::Configuration load(
+      const mc_rtc::Configuration & mc_rtc_config)
+  {
+    DiffRmap::RmapTrainingBase::Configuration inst_config;
+    mc_rtc_config("grid_map_margin_ratio", inst_config.grid_map_margin_ratio);
+    mc_rtc_config("grid_map_resolution", inst_config.grid_map_resolution);
+    mc_rtc_config("grid_map_height_scale", inst_config.grid_map_height_scale);
+    mc_rtc_config("xy_plane_height", inst_config.xy_plane_height);
+    return inst_config;
+  }
+};
 }

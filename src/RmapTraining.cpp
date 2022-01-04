@@ -18,6 +18,11 @@
 using namespace DiffRmap;
 
 
+void RmapTrainingBase::configure(const std::string& config_path)
+{
+  config_ = mc_rtc::Configuration(config_path);
+}
+
 template <SamplingSpace SamplingSpaceType>
 RmapTraining<SamplingSpaceType>::RmapTraining(const std::string& bag_path,
                                               const std::string& svm_path):
@@ -338,7 +343,7 @@ void RmapTraining<SamplingSpaceType>::publishMarkerArray() const
   xy_plane_marker.scale.y = 100.0;
   xy_plane_marker.scale.z = plane_thickness;
   xy_plane_marker.pose = OmgCore::toPoseMsg(
-      sva::PTransformd(Eigen::Vector3d(0, 0, config_.xy_plane_height_ - 0.5 * plane_thickness)));
+      sva::PTransformd(Eigen::Vector3d(0, 0, config_.xy_plane_height - 0.5 * plane_thickness)));
   marker_arr_msg.markers.push_back(xy_plane_marker);
 
   marker_arr_pub_.publish(marker_arr_msg);
