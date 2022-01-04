@@ -30,6 +30,9 @@ RmapTraining<SamplingSpaceType>::RmapTraining(const std::string& bag_path,
     svm_loaded_(bag_path.empty()),
     svm_path_(svm_path)
 {
+  // Setup SVM parameter
+  setupSVMParam();
+
   // Setup ROS
   rmap_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("rmap_cloud", 1, true);
   marker_arr_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("marker_arr", 1, true);
@@ -39,6 +42,14 @@ RmapTraining<SamplingSpaceType>::RmapTraining(const std::string& bag_path,
       std::make_shared<SubscVariableManager<std_msgs::Float64, double>>(
           "variable/xy_plane_height",
           0.0);
+  svm_gamma_manager_ =
+      std::make_shared<SubscVariableManager<std_msgs::Float64, double>>(
+          "variable/svm_gamma",
+          svm_param_.gamma);
+  svm_nu_manager_ =
+      std::make_shared<SubscVariableManager<std_msgs::Float64, double>>(
+          "variable/svm_nu",
+          svm_param_.nu);
 
   // Load
   if (svm_loaded_) {
@@ -47,8 +58,7 @@ RmapTraining<SamplingSpaceType>::RmapTraining(const std::string& bag_path,
     loadBag(bag_path);
   }
 
-  // Setup
-  setupSVMParam();
+  // Setup grid map
   setupGridMap();
 }
 
@@ -78,6 +88,12 @@ void RmapTraining<SamplingSpaceType>::configure(const mc_rtc::Configuration& mc_
   if (mc_rtc_config_.has("xy_plane_height")) {
     xy_plane_height_manager_->setValue(static_cast<double>(mc_rtc_config_("xy_plane_height")));
   }
+  if (mc_rtc_config_.has("svm_gamma")) {
+    svm_gamma_manager_->setValue(static_cast<double>(mc_rtc_config_("svm_gamma")));
+  }
+  if (mc_rtc_config_.has("svm_nu")) {
+    svm_nu_manager_->setValue(static_cast<double>(mc_rtc_config_("svm_nu")));
+  }
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -85,16 +101,22 @@ void RmapTraining<SamplingSpaceType>::run()
 {
   ros::Rate rate(100);
   while (ros::ok()) {
+    // Update SVM parameter
+    updateSVMParam();
+
+    // Train SVM
     if (!svm_loaded_ && train_required_) {
       train_required_ = false;
       train();
     }
 
+    // Predict SVM
     if (train_updated_) {
       train_updated_ = false;
       predict();
     }
 
+    // Publish
     publishMarkerArray();
 
     rate.sleep();
@@ -125,6 +147,21 @@ void RmapTraining<SamplingSpaceType>::setupSVMParam()
       svm_param_.gamma = 15; // 10 // 20
       svm_param_.eps = 0.1; // 0.5
     }
+}
+
+template <SamplingSpace SamplingSpaceType>
+void RmapTraining<SamplingSpaceType>::updateSVMParam()
+{
+  if (svm_gamma_manager_->hasNewValue()) {
+    svm_param_.gamma = svm_gamma_manager_->value();
+    svm_gamma_manager_->update();
+    train_required_ = true;
+  }
+  if (svm_nu_manager_->hasNewValue()) {
+    svm_param_.nu = svm_nu_manager_->value();
+    svm_nu_manager_->update();
+    train_required_ = true;
+  }
 }
 
 template <SamplingSpace SamplingSpaceType>

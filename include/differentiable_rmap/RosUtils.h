@@ -45,6 +45,7 @@ class SubscVariableManager
   void setValue(const ValueType& value)
   {
     value_ = value;
+    has_new_value_ = true;
   }
 
   /** \brief Get whether the manager has new value. */
@@ -63,8 +64,7 @@ class SubscVariableManager
   /** \brief ROS callback. */
   void callback(const typename MsgType::ConstPtr& msg)
   {
-    value_ = msg->data;
-    has_new_value_ = true;
+    setValue(msg->data);
   }
 
  public:

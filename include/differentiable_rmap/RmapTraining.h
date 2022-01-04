@@ -94,6 +94,9 @@ class RmapTraining: public RmapTrainingBase
   /** \brief Setup SVM parameter. */
   void setupSVMParam();
 
+  /** \brief Update SVM parameter. */
+  void updateSVMParam();
+
   /** \brief Setup grid map. */
   void setupGridMap();
 
@@ -157,6 +160,8 @@ class RmapTraining: public RmapTrainingBase
   ros::Publisher grid_map_pub_;
 
   std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> xy_plane_height_manager_;
+  std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> svm_gamma_manager_;
+  std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> svm_nu_manager_;
 };
 
 /** \brief Constructor.
