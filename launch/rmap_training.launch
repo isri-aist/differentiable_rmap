@@ -1,5 +1,5 @@
 <launch>
-  <!-- R2, SE2, or SE3 are supported -->
+  <!-- R2, SE2, R3, or SE3 are supported -->
   <arg name="sampling_space" default="R2" />
 
   <node pkg="differentiable_rmap" type="NodeRmapTraining" name="rmap_training"

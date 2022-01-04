@@ -2,7 +2,7 @@
 grid_map_margin_ratio: 0.5
 
 # Resolution of grid map [m]
-grid_map_resolution: 0.025
+grid_map_resolution: 0.05
 
 # Height scale of grid map
 grid_map_height_scale: 1.0
@@ -11,7 +11,7 @@ grid_map_height_scale: 1.0
 slice_se2_theta_thre: 2.5
 
 # Z threshold for slicing R3 sample [m]
-slice_r3_z_thre: 0.1
+slice_r3_z_thre: 0.025
 
 # Z threshold for slicing SE3 sample [m]
 slice_se3_z_thre: 0.1
