@@ -7,6 +7,7 @@
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
 #include <sensor_msgs/PointCloud.h>
+#include <visualization_msgs/MarkerArray.h>
 #include <differentiable_rmap/RmapSampleSet.h>
 
 #include <optmotiongen/Utils/RosUtils.h>
@@ -25,6 +26,7 @@ RmapTraining<SamplingSpaceType>::RmapTraining(const std::string& bag_path,
 {
   // Setup ROS
   rmap_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("rmap_cloud", 1, true);
+  marker_arr_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("marker_arr", 1, true);
   grid_map_pub_ = nh_.advertise<grid_map_msgs::GridMap>("grid_map", 1, true);
 
   // Load
@@ -65,6 +67,8 @@ void RmapTraining<SamplingSpaceType>::run()
   }
 
   predict();
+
+  publishMarkerArray();
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -302,6 +306,42 @@ void RmapTraining<SamplingSpaceType>::predict()
     // publish is fast compared with other process
     // ROS_INFO_STREAM("SVM publish duration: " << duration << " [ms]");
   }
+}
+
+
+template <SamplingSpace SamplingSpaceType>
+void RmapTraining<SamplingSpaceType>::publishMarkerArray() const
+{
+  std_msgs::Header header_msg;
+  header_msg.frame_id = "world";
+  header_msg.stamp = ros::Time::now();
+
+  // Instantiate marker array
+  visualization_msgs::MarkerArray marker_arr_msg;
+
+  // Delete marker
+  visualization_msgs::Marker del_marker;
+  del_marker.action = visualization_msgs::Marker::DELETEALL;
+  del_marker.header = header_msg;
+  del_marker.id = marker_arr_msg.markers.size();
+  marker_arr_msg.markers.push_back(del_marker);
+
+  // XY plane marker
+  visualization_msgs::Marker xy_plane_marker;
+  double plane_thickness = 0.01;
+  xy_plane_marker.header = header_msg;
+  xy_plane_marker.ns = "xy_plane";
+  xy_plane_marker.id = marker_arr_msg.markers.size();
+  xy_plane_marker.type = visualization_msgs::Marker::CUBE;
+  xy_plane_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.8, 0.8, 1.0});
+  xy_plane_marker.scale.x = 100.0;
+  xy_plane_marker.scale.y = 100.0;
+  xy_plane_marker.scale.z = plane_thickness;
+  xy_plane_marker.pose = OmgCore::toPoseMsg(
+      sva::PTransformd(Eigen::Vector3d(0, 0, config_.xy_plane_height_ - 0.5 * plane_thickness)));
+  marker_arr_msg.markers.push_back(xy_plane_marker);
+
+  marker_arr_pub_.publish(marker_arr_msg);
 }
 
 std::shared_ptr<RmapTrainingBase> DiffRmap::createRmapTraining(

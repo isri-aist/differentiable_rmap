@@ -33,11 +33,17 @@ class RmapTraining: public RmapTrainingBase
   /*! \brief Configuration. */
   struct Configuration
   {
+    //! Margin ratio of grid map
     double grid_map_margin_ratio = 0.5;
 
+    //! Resolution of grid map
     double grid_map_resolution = 0.02;
 
+    //! Height scale of grid map
     double grid_map_height_scale = 1.0;
+
+    //! height of xy plane marker
+    double xy_plane_height_ = 0.0;
   };
 
  public:
@@ -75,42 +81,61 @@ class RmapTraining: public RmapTrainingBase
   /** \brief Setup grid map. */
   void setupGridMap();
 
-  /** \brief Train SVM. */
-  void train();
-
-  /** \brief Predict SVM. */
-  void predict();
-
   /** \brief Load sample set from ROS bag. */
   void loadBag(const std::string& bag_path);
 
   /** \brief Save SVM model. */
   void loadSVM();
 
- public:
+  /** \brief Train SVM. */
+  void train();
+
+  /** \brief Predict SVM. */
+  void predict();
+
+  /** \brief Publish marker array. */
+  void publishMarkerArray() const;
+
+ protected:
+  //! Configuration
+  // \todo Load from yaml file
   Configuration config_;
 
+  //! Sample list
   std::vector<SampleVector> sample_list_;
 
+  //! Whether SVM model is loaded from file
   bool svm_loaded_;
+  //! path of SVM model file
   std::string svm_path_;
 
+  //! SVM input node which is used for prediction
   svm_node input_node_[input_dim_ + 1];
+  //! SVM input node list which is used for training
   svm_node* all_input_nodes_;
+  //! SVM problem
   svm_problem svm_prob_;
+  //! SVM parameter
   svm_parameter svm_param_;
+  //! SVM model
   svm_model *svm_mo_;
 
+  //! Support vector coefficients
   Eigen::VectorXd svm_coeff_vec_;
+  //! Support vector matrix
   Eigen::Matrix<double, input_dim_, Eigen::Dynamic> svm_sv_mat_;
 
+  //! Whether to use libsvm function for prediction
   static constexpr bool use_libsvm_prediction_ = false;
 
+  //! Grid map
   std::shared_ptr<grid_map::GridMap> grid_map_;
 
+  //! ROS related members
   ros::NodeHandle nh_;
 
   ros::Publisher rmap_cloud_pub_;
+  ros::Publisher marker_arr_pub_;
   ros::Publisher grid_map_pub_;
 };
 

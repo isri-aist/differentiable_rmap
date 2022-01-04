@@ -79,6 +79,11 @@ double calcSVMValue(
         "[calcSVMValue] Only one-class SVM is supported: {}", svm_mo->param.svm_type);
   }
 
+  if (svm_param.kernel_type != RBF) {
+    mc_rtc::log::error_and_throw<std::runtime_error>(
+        "[calcSVMValue] Only RBF kernel is supported: {}", svm_param.kernel_type);
+  }
+
   return svm_coeff_vec.dot(
       (-svm_param.gamma * (svm_sv_mat.colwise() - input).colwise().squaredNorm()).array().exp().matrix()) - svm_mo->rho[0];
 }

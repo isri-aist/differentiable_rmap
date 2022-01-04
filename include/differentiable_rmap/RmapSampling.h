@@ -62,20 +62,30 @@ class RmapSampling: public RmapSamplingBase
   /** \brief Dump generated sample set to ROS bag. */
   void dumpBag(const std::string& bag_path) const;
 
- public:
+ protected:
+  //! Robot array (single robot is stored)
   OmgCore::RobotArray rb_arr_;
+  //! Robot configuration array (single robot configuration is stored)
   OmgCore::RobotConfigArray rbc_arr_;
 
+  //! Name of body whose pose is sampled
   std::string body_name_;
+  //! Index of body whose pose is sampled
   int body_idx_;
 
+  //! Name list of joints whose position is changed
   std::vector<std::string> joint_name_list_;
+  //! Index list of joints whose position is changed
   std::vector<int> joint_idx_list_;
+  //! Joint position coefficient to make sample from [-1:1] random value
   Eigen::VectorXd joint_pos_coeff_;
+  //! Joint position offset to make sample from [-1:1] random value
   Eigen::VectorXd joint_pos_offset_;
 
+  //! Sample list
   std::vector<SampleVector> sample_list_;
 
+  //! ROS related members
   ros::NodeHandle nh_;
 
   ros::Publisher rs_arr_pub_;
