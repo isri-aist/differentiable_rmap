@@ -12,7 +12,27 @@ settings:
     is_repeat: false
     max: 0.5
     min: -0.5
+  /variable/slice_z/data:
+    is_repeat: false
+    max: 1.0
+    min: -1.0
+  /variable/slice_roll/data:
+    is_repeat: false
+    max: 3.1415
+    min: -3.1415
+  /variable/slice_pitch/data:
+    is_repeat: false
+    max: 3.1415
+    min: -3.1415
+  /variable/slice_yaw/data:
+    is_repeat: false
+    max: 3.1415
+    min: -3.1415
 texts:
 - /variable/svm_gamma/data
 - /variable/svm_nu/data
 - /variable/xy_plane_height/data
+- /variable/slice_z/data
+- /variable/slice_roll/data
+- /variable/slice_pitch/data
+- /variable/slice_yaw/data

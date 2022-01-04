@@ -109,6 +109,9 @@ class RmapTraining: public RmapTrainingBase
   /** \brief Update SVM parameter. */
   void updateSVMParam();
 
+  /** \brief Update origin of slicing. */
+  void updateSliceOrigin();
+
   /** \brief Setup grid map. */
   void setupGridMap();
 
@@ -184,6 +187,10 @@ class RmapTraining: public RmapTrainingBase
   std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> xy_plane_height_manager_;
   std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> svm_gamma_manager_;
   std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> svm_nu_manager_;
+  std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> slice_z_manager_;
+  std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> slice_roll_manager_;
+  std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> slice_pitch_manager_;
+  std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> slice_yaw_manager_;
 };
 
 /** \brief Constructor.

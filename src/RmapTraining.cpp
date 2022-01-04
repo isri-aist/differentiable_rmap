@@ -53,6 +53,22 @@ RmapTraining<SamplingSpaceType>::RmapTraining(const std::string& bag_path,
       std::make_shared<SubscVariableManager<std_msgs::Float64, double>>(
           "variable/svm_nu",
           svm_param_.nu);
+  slice_z_manager_ =
+      std::make_shared<SubscVariableManager<std_msgs::Float64, double>>(
+          "variable/slice_z",
+          0.0);
+  slice_roll_manager_ =
+      std::make_shared<SubscVariableManager<std_msgs::Float64, double>>(
+          "variable/slice_roll",
+          0.0);
+  slice_pitch_manager_ =
+      std::make_shared<SubscVariableManager<std_msgs::Float64, double>>(
+          "variable/slice_pitch",
+          0.0);
+  slice_yaw_manager_ =
+      std::make_shared<SubscVariableManager<std_msgs::Float64, double>>(
+          "variable/slice_yaw",
+          0.0);
 
   // Load
   if (svm_loaded_) {
@@ -104,8 +120,9 @@ void RmapTraining<SamplingSpaceType>::run()
 {
   ros::Rate rate(100);
   while (ros::ok()) {
-    // Update SVM parameter
+    // Update
     updateSVMParam();
+    updateSliceOrigin();
 
     // Train SVM
     if (!svm_loaded_ && train_required_) {
@@ -166,6 +183,31 @@ void RmapTraining<SamplingSpaceType>::updateSVMParam()
     svm_param_.nu = svm_nu_manager_->value();
     svm_nu_manager_->update();
     train_required_ = true;
+  }
+}
+
+template <SamplingSpace SamplingSpaceType>
+void RmapTraining<SamplingSpaceType>::updateSliceOrigin()
+{
+  if (slice_z_manager_->hasNewValue()) {
+    slice_origin_.translation().z() = slice_z_manager_->value();
+    slice_z_manager_->update();
+    slice_updated_ = true;
+  }
+  if (slice_roll_manager_->hasNewValue() ||
+      slice_pitch_manager_->hasNewValue() ||
+      slice_yaw_manager_->hasNewValue()) {
+    Eigen::Vector3d vec(
+        slice_roll_manager_->value(), slice_pitch_manager_->value(), slice_yaw_manager_->value());
+    if (vec.norm() < 1e-20) {
+      slice_origin_.rotation().setIdentity();
+    } else {
+      slice_origin_.rotation() = Eigen::AngleAxisd(vec.norm(), vec.normalized()).toRotationMatrix().transpose();
+    }
+    slice_roll_manager_->update();
+    slice_pitch_manager_->update();
+    slice_yaw_manager_->update();
+    slice_updated_ = true;
   }
 }
 
