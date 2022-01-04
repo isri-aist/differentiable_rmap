@@ -33,12 +33,21 @@ constexpr int sampleDim();
 
 /** \brief Convert pose to sample.
     \tparam SamplingSpaceType sampling space
-    \param pose input pose
+    \param[in] pose pose
     \return sample (fixed size Eigen::Vector)
  */
 template <SamplingSpace SamplingSpaceType>
 Eigen::Matrix<double, sampleDim<SamplingSpaceType>(), 1> poseToSample(
     const sva::PTransformd& pose);
+
+/** \brief Convert sample to pointcloud position.
+    \tparam SamplingSpaceType sampling space
+    \param[in] sample sample
+    \return pointcloud position (Eigen::Vector3d)
+ */
+template <SamplingSpace SamplingSpaceType>
+Eigen::Vector3d sampleToCloudPos(
+    const Eigen::Matrix<double, sampleDim<SamplingSpaceType>(), 1>& sample);
 }
 
 namespace std

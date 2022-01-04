@@ -63,6 +63,7 @@ void RmapSampling<SamplingSpaceType>::run(
 
   ros::Rate rate(sleep_rate > 0 ? sleep_rate : 1000);
   int loop_idx = 0;
+  sample_list_.resize(sample_num);
   while (ros::ok()) {
     if (loop_idx == sample_num) {
       break;
@@ -78,14 +79,8 @@ void RmapSampling<SamplingSpaceType>::run(
       rbd::forwardKinematics(*rb, *rbc);
       const auto& body_pose = rbc->bodyPosW[body_idx_];
       const SampleVector& sample = poseToSample<SamplingSpaceType>(body_pose);
-      sample_list_.push_back(sample);
-      Eigen::Vector3d cloud_pos = body_pose.translation();
-      if constexpr (SamplingSpaceType == SamplingSpace::R2) {
-        cloud_pos.z() = 0;
-      } else if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
-        cloud_pos.z() = sample.z();
-      }
-      cloud_msg.points.push_back(OmgCore::toPoint32Msg(cloud_pos));
+      sample_list_[loop_idx] = sample;
+      cloud_msg.points.push_back(OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample)));
     }
 
     if(loop_idx % 100 == 0) {
@@ -117,8 +112,8 @@ void RmapSampling<SamplingSpaceType>::dumpBag(const std::string& bag_path) const
   sample_set_msg.samples.resize(sample_list_.size());
   for (size_t i = 0; i < sample_list_.size(); i++) {
     const auto& sample = sample_list_[i];
-    sample_set_msg.samples[i].position.resize(sample.size());
-    for (int j = 0; j < sample.size(); j++) {
+    sample_set_msg.samples[i].position.resize(sample_dim_);
+    for (int j = 0; j < sample_dim_; j++) {
       sample_set_msg.samples[i].position[j] = sample[j];
     }
     sample_set_msg.samples[i].is_reachable = true;
@@ -147,6 +142,6 @@ std::shared_ptr<RmapSamplingBase> DiffRmap::createRmapSampling(
     return std::make_shared<RmapSampling<SamplingSpace::SE3>>(rb, body_name, joint_name_list);
   } else {
     mc_rtc::log::error_and_throw<std::runtime_error>(
-        "[strToSamplingSpace] Unsupported SamplingSpace name: {}", std::to_string(sampling_space));
+        "[createRmapSampling] Unsupported SamplingSpace: {}", std::to_string(sampling_space));
   }
 }

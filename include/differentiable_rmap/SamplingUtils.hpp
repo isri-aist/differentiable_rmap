@@ -106,4 +106,33 @@ inline Eigen::Matrix<double, sampleDim<SamplingSpace::SE3>(), 1> poseToSample<Sa
   sample << poseToSample<SamplingSpace::R3>(pose), poseToSample<SamplingSpace::SO3>(pose);
   return sample;
 }
+
+template <SamplingSpace SamplingSpaceType>
+Eigen::Vector3d sampleToCloudPos(
+    const Eigen::Matrix<double, sampleDim<SamplingSpaceType>(), 1>& sample)
+{
+  return sample.head(3);
+}
+
+template <>
+inline Eigen::Vector3d sampleToCloudPos<SamplingSpace::R2>(
+    const Eigen::Matrix<double, sampleDim<SamplingSpace::R2>(), 1>& sample)
+{
+  return Eigen::Vector3d(sample.x(), sample.y(), 0);
+}
+
+template <>
+inline Eigen::Vector3d sampleToCloudPos<SamplingSpace::SO2>(
+    const Eigen::Matrix<double, sampleDim<SamplingSpace::SO2>(), 1>& sample)
+{
+  return Eigen::Vector3d(sample.x(), 0, 0);
+}
+
+template <>
+inline Eigen::Vector3d sampleToCloudPos<SamplingSpace::SO3>(
+    const Eigen::Matrix<double, sampleDim<SamplingSpace::SO3>(), 1>& sample)
+{
+  Eigen::AngleAxisd aa(Eigen::Quaterniond(sample.w(), sample.x(), sample.y(), sample.z()));
+  return aa.angle() * aa.axis();
+}
 }

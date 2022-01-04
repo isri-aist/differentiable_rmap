@@ -33,11 +33,11 @@ class RmapSampling: public RmapSamplingBase
 {
  public:
   /*! \brief Dimension of sample. */
-  static constexpr int SampleDim = sampleDim<SamplingSpaceType>();
+  static constexpr int sample_dim_ = sampleDim<SamplingSpaceType>();
 
  public:
   /*! \brief Type of sample vector. */
-  using SampleVector = Eigen::Matrix<double, SampleDim, 1>;
+  using SampleVector = Eigen::Matrix<double, sample_dim_, 1>;
 
  public:
   /** \brief Constructor.
