@@ -4,6 +4,8 @@
 #include <unordered_set>
 #include <chrono>
 
+#include <mc_rtc/constants.h>
+
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
 #include <sensor_msgs/PointCloud.h>
@@ -35,6 +37,7 @@ RmapTraining<SamplingSpaceType>::RmapTraining(const std::string& bag_path,
 
   // Setup ROS
   rmap_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("rmap_cloud", 1, true);
+  sliced_rmap_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("rmap_cloud_sliced", 1, true);
   marker_arr_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("marker_arr", 1, true);
   grid_map_pub_ = nh_.advertise<grid_map_msgs::GridMap>("grid_map", 1, true);
 
@@ -107,13 +110,15 @@ void RmapTraining<SamplingSpaceType>::run()
     // Train SVM
     if (!svm_loaded_ && train_required_) {
       train_required_ = false;
-      train();
+      trainSVM();
     }
 
     // Predict SVM
-    if (train_updated_) {
+    if (train_updated_ || slice_updated_) {
       train_updated_ = false;
-      predict();
+      slice_updated_ = false;
+      predictOnGridMap();
+      publishSlicedCloud();
     }
 
     // Publish
@@ -272,7 +277,7 @@ void RmapTraining<SamplingSpaceType>::loadSVM()
 }
 
 template <SamplingSpace SamplingSpaceType>
-void RmapTraining<SamplingSpaceType>::train()
+void RmapTraining<SamplingSpaceType>::trainSVM()
 {
   // Check SVM problem and parameter
   {
@@ -306,7 +311,7 @@ void RmapTraining<SamplingSpaceType>::train()
     auto start_time = std::chrono::system_clock::now();
 
     ROS_INFO_STREAM("Save SVM model to " << svm_path_);
-    // \todo THis causes SEGV
+    // \todo This causes SEGV
     // svm_save_model(svm_path_.c_str(), svm_mo_);
 
     double duration = 1e3 * std::chrono::duration_cast<std::chrono::duration<double>>(
@@ -318,7 +323,7 @@ void RmapTraining<SamplingSpaceType>::train()
 }
 
 template <SamplingSpace SamplingSpaceType>
-void RmapTraining<SamplingSpaceType>::predict()
+void RmapTraining<SamplingSpaceType>::predictOnGridMap()
 {
   // Predict
   {
@@ -329,12 +334,12 @@ void RmapTraining<SamplingSpaceType>::predict()
       }
 
     size_t grid_idx = 0;
-    SampleVector identity_sample = poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
+    SampleVector origin_sample = poseToSample<SamplingSpaceType>(slice_origin_);
     for (grid_map::GridMapIterator it(*grid_map_); !it.isPastEnd(); ++it) {
       grid_map::Position pos;
       grid_map_->getPosition(*it, pos);
 
-      SampleVector sample = identity_sample;
+      SampleVector sample = origin_sample;
       sample.x() = pos.x();
       if constexpr (sample_dim_ > 1) {
           sample.y() = pos.y();
@@ -373,11 +378,49 @@ void RmapTraining<SamplingSpaceType>::predict()
 
     double duration = 1e3 * std::chrono::duration_cast<std::chrono::duration<double>>(
         std::chrono::system_clock::now() - start_time).count();
-    // publish is fast compared with other process
+    // Publish is fast compared with other process
     // ROS_INFO_STREAM("SVM publish duration: " << duration << " [ms]");
   }
 }
 
+template <SamplingSpace SamplingSpaceType>
+void RmapTraining<SamplingSpaceType>::publishSlicedCloud() const
+{
+  std_msgs::Header header_msg;
+  header_msg.frame_id = "world";
+  header_msg.stamp = ros::Time::now();
+
+  sensor_msgs::PointCloud cloud_msg;
+  cloud_msg.header = header_msg;
+  for (const SampleVector& sample : sample_list_) {
+    if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+        double origin_theta = calcYawAngle(slice_origin_.rotation().transpose());
+        double theta_diff = sample.z() - origin_theta;
+        theta_diff = std::fabs(std::atan2(std::sin(theta_diff), std::cos(theta_diff)));
+        if (theta_diff > mc_rtc::constants::toRad(config_.slice_se2_theta_thre)) {
+          continue;
+        }
+      } else if constexpr (SamplingSpaceType == SamplingSpace::R3) {
+        double origin_z = slice_origin_.translation().z();
+        if (std::fabs(sample.z() - origin_z) > config_.slice_r3_z_thre) {
+          continue;
+        }
+      } else if constexpr (SamplingSpaceType == SamplingSpace::SE3) {
+        Eigen::Quaterniond origin_quat(slice_origin_.rotation().transpose());
+        Eigen::Matrix<double, sampleDim<SamplingSpace::SO3>(), 1> sample_so3 =
+            sample.template tail<sampleDim<SamplingSpace::SO3>()>();
+        Eigen::Quaterniond sample_quat(sample_so3.w(), sample_so3.x(), sample_so3.y(), sample_so3.z());
+        double theta_diff = std::fabs(Eigen::AngleAxisd(origin_quat.inverse() * sample_quat).angle());
+        if (std::fabs(sample.z() - slice_origin_.translation().z()) > config_.slice_se3_z_thre ||
+            theta_diff > mc_rtc::constants::toRad(config_.slice_se3_theta_thre)) {
+          continue;
+        }
+      }
+
+    cloud_msg.points.push_back(OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample)));
+  }
+  sliced_rmap_cloud_pub_.publish(cloud_msg);
+}
 
 template <SamplingSpace SamplingSpaceType>
 void RmapTraining<SamplingSpaceType>::publishMarkerArray() const

@@ -1,11 +1,23 @@
 # Margin ratio of grid map
 grid_map_margin_ratio: 0.5
 
-# Resolution of grid map
+# Resolution of grid map [m]
 grid_map_resolution: 0.02
 
 # Height scale of grid map
 grid_map_height_scale: 1.0
+
+# Theta threshold for slicing SE2 sample [deg]
+slice_se2_theta_thre: 2.5
+
+# Z threshold for slicing R3 sample [m]
+slice_r3_z_thre: 0.1
+
+# Z threshold for slicing SE3 sample [m]
+slice_se3_z_thre: 0.1
+
+# Theta threshold for slicing SE3 sample [deg]
+slice_se3_theta_thre: 20
 
 # Height of xy plane marker
 xy_plane_height: -0.05

@@ -27,11 +27,23 @@ class RmapTrainingBase
     //! Margin ratio of grid map
     double grid_map_margin_ratio = 0.5;
 
-    //! Resolution of grid map
+    //! Resolution of grid map [m]
     double grid_map_resolution = 0.02;
 
     //! Height scale of grid map
     double grid_map_height_scale = 1.0;
+
+    //! Theta threshold for slicing SE2 sample [deg]
+    double slice_se2_theta_thre = 2.5;
+
+    //! Z threshold for slicing R3 sample [m]
+    double slice_r3_z_thre = 0.1;
+
+    //! Z threshold for slicing SE3 sample [m]
+    double slice_se3_z_thre = 0.1;
+
+    //! Theta threshold for slicing SE3 sample [deg]
+    double slice_se3_theta_thre = 20;
   };
 
  public:
@@ -107,10 +119,13 @@ class RmapTraining: public RmapTrainingBase
   void loadSVM();
 
   /** \brief Train SVM. */
-  void train();
+  void trainSVM();
 
-  /** \brief Predict SVM. */
-  void predict();
+  /** \brief Predict SVM on grid map. */
+  void predictOnGridMap();
+
+  /** \brief Publish sliced cloud. */
+  void publishSlicedCloud() const;
 
   /** \brief Publish marker array. */
   void publishMarkerArray() const;
@@ -146,16 +161,23 @@ class RmapTraining: public RmapTrainingBase
   //! Grid map
   std::shared_ptr<grid_map::GridMap> grid_map_;
 
+  //! Origin of slicing
+  sva::PTransformd slice_origin_ = sva::PTransformd::Identity();
+
   //! Whether SVM training is required
   bool train_required_ = true;
 
   //! Whether SVM training is updated
   bool train_updated_ = false;
 
+  //! Whether origin of slicing is updated
+  bool slice_updated_ = false;
+
   //! ROS related members
   ros::NodeHandle nh_;
 
   ros::Publisher rmap_cloud_pub_;
+  ros::Publisher sliced_rmap_cloud_pub_;
   ros::Publisher marker_arr_pub_;
   ros::Publisher grid_map_pub_;
 
@@ -186,6 +208,10 @@ struct ConfigurationLoader<DiffRmap::RmapTrainingBase::Configuration>
     mc_rtc_config("grid_map_margin_ratio", config.grid_map_margin_ratio);
     mc_rtc_config("grid_map_resolution", config.grid_map_resolution);
     mc_rtc_config("grid_map_height_scale", config.grid_map_height_scale);
+    mc_rtc_config("slice_se2_theta_thre", config.slice_se2_theta_thre);
+    mc_rtc_config("slice_r3_z_thre", config.slice_r3_z_thre);
+    mc_rtc_config("slice_se3_z_thre", config.slice_se3_z_thre);
+    mc_rtc_config("slice_se3_theta_thre", config.slice_se3_theta_thre);
     return config;
   }
 };
