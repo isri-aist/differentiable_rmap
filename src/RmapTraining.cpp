@@ -219,6 +219,14 @@ void RmapTraining<SamplingSpaceType>::train()
     double duration = 1e3 * std::chrono::duration_cast<std::chrono::duration<double>>(
         std::chrono::system_clock::now() - start_time).count();
     ROS_INFO_STREAM("SVM train duration: " << duration << " [ms]");
+
+    int num_sv = svm_mo_->l;
+    svm_coeff_vec_.resize(num_sv);
+    svm_sv_mat_.resize(input_dim_, num_sv);
+    for (int i = 0; i < num_sv; i++) {
+      svm_coeff_vec_[i] = svm_mo_->sv_coef[0][i];
+      svm_sv_mat_.col(i) = toEigenVector<SamplingSpaceType>(svm_mo_->SV[i]);
+    }
   }
 
   // Save SVM
@@ -242,22 +250,34 @@ void RmapTraining<SamplingSpaceType>::predict()
   {
     auto start_time = std::chrono::system_clock::now();
 
-    setInputNode<SamplingSpaceType>(input_node_, InputVector::Zero());
+    if constexpr (use_libsvm_prediction_) {
+        setInputNode<SamplingSpaceType>(input_node_, InputVector::Zero());
+      }
 
     size_t grid_idx = 0;
+    SampleVector identity_sample = poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
     for (grid_map::GridMapIterator it(*grid_map_); !it.isPastEnd(); ++it) {
       grid_map::Position pos;
       grid_map_->getPosition(*it, pos);
 
-      SampleVector sample = poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
+      SampleVector sample = identity_sample;
       sample.x() = pos.x();
       if constexpr (sample_dim_ > 1) {
           sample.y() = pos.y();
         }
-      setInputNodeOnlyValue<SamplingSpaceType>(input_node_, sampleToInput<SamplingSpaceType>(sample));
 
       double svm_value;
-      svm_predict_values(svm_mo_, input_node_, &svm_value);
+      if constexpr (use_libsvm_prediction_) {
+          setInputNodeOnlyValue<SamplingSpaceType>(input_node_, sampleToInput<SamplingSpaceType>(sample));
+          svm_predict_values(svm_mo_, input_node_, &svm_value);
+        } else {
+        svm_value = calcSVMValue<SamplingSpaceType>(
+            sampleToInput<SamplingSpaceType>(sample),
+            svm_param_,
+            svm_mo_,
+            svm_coeff_vec_,
+            svm_sv_mat_);
+      }
       grid_map_->at("svm_prediction", *it) = config_.grid_map_height_scale * svm_value;
       grid_idx++;
     }

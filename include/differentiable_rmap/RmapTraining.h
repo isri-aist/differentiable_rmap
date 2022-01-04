@@ -101,6 +101,11 @@ class RmapTraining: public RmapTrainingBase
   svm_parameter svm_param_;
   svm_model *svm_mo_;
 
+  Eigen::VectorXd svm_coeff_vec_;
+  Eigen::Matrix<double, input_dim_, Eigen::Dynamic> svm_sv_mat_;
+
+  static constexpr bool use_libsvm_prediction_ = false;
+
   std::shared_ptr<grid_map::GridMap> grid_map_;
 
   ros::NodeHandle nh_;
