@@ -218,8 +218,8 @@ Visualization Manager:
       Axis: Z
       Channel Name: intensity
       Class: rviz/PointCloud
-      Color: 255; 255; 255
-      Color Transformer: AxisColor
+      Color: 115; 210; 22
+      Color Transformer: FlatColor
       Decay Time: 0
       Enabled: true
       Invert Rainbow: false
@@ -246,7 +246,7 @@ Visualization Manager:
       Axis: Z
       Channel Name: intensity
       Class: rviz/PointCloud
-      Color: 52; 101; 164
+      Color: 204; 0; 0
       Color Transformer: FlatColor
       Decay Time: 0
       Enabled: true

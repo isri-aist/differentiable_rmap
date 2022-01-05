@@ -3,7 +3,9 @@ Panels:
     Help Height: 110
     Name: Displays
     Property Tree Widget:
-      Expanded: ~
+      Expanded:
+        - /ReachableCloud1
+        - /ReachableCloud1/Autocompute Value Bounds1
       Splitter Ratio: 0.6277258396148682
     Tree Height: 725
   - Class: rviz/Selection
@@ -373,8 +375,8 @@ Visualization Manager:
       Axis: Z
       Channel Name: intensity
       Class: rviz/PointCloud
-      Color: 255; 255; 255
-      Color Transformer: AxisColor
+      Color: 115; 210; 22
+      Color Transformer: FlatColor
       Decay Time: 0
       Enabled: true
       Invert Rainbow: false
@@ -401,7 +403,7 @@ Visualization Manager:
       Axis: Z
       Channel Name: intensity
       Class: rviz/PointCloud
-      Color: 32; 74; 135
+      Color: 204; 0; 0
       Color Transformer: FlatColor
       Decay Time: 0
       Enabled: true
@@ -448,7 +450,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 3.393859624862671
+      Distance: 3.898946523666382
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -463,10 +465,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.8703984022140503
+      Pitch: 0.7853981852531433
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.6604024171829224
+      Yaw: 0.7853981852531433
     Saved: ~
 Window Geometry:
   Displays:
