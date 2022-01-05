@@ -40,11 +40,23 @@ int main(int argc, char **argv)
   std::vector<std::string> joint_name_list;
   pnh.param<std::vector<std::string>>("joint_name_list", joint_name_list, joint_name_list);
 
-  auto rmap_sampling = createRmapSampling(
-      sampling_space,
-      rb,
-      body_name,
-      joint_name_list);
+  bool use_ik = false;
+  pnh.param<bool>("use_ik", use_ik, use_ik);
+
+  std::shared_ptr<RmapSamplingBase> rmap_sampling;
+  if (use_ik) {
+    rmap_sampling = createRmapSamplingIK(
+        sampling_space,
+        rb,
+        body_name,
+        joint_name_list);
+  } else {
+    rmap_sampling = createRmapSampling(
+        sampling_space,
+        rb,
+        body_name,
+        joint_name_list);
+  }
 
   std::string bag_path = "/tmp/rmap_sample_set.bag";
   pnh.param<std::string>("bag_path", bag_path, bag_path);

@@ -1,6 +1,7 @@
 <launch>
   <!-- only R2 is supported -->
   <arg name="sampling_space" value="R2" />
+  <arg name="use_ik" default="false" />
 
   <!-- load robot description -->
   <arg name="robot_model_path" value="$(find differentiable_rmap)/urdf/Simple2DoFManipulator.urdf.xacro" />
@@ -10,6 +11,7 @@
         output="screen">
     <rosparam subst_value="true">
       sampling_space: $(arg sampling_space)
+      use_ik: $(arg use_ik)
       bag_path: /tmp/rmap_sample_set_$(arg sampling_space).bag
       body_name: EEF
       joint_name_list: [Joint1, Joint2]
