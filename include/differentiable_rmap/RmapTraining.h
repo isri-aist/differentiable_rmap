@@ -21,6 +21,22 @@ namespace DiffRmap
 class RmapTrainingBase
 {
  public:
+  /** \brief Configure from mc_rtc configuration.
+      \param mc_rtc_config mc_rtc configuration
+   */
+  virtual void configure(const mc_rtc::Configuration& mc_rtc_config) = 0;
+
+  /** \brief Run SVM training. */
+  virtual void run() = 0;
+};
+
+/** \brief Class to train SVM for differentiable reachability map.
+    \tparam SamplingSpaceType sampling space
+ */
+template <SamplingSpace SamplingSpaceType>
+class RmapTraining: public RmapTrainingBase
+{
+ public:
   /*! \brief Configuration. */
   struct Configuration
   {
@@ -44,31 +60,20 @@ class RmapTrainingBase
 
     //! Theta threshold for slicing SE3 sample [deg]
     double slice_se3_theta_thre = 20;
+
+    /*! \brief Load mc_rtc configuration. */
+    inline void load(const mc_rtc::Configuration& mc_rtc_config)
+    {
+      mc_rtc_config("grid_map_margin_ratio", grid_map_margin_ratio);
+      mc_rtc_config("grid_map_resolution", grid_map_resolution);
+      mc_rtc_config("grid_map_height_scale", grid_map_height_scale);
+      mc_rtc_config("slice_se2_theta_thre", slice_se2_theta_thre);
+      mc_rtc_config("slice_r3_z_thre", slice_r3_z_thre);
+      mc_rtc_config("slice_se3_z_thre", slice_se3_z_thre);
+      mc_rtc_config("slice_se3_theta_thre", slice_se3_theta_thre);
+    }
   };
 
- public:
-  /** \brief Run SVM training. */
-  virtual void run() = 0;
-
-  /** \brief Configure from mc_rtc configuration.
-      \param mc_rtc_config mc_rtc configuration
-   */
-  virtual void configure(const mc_rtc::Configuration& mc_rtc_config);
-
- protected:
-  //! mc_rtc Configuration
-  mc_rtc::Configuration mc_rtc_config_;
-
-  //! Configuration
-  Configuration config_;
-};
-
-/** \brief Class to train SVM for differentiable reachability map.
-    \tparam SamplingSpaceType sampling space
- */
-template <SamplingSpace SamplingSpaceType>
-class RmapTraining: public RmapTrainingBase
-{
  public:
   /*! \brief Dimension of sample. */
   static constexpr int sample_dim_ = sampleDim<SamplingSpaceType>();
@@ -139,6 +144,12 @@ class RmapTraining: public RmapTrainingBase
   void publishMarkerArray() const;
 
  protected:
+  //! mc_rtc Configuration
+  mc_rtc::Configuration mc_rtc_config_;
+
+  //! Configuration
+  Configuration config_;
+
   //! Sample list
   std::vector<SampleVector> sample_list_;
 
@@ -214,26 +225,4 @@ std::shared_ptr<RmapTrainingBase> createRmapTraining(
     const std::string& bag_path = "/tmp/rmap_sample_set.bag",
     const std::string& svm_path = "/tmp/rmap_svm_model.libsvm",
     bool load_svm = false);
-}
-
-namespace mc_rtc
-{
-/*! \brief Configuration loader. */
-template<>
-struct ConfigurationLoader<DiffRmap::RmapTrainingBase::Configuration>
-{
-  static DiffRmap::RmapTrainingBase::Configuration load(
-      const mc_rtc::Configuration & mc_rtc_config)
-  {
-    DiffRmap::RmapTrainingBase::Configuration config;
-    mc_rtc_config("grid_map_margin_ratio", config.grid_map_margin_ratio);
-    mc_rtc_config("grid_map_resolution", config.grid_map_resolution);
-    mc_rtc_config("grid_map_height_scale", config.grid_map_height_scale);
-    mc_rtc_config("slice_se2_theta_thre", config.slice_se2_theta_thre);
-    mc_rtc_config("slice_r3_z_thre", config.slice_r3_z_thre);
-    mc_rtc_config("slice_se3_z_thre", config.slice_se3_z_thre);
-    mc_rtc_config("slice_se3_theta_thre", config.slice_se3_theta_thre);
-    return config;
-  }
-};
 }

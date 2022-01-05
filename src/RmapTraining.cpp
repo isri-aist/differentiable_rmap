@@ -21,12 +21,6 @@
 using namespace DiffRmap;
 
 
-void RmapTrainingBase::configure(const mc_rtc::Configuration& mc_rtc_config)
-{
-  mc_rtc_config_ = mc_rtc_config;
-  config_ = mc_rtc_config;
-}
-
 template <SamplingSpace SamplingSpaceType>
 RmapTraining<SamplingSpaceType>::RmapTraining(const std::string& bag_path,
                                               const std::string& svm_path,
@@ -112,7 +106,8 @@ RmapTraining<SamplingSpaceType>::~RmapTraining()
 template <SamplingSpace SamplingSpaceType>
 void RmapTraining<SamplingSpaceType>::configure(const mc_rtc::Configuration& mc_rtc_config)
 {
-  RmapTrainingBase::configure(mc_rtc_config);
+  mc_rtc_config_ = mc_rtc_config;
+  config_.load(mc_rtc_config);
 
   if (mc_rtc_config_.has("xy_plane_height")) {
     xy_plane_height_manager_->setValue(static_cast<double>(mc_rtc_config_("xy_plane_height")));
