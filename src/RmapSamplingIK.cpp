@@ -9,6 +9,31 @@
 using namespace DiffRmap;
 
 
+namespace
+{
+  /** \brief Get selection indices of task value depending on sampling space. */
+std::vector<size_t> getSelectIdxs(SamplingSpace sampling_space)
+{
+  switch (sampling_space) {
+    case SamplingSpace::R2:
+      return std::vector<size_t>{3, 4};
+    case SamplingSpace::SO2:
+      return std::vector<size_t>{2};
+    case SamplingSpace::SE2:
+      return std::vector<size_t>{2, 3, 4};
+    case SamplingSpace::R3:
+      return std::vector<size_t>{3, 4, 5};
+    case SamplingSpace::SO3:
+      return std::vector<size_t>{0, 1, 2};
+    case SamplingSpace::SE3:
+      return std::vector<size_t>{0, 1, 2, 3, 4, 5};
+    default:
+      mc_rtc::log::error_and_throw<std::runtime_error>(
+          "[getSelectIdxs] SamplingSpace {} is not supported.", std::to_string(sampling_space));
+  }
+}
+}
+
 template <SamplingSpace SamplingSpaceType>
 RmapSamplingIK<SamplingSpaceType>::RmapSamplingIK(
     const std::shared_ptr<OmgCore::Robot>& rb,
@@ -23,7 +48,7 @@ RmapSamplingIK<SamplingSpaceType>::RmapSamplingIK(
           body_name_),
       sva::PTransformd::Identity(),
       "BodyPoseTask",
-      std::vector<size_t>{3, 4});
+      getSelectIdxs(SamplingSpaceType));
 
   taskset_.addTask(body_task_);
 
@@ -44,8 +69,19 @@ void RmapSamplingIK<SamplingSpaceType>::sampleOnce(int sample_idx)
   rbc->zero(*rb);
   rb->update(*rbc);
 
+  if constexpr (SamplingSpaceType == SamplingSpace::R2 ||
+                SamplingSpaceType == SamplingSpace::SO2 ||
+                SamplingSpaceType == SamplingSpace::SE2) {
+      body_task_->target().translation().head<2>().setRandom();
+      body_task_->target().translation().z() = 0;
+      body_task_->target().rotation() = Eigen::AngleAxisd(
+          M_PI * Eigen::Matrix<double, 1, 1>::Random()[0],
+          Eigen::Vector3d::UnitZ()).toRotationMatrix();
+    } else {
+    body_task_->target().translation().setRandom();
+    body_task_->target().rotation() = Eigen::Quaterniond::UnitRandom().toRotationMatrix();
+  }
   Eigen::Vector3d body_pos = 2 * Eigen::Vector3d::Random();
-  body_task_->target() = sva::PTransformd(body_pos);
   problem_->run(ik_loop_num_);
   taskset_.update(rb_arr_, rbc_arr_, aux_rb_arr_);
   bool reachability = (taskset_.errorSquaredNorm() < std::pow(ik_error_thre_, 2));
