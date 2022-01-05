@@ -3,6 +3,7 @@
 #include <optmotiongen_msgs/RobotStateArray.h>
 
 #include <differentiable_rmap/RmapSampling.h>
+#include <differentiable_rmap/RmapSamplingIK.h>
 
 using namespace DiffRmap;
 
