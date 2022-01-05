@@ -29,7 +29,15 @@ RmapSampling<SamplingSpaceType>::RmapSampling(
   // Setup ROS
   rs_arr_pub_ = nh_.advertise<optmotiongen_msgs::RobotStateArray>("robot_state_arr", 1, true);
   reachable_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("reachable_cloud", 1, true);
+  unreachable_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("unreachable_cloud", 1, true);
+}
 
+template <SamplingSpace SamplingSpaceType>
+void RmapSampling<SamplingSpaceType>::run(
+    const std::string& bag_path,
+    int sample_num,
+    double sleep_rate)
+{
   // Setup sampling
   joint_idx_list_.resize(joint_name_list_.size());
   joint_pos_coeff_.resize(joint_name_list_.size());
@@ -44,23 +52,19 @@ RmapSampling<SamplingSpaceType>::RmapSampling(
       joint_pos_offset_[i] = (upper_joint_pos + lower_joint_pos) / 2;
     }
   }
-}
 
-template <SamplingSpace SamplingSpaceType>
-void RmapSampling<SamplingSpaceType>::run(
-    const std::string& bag_path,
-    int sample_num,
-    double sleep_rate)
-{
   const auto& rb = rb_arr_[0];
   const auto& rbc = rbc_arr_[0];
 
-  sensor_msgs::PointCloud cloud_msg;
-  cloud_msg.header.frame_id = "world";
+  sensor_msgs::PointCloud reachable_cloud_msg;
+  sensor_msgs::PointCloud unreachable_cloud_msg;
+  reachable_cloud_msg.header.frame_id = "world";
+  unreachable_cloud_msg.header.frame_id = "world";
 
   ros::Rate rate(sleep_rate > 0 ? sleep_rate : 1000);
   int loop_idx = 0;
   sample_list_.resize(sample_num);
+  reachability_list_.resize(sample_num);
   while (ros::ok()) {
     if (loop_idx == sample_num) {
       break;
@@ -77,7 +81,8 @@ void RmapSampling<SamplingSpaceType>::run(
       const auto& body_pose = rbc->bodyPosW[body_idx_];
       const SampleVector& sample = poseToSample<SamplingSpaceType>(body_pose);
       sample_list_[loop_idx] = sample;
-      cloud_msg.points.push_back(OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample)));
+      reachability_list_[loop_idx] = true;
+      reachable_cloud_msg.points.push_back(OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample)));
     }
 
     if(loop_idx % 100 == 0) {
@@ -85,8 +90,11 @@ void RmapSampling<SamplingSpaceType>::run(
       rs_arr_pub_.publish(rb_arr_.makeRobotStateArrayMsg(rbc_arr_));
 
       // Publish cloud
-      cloud_msg.header.stamp = ros::Time::now();
-      reachable_cloud_pub_.publish(cloud_msg);
+      const auto& time_now = ros::Time::now();
+      reachable_cloud_msg.header.stamp = time_now;
+      reachable_cloud_pub_.publish(reachable_cloud_msg);
+      unreachable_cloud_msg.header.stamp = time_now;
+      unreachable_cloud_pub_.publish(unreachable_cloud_msg);
     }
 
     if (sleep_rate > 0) {
@@ -114,7 +122,7 @@ void RmapSampling<SamplingSpaceType>::dumpBag(const std::string& bag_path) const
     for (int j = 0; j < sample_dim_; j++) {
       sample_set_msg.samples[i].position[j] = sample[j];
     }
-    sample_set_msg.samples[i].is_reachable = true;
+    sample_set_msg.samples[i].is_reachable = reachability_list_[i];
   }
   bag.write("/rmap_sample_set", ros::Time::now(), sample_set_msg);
   ROS_INFO_STREAM("Dump sample set to " << bag_path);

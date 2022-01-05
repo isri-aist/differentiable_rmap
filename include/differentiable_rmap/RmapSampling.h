@@ -85,11 +85,15 @@ class RmapSampling: public RmapSamplingBase
   //! Sample list
   std::vector<SampleVector> sample_list_;
 
+  //! Reachability list
+  std::vector<bool> reachability_list_;
+
   //! ROS related members
   ros::NodeHandle nh_;
 
   ros::Publisher rs_arr_pub_;
   ros::Publisher reachable_cloud_pub_;
+  ros::Publisher unreachable_cloud_pub_;
 };
 
 /** \brief Create RmapSampling instance.
