@@ -268,10 +268,12 @@ void RmapTraining<SamplingSpaceType>::loadBag(const std::string& bag_path)
           sample_set_msg->type, static_cast<size_t>(SamplingSpaceType));
     }
     sample_list_.resize(sample_set_msg->samples.size());
+    reachability_list_.resize(sample_set_msg->samples.size());
     for (size_t i = 0; i < sample_set_msg->samples.size(); i++) {
       for (int j = 0; j < sample_dim_; j++) {
         sample_list_[i][j] = sample_set_msg->samples[i].position[j];
       }
+      reachability_list_[i] = sample_set_msg->samples[i].is_reachable;
     }
 
     cnt++;
@@ -307,7 +309,7 @@ void RmapTraining<SamplingSpaceType>::loadBag(const std::string& bag_path)
       size_t idx = (input_dim_ + 1) * i;
       setInputNode<SamplingSpaceType>(&(all_input_nodes_[idx]), sampleToInput<SamplingSpaceType>(sample));
       svm_prob_.x[i] = &all_input_nodes_[idx];
-      svm_prob_.y[i] = 1;
+      svm_prob_.y[i] = reachability_list_[i] ? 1 : -1;
     }
   }
 }
