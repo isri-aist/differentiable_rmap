@@ -68,14 +68,19 @@ int svm_save_model_hotfix(const char *model_file_name, const svm_model *model)
 		fprintf(fp, "\n");
 	}
 
-        // hotfix: Although model->nSV should be nullptr, it causes SEGV with non-nullptr, so comment it out.
-	// if(model->nSV)
-	// {
-	// 	fprintf(fp, "nr_sv");
-	// 	for(int i=0;i<nr_class;i++)
-	// 		fprintf(fp," %d",model->nSV[i]);
-	// 	fprintf(fp, "\n");
-	// }
+        // hotfix: Since an invalid value is set in model->nSV, set the value manually only for two-class classification.
+        if(param.svm_type == C_SVC || param.svm_type == NU_SVC)
+        {
+          if(nr_class != 2)
+            throw std::runtime_error("multiple classes are not supported in svm_save_model_hotfix");
+          fprintf(fp, "nr_sv");
+          for(int i=0;i<nr_class;i++)
+            if(i == 0)
+              fprintf(fp," %d",l);
+            else
+              fprintf(fp," 0");
+          fprintf(fp, "\n");
+        }
 
 	fprintf(fp, "SV\n");
 	const double * const *sv_coef = model->sv_coef;

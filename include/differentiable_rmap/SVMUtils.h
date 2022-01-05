@@ -74,9 +74,9 @@ double calcSVMValue(
     const Eigen::VectorXd& svm_coeff_vec,
     const Eigen::Matrix<double, inputDim<SamplingSpaceType>(), Eigen::Dynamic>& svm_sv_mat)
 {
-  if (svm_mo->param.svm_type != ONE_CLASS) {
+  if (!(svm_mo->param.svm_type == ONE_CLASS || svm_mo->param.svm_type == NU_SVC)) {
     mc_rtc::log::error_and_throw<std::runtime_error>(
-        "[calcSVMValue] Only one-class SVM is supported: {}", svm_mo->param.svm_type);
+        "[calcSVMValue] Only one-class or nu-svc SVM is supported: {}", svm_mo->param.svm_type);
   }
 
   if (svm_param.kernel_type != RBF) {
