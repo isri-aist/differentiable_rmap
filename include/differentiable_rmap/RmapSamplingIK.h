@@ -2,6 +2,9 @@
 
 #pragma once
 
+#include <optmotiongen/Problem/IterativeQpProblem.h>
+#include <optmotiongen/Task/BodyTask.h>
+
 #include <differentiable_rmap/RmapSampling.h>
 
 
@@ -34,6 +37,25 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
  protected:
   /** \brief Generate one sample. */
   virtual void sampleOnce(int sample_idx) override;
+
+ protected:
+  //! Taskset for IK
+  OmgCore::Taskset taskset_;
+
+  //! Auxiliary robot array (always empty)
+  OmgCore::AuxRobotArray aux_rb_arr_;
+
+  //! Body task for IK
+  std::shared_ptr<OmgCore::BodyPoseTask> body_task_;
+
+  //! IK problem
+  std::shared_ptr<OmgCore::IterativeQpProblem> problem_;
+
+  //! Number of IK loop
+  int ik_loop_num_ = 50;
+
+  //! Threshold of IK [m], [rad]
+  double ik_error_thre_ = 1e-2;
 
  private:
   // See https://stackoverflow.com/a/6592617

@@ -13,5 +13,5 @@ target_link_libraries(DiffRmap PUBLIC
   svm
   ${catkin_LIBRARIES}
   )
-target_compile_options(DiffRmap PUBLIC -march=native)
-target_link_options(DiffRmap PUBLIC -march=native)
+# target_compile_options(DiffRmap PUBLIC -march=native)
+# target_link_options(DiffRmap PUBLIC -march=native)

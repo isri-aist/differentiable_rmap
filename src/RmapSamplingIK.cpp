@@ -16,6 +16,24 @@ RmapSamplingIK<SamplingSpaceType>::RmapSamplingIK(
     const std::vector<std::string>& joint_name_list):
     RmapSampling<SamplingSpaceType>(rb, body_name, joint_name_list)
 {
+  body_task_ = std::make_shared<OmgCore::BodyPoseTask>(
+      std::make_shared<OmgCore::BodyFunc>(
+          rb_arr_,
+          0,
+          body_name_),
+      sva::PTransformd::Identity(),
+      "BodyPoseTask",
+      std::vector<size_t>{3, 4});
+
+  taskset_.addTask(body_task_);
+
+  problem_ = std::make_shared<OmgCore::IterativeQpProblem>(rb_arr_);
+  problem_->setup(
+      std::vector<OmgCore::Taskset>{taskset_},
+      std::vector<OmgCore::QpSolverType>{OmgCore::QpSolverType::OSQP});
+  problem_->printInfo(true);
+
+  rbc_arr_ = problem_->rbcArr();
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -23,20 +41,23 @@ void RmapSamplingIK<SamplingSpaceType>::sampleOnce(int sample_idx)
 {
   const auto& rb = rb_arr_[0];
   const auto& rbc = rbc_arr_[0];
+  rbc->zero(*rb);
+  rb->update(*rbc);
 
-  Eigen::VectorXd joint_pos =
-      joint_pos_coeff_.cwiseProduct(Eigen::VectorXd::Random(joint_name_list_.size())) + joint_pos_offset_;
-  for (size_t i = 0; i < joint_name_list_.size(); i++) {
-    rbc->q[joint_idx_list_[i]][0] = joint_pos[i];
-  }
-  rbd::forwardKinematics(*rb, *rbc);
-  const auto& body_pose = rbc->bodyPosW[body_idx_];
-  const SampleVector& sample = poseToSample<SamplingSpaceType>(body_pose);
+  Eigen::Vector3d body_pos = 2 * Eigen::Vector3d::Random();
+  body_task_->target() = sva::PTransformd(body_pos);
+  problem_->run(ik_loop_num_);
+  taskset_.update(rb_arr_, rbc_arr_, aux_rb_arr_);
+  bool reachability = (taskset_.errorSquaredNorm() < std::pow(ik_error_thre_, 2));
+
+  const SampleVector& sample = poseToSample<SamplingSpaceType>(body_task_->target());
   sample_list_[sample_idx] = sample;
-  reachability_list_[sample_idx] = true;
-  reachable_cloud_msg_.points.push_back(OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample)));
-
-  ROS_INFO("tmp RmapSamplingIK.");
+  reachability_list_[sample_idx] = reachability;
+  if (reachability) {
+    reachable_cloud_msg_.points.push_back(OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample)));
+  } else {
+    unreachable_cloud_msg_.points.push_back(OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample)));
+  }
 }
 
 std::shared_ptr<RmapSamplingBase> DiffRmap::createRmapSamplingIK(

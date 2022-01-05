@@ -27,6 +27,8 @@ int main(int argc, char **argv)
       parse_res->limits,
       parse_res->visual,
       parse_res->collision);
+  // no velocity limit for the offline posture generator
+  rb->jvel_max_scale_ = 1e10;
 
   std::string sampling_space_str = "R2";
   pnh.param<std::string>("sampling_space", sampling_space_str, sampling_space_str);
