@@ -119,14 +119,30 @@ void RmapSampling<SamplingSpaceType>::dumpBag(const std::string& bag_path) const
   differentiable_rmap::RmapSampleSet sample_set_msg;
   sample_set_msg.type = static_cast<size_t>(SamplingSpaceType);
   sample_set_msg.samples.resize(sample_list_.size());
+
+  // Since libsvm considers the first class to be positive,
+  // add the reachable sample from the beginning and the unreachable sample from the end.
+  size_t reachable_idx = 0;
+  size_t unreachable_idx = 0;
   for (size_t i = 0; i < sample_list_.size(); i++) {
-    const SampleVector& sample = sample_list_[i];
-    sample_set_msg.samples[i].position.resize(sample_dim_);
-    for (int j = 0; j < sample_dim_; j++) {
-      sample_set_msg.samples[i].position[j] = sample[j];
+    // Get msg_idx according to sample reachability
+    size_t msg_idx;
+    if (reachability_list_[i]) {
+      msg_idx = reachable_idx;
+      reachable_idx++;
+    } else {
+      msg_idx = sample_list_.size() - 1 - unreachable_idx;
+      unreachable_idx++;
     }
-    sample_set_msg.samples[i].is_reachable = reachability_list_[i];
+
+    // Set sample to message
+    sample_set_msg.samples[msg_idx].position.resize(sample_dim_);
+    for (int j = 0; j < sample_dim_; j++) {
+      sample_set_msg.samples[msg_idx].position[j] = sample_list_[i][j];
+    }
+    sample_set_msg.samples[msg_idx].is_reachable = reachability_list_[i];
   }
+
   bag.write("/rmap_sample_set", ros::Time::now(), sample_set_msg);
   ROS_INFO_STREAM("Dump sample set to " << bag_path);
 }
