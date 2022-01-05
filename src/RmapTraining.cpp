@@ -39,7 +39,9 @@ RmapTraining<SamplingSpaceType>::RmapTraining(const std::string& bag_path,
 
   // Setup ROS
   reachable_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("reachable_cloud", 1, true);
+  unreachable_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("unreachable_cloud", 1, true);
   sliced_reachable_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("reachable_cloud_sliced", 1, true);
+  sliced_unreachable_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("unreachable_cloud_sliced", 1, true);
   marker_arr_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("marker_arr", 1, true);
   grid_map_pub_ = nh_.advertise<grid_map_msgs::GridMap>("grid_map", 1, true);
 
@@ -288,13 +290,21 @@ void RmapTraining<SamplingSpaceType>::loadBag(const std::string& bag_path)
     header_msg.frame_id = "world";
     header_msg.stamp = ros::Time::now();
 
-    sensor_msgs::PointCloud cloud_msg;
-    cloud_msg.header = header_msg;
-    cloud_msg.points.resize(sample_list_.size());
+    sensor_msgs::PointCloud reachable_cloud_msg;
+    sensor_msgs::PointCloud unreachable_cloud_msg;
+    reachable_cloud_msg.header = header_msg;
+    unreachable_cloud_msg.header = header_msg;
     for (size_t i = 0; i < sample_list_.size(); i++) {
-      cloud_msg.points[i] = OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample_list_[i]));
+      if (reachability_list_[i]) {
+        reachable_cloud_msg.points.push_back(
+            OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample_list_[i])));
+      } else {
+        unreachable_cloud_msg.points.push_back(
+            OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample_list_[i])));
+      }
     }
-    reachable_cloud_pub_.publish(cloud_msg);
+    reachable_cloud_pub_.publish(reachable_cloud_msg);
+    unreachable_cloud_pub_.publish(unreachable_cloud_msg);
   }
 
   // Setup SVM problem
@@ -449,9 +459,13 @@ void RmapTraining<SamplingSpaceType>::publishSlicedCloud() const
   header_msg.frame_id = "world";
   header_msg.stamp = ros::Time::now();
 
-  sensor_msgs::PointCloud cloud_msg;
-  cloud_msg.header = header_msg;
-  for (const SampleVector& sample : sample_list_) {
+  sensor_msgs::PointCloud reachable_cloud_msg;
+  sensor_msgs::PointCloud unreachable_cloud_msg;
+  reachable_cloud_msg.header = header_msg;
+  unreachable_cloud_msg.header = header_msg;
+  for (size_t i = 0; i < sample_list_.size(); i++) {
+    const SampleVector& sample = sample_list_[i];
+
     if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
         double origin_theta = calcYawAngle(slice_origin_.rotation().transpose());
         double theta_diff = sample.z() - origin_theta;
@@ -476,9 +490,14 @@ void RmapTraining<SamplingSpaceType>::publishSlicedCloud() const
         }
       }
 
-    cloud_msg.points.push_back(OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample)));
+    if (reachability_list_[i]) {
+      reachable_cloud_msg.points.push_back(OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample)));
+    } else {
+      unreachable_cloud_msg.points.push_back(OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample)));
+    }
   }
-  sliced_reachable_cloud_pub_.publish(cloud_msg);
+  sliced_reachable_cloud_pub_.publish(reachable_cloud_msg);
+  sliced_unreachable_cloud_pub_.publish(unreachable_cloud_msg);
 }
 
 template <SamplingSpace SamplingSpaceType>
