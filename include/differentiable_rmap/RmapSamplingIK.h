@@ -35,6 +35,9 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
                  const std::vector<std::string>& joint_name_list);
 
  protected:
+  /** \brief Setup sampling. */
+  virtual void setupSampling() override;
+
   /** \brief Generate one sample. */
   virtual void sampleOnce(int sample_idx) override;
 
@@ -50,6 +53,17 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
 
   //! IK problem
   std::shared_ptr<OmgCore::IterativeQpProblem> problem_;
+
+  //! Body position coefficient to make sample from [-1:1] random value
+  Eigen::Vector3d body_pos_coeff_;
+  //! Body position offset to make sample from [-1:1] random value
+  Eigen::Vector3d body_pos_offset_;
+
+  //! Number of samples to make bounding box
+  int bbox_sample_num_ = 1000;
+
+  //! Number of IK trial
+  int ik_trial_num_ = 10;
 
   //! Number of IK loop
   int ik_loop_num_ = 50;

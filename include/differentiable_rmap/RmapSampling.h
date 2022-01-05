@@ -60,6 +60,9 @@ class RmapSampling: public RmapSamplingBase
                    double sleep_rate = 0) override;
 
  protected:
+  /** \brief Setup sampling. */
+  virtual void setupSampling();
+
   /** \brief Generate one sample. */
   virtual void sampleOnce(int sample_idx);
 

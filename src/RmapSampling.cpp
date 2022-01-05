@@ -37,20 +37,7 @@ void RmapSampling<SamplingSpaceType>::run(
     int sample_num,
     double sleep_rate)
 {
-  // Setup sampling
-  joint_idx_list_.resize(joint_name_list_.size());
-  joint_pos_coeff_.resize(joint_name_list_.size());
-  joint_pos_offset_.resize(joint_name_list_.size());
-  {
-    for (size_t i = 0; i < joint_name_list_.size(); i++) {
-      const auto& joint_name = joint_name_list_[i];
-      joint_idx_list_[i] = rb_arr_[0]->jointIndexByName(joint_name);
-      double lower_joint_pos = rb_arr_[0]->limits_.lower.at(joint_name)[0];
-      double upper_joint_pos = rb_arr_[0]->limits_.upper.at(joint_name)[0];
-      joint_pos_coeff_[i] = (upper_joint_pos - lower_joint_pos) / 2;
-      joint_pos_offset_[i] = (upper_joint_pos + lower_joint_pos) / 2;
-    }
-  }
+  setupSampling();
 
   sample_list_.resize(sample_num);
   reachability_list_.resize(sample_num);
@@ -93,17 +80,38 @@ void RmapSampling<SamplingSpaceType>::run(
 }
 
 template <SamplingSpace SamplingSpaceType>
+void RmapSampling<SamplingSpaceType>::setupSampling()
+{
+  joint_idx_list_.resize(joint_name_list_.size());
+  joint_pos_coeff_.resize(joint_name_list_.size());
+  joint_pos_offset_.resize(joint_name_list_.size());
+  {
+    for (size_t i = 0; i < joint_name_list_.size(); i++) {
+      const auto& joint_name = joint_name_list_[i];
+      joint_idx_list_[i] = rb_arr_[0]->jointIndexByName(joint_name);
+      double lower_joint_pos = rb_arr_[0]->limits_.lower.at(joint_name)[0];
+      double upper_joint_pos = rb_arr_[0]->limits_.upper.at(joint_name)[0];
+      joint_pos_coeff_[i] = (upper_joint_pos - lower_joint_pos) / 2;
+      joint_pos_offset_[i] = (upper_joint_pos + lower_joint_pos) / 2;
+    }
+  }
+}
+
+template <SamplingSpace SamplingSpaceType>
 void RmapSampling<SamplingSpaceType>::sampleOnce(int sample_idx)
 {
   const auto& rb = rb_arr_[0];
   const auto& rbc = rbc_arr_[0];
 
+  // Set random configuration
   Eigen::VectorXd joint_pos =
       joint_pos_coeff_.cwiseProduct(Eigen::VectorXd::Random(joint_name_list_.size())) + joint_pos_offset_;
   for (size_t i = 0; i < joint_name_list_.size(); i++) {
     rbc->q[joint_idx_list_[i]][0] = joint_pos[i];
   }
   rbd::forwardKinematics(*rb, *rbc);
+
+  // Append new sample to sample list
   const auto& body_pose = rbc->bodyPosW[body_idx_];
   const SampleVector& sample = poseToSample<SamplingSpaceType>(body_pose);
   sample_list_[sample_idx] = sample;
