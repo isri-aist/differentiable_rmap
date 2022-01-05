@@ -1,6 +1,7 @@
 <launch>
   <!-- R2, SE2, R3, or SE3 are supported -->
   <arg name="sampling_space" default="R2" />
+  <arg name="load_svm" default="false" />
 
   <node pkg="differentiable_rmap" type="NodeRmapTraining" name="rmap_training"
         output="screen">
@@ -9,6 +10,7 @@
       config_path: $(find differentiable_rmap)/config/RmapTraining.yaml
       bag_path: /tmp/rmap_sample_set_$(arg sampling_space).bag
       svm_path: /tmp/rmap_svm_model_$(arg sampling_space).libsvm
+      load_svm: $(arg load_svm)
     </rosparam>
   </node>
 

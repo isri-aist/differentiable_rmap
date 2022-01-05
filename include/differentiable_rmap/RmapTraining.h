@@ -85,11 +85,13 @@ class RmapTraining: public RmapTrainingBase
 
  public:
   /** \brief Constructor.
-      \param bag_path path of ROS bag file (empty for loading trained SVM model directly)
-      \param svm_path path of SVM model file
+      \param bag_path path of ROS bag file
+      \param svm_path path of SVM model file (file for output if load_svm is false, input otherwise)
+      \param load_svm whether to load SVM model from file
    */
   RmapTraining(const std::string& bag_path = "/tmp/rmap_sample_set.bag",
-               const std::string& svm_path = "/tmp/rmap_svm_model.libsvm");
+               const std::string& svm_path = "/tmp/rmap_svm_model.libsvm",
+               bool load_svm = false);
 
   /** \brief Destructor. */
   ~RmapTraining();
@@ -124,6 +126,9 @@ class RmapTraining: public RmapTrainingBase
   /** \brief Train SVM. */
   void trainSVM();
 
+  /** \brief Set SVM matrix for prediction. */
+  void setSVMPredictionMat();
+
   /** \brief Predict SVM on grid map. */
   void predictOnGridMap();
 
@@ -138,7 +143,7 @@ class RmapTraining: public RmapTrainingBase
   std::vector<SampleVector> sample_list_;
 
   //! Whether SVM model is loaded from file
-  bool svm_loaded_;
+  bool load_svm_;
   //! path of SVM model file
   std::string svm_path_;
 
@@ -193,13 +198,17 @@ class RmapTraining: public RmapTrainingBase
   std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> slice_yaw_manager_;
 };
 
-/** \brief Constructor.
+/** \brief Create RmapTraining instance.
     \param sampling_space sampling space
+    \param bag_path path of ROS bag file (empty for loading trained SVM model directly)
+    \param svm_path path of SVM model file (file for output if load_svm is false, input otherwise)
+    \param load_svm whether to load SVM model from file
 */
 std::shared_ptr<RmapTrainingBase> createRmapTraining(
     SamplingSpace sampling_space,
     const std::string& bag_path = "/tmp/rmap_sample_set.bag",
-    const std::string& svm_path = "/tmp/rmap_svm_model.libsvm");
+    const std::string& svm_path = "/tmp/rmap_svm_model.libsvm",
+    bool load_svm = false);
 }
 
 namespace mc_rtc

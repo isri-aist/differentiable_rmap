@@ -92,7 +92,7 @@ class RmapSampling: public RmapSamplingBase
   ros::Publisher rmap_cloud_pub_;
 };
 
-/** \brief Constructor.
+/** \brief Create RmapSampling instance.
     \param sampling_space sampling space
     \param rb robot
     \param body_name name of body whose pose is sampled

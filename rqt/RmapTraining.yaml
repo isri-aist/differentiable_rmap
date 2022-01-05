@@ -14,8 +14,8 @@ settings:
     min: -0.5
   /variable/slice_z/data:
     is_repeat: false
-    max: 1.0
-    min: -1.0
+    max: 2.0
+    min: -2.0
   /variable/slice_roll/data:
     is_repeat: false
     max: 3.1415

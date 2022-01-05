@@ -25,10 +25,14 @@ int main(int argc, char **argv)
   std::string svm_path = "/tmp/rmap_svm_model.libsvm";
   pnh.param<std::string>("svm_path", svm_path, svm_path);
 
+  bool load_svm = false;
+  pnh.param<bool>("load_svm", load_svm, load_svm);
+
   auto rmap_training = createRmapTraining(
       sampling_space,
       bag_path,
-      svm_path);
+      svm_path,
+      load_svm);
 
   if (pnh.hasParam("config_path")) {
     std::string config_path;

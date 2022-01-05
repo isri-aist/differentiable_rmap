@@ -29,8 +29,9 @@ void RmapTrainingBase::configure(const mc_rtc::Configuration& mc_rtc_config)
 
 template <SamplingSpace SamplingSpaceType>
 RmapTraining<SamplingSpaceType>::RmapTraining(const std::string& bag_path,
-                                              const std::string& svm_path):
-    svm_loaded_(bag_path.empty()),
+                                              const std::string& svm_path,
+                                              bool load_svm):
+    load_svm_(load_svm),
     svm_path_(svm_path)
 {
   // Setup SVM parameter
@@ -72,14 +73,10 @@ RmapTraining<SamplingSpaceType>::RmapTraining(const std::string& bag_path,
           0.0);
 
   // Load
-  if (svm_loaded_) {
+  loadBag(bag_path);
+  if (load_svm_) {
     loadSVM();
-  } else {
-    loadBag(bag_path);
   }
-
-  // Setup grid map
-  setupGridMap();
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -119,6 +116,9 @@ void RmapTraining<SamplingSpaceType>::configure(const mc_rtc::Configuration& mc_
 template <SamplingSpace SamplingSpaceType>
 void RmapTraining<SamplingSpaceType>::run()
 {
+  // Setup grid map
+  setupGridMap();
+
   ros::Rate rate(100);
   while (ros::ok()) {
     // Update
@@ -126,7 +126,7 @@ void RmapTraining<SamplingSpaceType>::run()
     updateSliceOrigin();
 
     // Train SVM
-    if (!svm_loaded_ && train_required_) {
+    if (!load_svm_ && train_required_) {
       train_required_ = false;
       trainSVM();
     }
@@ -317,6 +317,12 @@ void RmapTraining<SamplingSpaceType>::loadSVM()
 {
   ROS_INFO_STREAM("Load SVM model from " << svm_path_);
   svm_mo_ = svm_load_model(svm_path_.c_str());
+
+  if constexpr (!use_libsvm_prediction_) {
+      setSVMPredictionMat();
+    }
+
+  train_updated_ = true;
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -340,13 +346,9 @@ void RmapTraining<SamplingSpaceType>::trainSVM()
         std::chrono::system_clock::now() - start_time).count();
     ROS_INFO_STREAM("SVM train duration: " << duration << " [ms]");
 
-    int num_sv = svm_mo_->l;
-    svm_coeff_vec_.resize(num_sv);
-    svm_sv_mat_.resize(input_dim_, num_sv);
-    for (int i = 0; i < num_sv; i++) {
-      svm_coeff_vec_[i] = svm_mo_->sv_coef[0][i];
-      svm_sv_mat_.col(i) = toEigenVector<SamplingSpaceType>(svm_mo_->SV[i]);
-    }
+    if constexpr (!use_libsvm_prediction_) {
+        setSVMPredictionMat();
+      }
   }
 
   // Save SVM
@@ -363,6 +365,18 @@ void RmapTraining<SamplingSpaceType>::trainSVM()
   }
 
   train_updated_ = true;
+}
+
+template <SamplingSpace SamplingSpaceType>
+void RmapTraining<SamplingSpaceType>::setSVMPredictionMat()
+{
+  int num_sv = svm_mo_->l;
+  svm_coeff_vec_.resize(num_sv);
+  svm_sv_mat_.resize(input_dim_, num_sv);
+  for (int i = 0; i < num_sv; i++) {
+    svm_coeff_vec_[i] = svm_mo_->sv_coef[0][i];
+    svm_sv_mat_.col(i) = toEigenVector<SamplingSpaceType>(svm_mo_->SV[i]);
+  }
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -503,20 +517,21 @@ void RmapTraining<SamplingSpaceType>::publishMarkerArray() const
 std::shared_ptr<RmapTrainingBase> DiffRmap::createRmapTraining(
     SamplingSpace sampling_space,
     const std::string& bag_path,
-    const std::string& svm_path)
+    const std::string& svm_path,
+    bool load_svm)
 {
   if (sampling_space == SamplingSpace::R2) {
-    return std::make_shared<RmapTraining<SamplingSpace::R2>>(bag_path, svm_path);
+    return std::make_shared<RmapTraining<SamplingSpace::R2>>(bag_path, svm_path, load_svm);
   } else if (sampling_space == SamplingSpace::SO2) {
-    return std::make_shared<RmapTraining<SamplingSpace::SO2>>(bag_path, svm_path);
+    return std::make_shared<RmapTraining<SamplingSpace::SO2>>(bag_path, svm_path, load_svm);
   } else if (sampling_space == SamplingSpace::SE2) {
-    return std::make_shared<RmapTraining<SamplingSpace::SE2>>(bag_path, svm_path);
+    return std::make_shared<RmapTraining<SamplingSpace::SE2>>(bag_path, svm_path, load_svm);
   } else if (sampling_space == SamplingSpace::R3) {
-    return std::make_shared<RmapTraining<SamplingSpace::R3>>(bag_path, svm_path);
+    return std::make_shared<RmapTraining<SamplingSpace::R3>>(bag_path, svm_path, load_svm);
   } else if (sampling_space == SamplingSpace::SO3) {
-    return std::make_shared<RmapTraining<SamplingSpace::SO3>>(bag_path, svm_path);
+    return std::make_shared<RmapTraining<SamplingSpace::SO3>>(bag_path, svm_path, load_svm);
   } else if (sampling_space == SamplingSpace::SE3) {
-    return std::make_shared<RmapTraining<SamplingSpace::SE3>>(bag_path, svm_path);
+    return std::make_shared<RmapTraining<SamplingSpace::SE3>>(bag_path, svm_path, load_svm);
   } else {
     mc_rtc::log::error_and_throw<std::runtime_error>(
         "[createRmapTraining] Unsupported SamplingSpace: {}", std::to_string(sampling_space));
