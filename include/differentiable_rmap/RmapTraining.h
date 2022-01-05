@@ -176,7 +176,7 @@ class RmapTraining: public RmapTrainingBase
   sva::PTransformd slice_origin_ = sva::PTransformd::Identity();
 
   //! Whether SVM training is required
-  bool train_required_ = true;
+  bool train_required_; // initial value depends on constructor argument
 
   //! Whether SVM training is updated
   bool train_updated_ = false;

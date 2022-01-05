@@ -32,11 +32,9 @@ RmapTraining<SamplingSpaceType>::RmapTraining(const std::string& bag_path,
                                               const std::string& svm_path,
                                               bool load_svm):
     load_svm_(load_svm),
-    svm_path_(svm_path)
+    svm_path_(svm_path),
+    train_required_(!load_svm)
 {
-  // Setup SVM parameter
-  setupSVMParam();
-
   // Setup ROS
   reachable_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("reachable_cloud", 1, true);
   unreachable_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("unreachable_cloud", 1, true);
@@ -45,18 +43,31 @@ RmapTraining<SamplingSpaceType>::RmapTraining(const std::string& bag_path,
   marker_arr_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("marker_arr", 1, true);
   grid_map_pub_ = nh_.advertise<grid_map_msgs::GridMap>("grid_map", 1, true);
 
+  // Load ROS bag
+  loadBag(bag_path);
+
+  // Setup SVM parameter
+  // This must be called after loadBag() because this depends on reachability list
+  if (!load_svm_) {
+    setupSVMParam();
+  }
+
+  // Setup SubscVariableManager
+  // This must be called after setupSVMParam() because this depends on SVM parameter
   xy_plane_height_manager_ =
       std::make_shared<SubscVariableManager<std_msgs::Float64, double>>(
           "variable/xy_plane_height",
           0.0);
-  svm_gamma_manager_ =
-      std::make_shared<SubscVariableManager<std_msgs::Float64, double>>(
-          "variable/svm_gamma",
-          svm_param_.gamma);
-  svm_nu_manager_ =
-      std::make_shared<SubscVariableManager<std_msgs::Float64, double>>(
-          "variable/svm_nu",
-          svm_param_.nu);
+  if (!load_svm_) {
+    svm_gamma_manager_ =
+        std::make_shared<SubscVariableManager<std_msgs::Float64, double>>(
+            "variable/svm_gamma",
+            svm_param_.gamma);
+    svm_nu_manager_ =
+        std::make_shared<SubscVariableManager<std_msgs::Float64, double>>(
+            "variable/svm_nu",
+            svm_param_.nu);
+  }
   slice_z_manager_ =
       std::make_shared<SubscVariableManager<std_msgs::Float64, double>>(
           "variable/slice_z",
@@ -74,8 +85,7 @@ RmapTraining<SamplingSpaceType>::RmapTraining(const std::string& bag_path,
           "variable/slice_yaw",
           0.0);
 
-  // Load
-  loadBag(bag_path);
+  // Load SVM model
   if (load_svm_) {
     loadSVM();
   }
@@ -107,10 +117,10 @@ void RmapTraining<SamplingSpaceType>::configure(const mc_rtc::Configuration& mc_
   if (mc_rtc_config_.has("xy_plane_height")) {
     xy_plane_height_manager_->setValue(static_cast<double>(mc_rtc_config_("xy_plane_height")));
   }
-  if (mc_rtc_config_.has("svm_gamma")) {
+  if (!load_svm_ && mc_rtc_config_.has("svm_gamma")) {
     svm_gamma_manager_->setValue(static_cast<double>(mc_rtc_config_("svm_gamma")));
   }
-  if (mc_rtc_config_.has("svm_nu")) {
+  if (!load_svm_ && mc_rtc_config_.has("svm_nu")) {
     svm_nu_manager_->setValue(static_cast<double>(mc_rtc_config_("svm_nu")));
   }
 }
@@ -124,11 +134,13 @@ void RmapTraining<SamplingSpaceType>::run()
   ros::Rate rate(100);
   while (ros::ok()) {
     // Update
-    updateSVMParam();
+    if (!load_svm_) {
+      updateSVMParam();
+    }
     updateSliceOrigin();
 
     // Train SVM
-    if (!load_svm_ && train_required_) {
+    if (train_required_) {
       train_required_ = false;
       trainSVM();
     }
@@ -152,7 +164,15 @@ void RmapTraining<SamplingSpaceType>::run()
 template <SamplingSpace SamplingSpaceType>
 void RmapTraining<SamplingSpaceType>::setupSVMParam()
 {
-  svm_param_.svm_type = ONE_CLASS;
+  bool contain_unreachable_sample = false;
+  for (bool reachability : reachability_list_) {
+    if (!reachability) {
+      contain_unreachable_sample = true;
+      break;
+    }
+  }
+
+  svm_param_.svm_type = contain_unreachable_sample ? NU_SVC : ONE_CLASS;
   svm_param_.kernel_type = RBF;
   svm_param_.degree = 3;
   svm_param_.gamma = 30; // smoothness (smaller is smoother)
@@ -421,7 +441,7 @@ void RmapTraining<SamplingSpaceType>::predictOnGridMap()
         } else {
         svm_value = calcSVMValue<SamplingSpaceType>(
             sampleToInput<SamplingSpaceType>(sample),
-            svm_param_,
+            svm_mo_->param,
             svm_mo_,
             svm_coeff_vec_,
             svm_sv_mat_);
