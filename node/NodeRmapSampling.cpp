@@ -58,6 +58,12 @@ int main(int argc, char **argv)
         joint_name_list);
   }
 
+  if (pnh.hasParam("config_path")) {
+    std::string config_path;
+    pnh.getParam("config_path", config_path);
+    rmap_sampling->configure(mc_rtc::Configuration(config_path));
+  }
+
   std::string bag_path = "/tmp/rmap_sample_set.bag";
   pnh.param<std::string>("bag_path", bag_path, bag_path);
 

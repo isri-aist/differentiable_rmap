@@ -63,6 +63,13 @@ RmapSamplingIK<SamplingSpaceType>::RmapSamplingIK(
 }
 
 template <SamplingSpace SamplingSpaceType>
+void RmapSamplingIK<SamplingSpaceType>::configure(const mc_rtc::Configuration& mc_rtc_config)
+{
+  RmapSampling<SamplingSpaceType>::configure(mc_rtc_config);
+  config_.load(mc_rtc_config);
+}
+
+template <SamplingSpace SamplingSpaceType>
 void RmapSamplingIK<SamplingSpaceType>::setupSampling()
 {
   // Overwrite joint range to restrict joints to be used
@@ -81,11 +88,11 @@ void RmapSamplingIK<SamplingSpaceType>::setupSampling()
   }
 
   // Get upper and lower position of bounding box in configuration space
-  sample_list_.resize(bbox_sample_num_);
-  reachability_list_.resize(bbox_sample_num_);
+  sample_list_.resize(config_.bbox_sample_num);
+  reachability_list_.resize(config_.bbox_sample_num);
 
   RmapSampling<SamplingSpaceType>::setupSampling();
-  for (int i = 0; i < bbox_sample_num_; i++) {
+  for (int i = 0; i < config_.bbox_sample_num; i++) {
     RmapSampling<SamplingSpaceType>::sampleOnce(i);
   }
 
@@ -124,7 +131,7 @@ void RmapSamplingIK<SamplingSpaceType>::sampleOnce(int sample_idx)
 
   bool reachability = false;
 
-  for (int i = 0; i < ik_trial_num_; i++) {
+  for (int i = 0; i < config_.ik_trial_num; i++) {
     const auto& rb = rb_arr_[0];
     const auto& rbc = rbc_arr_[0];
 
@@ -142,10 +149,10 @@ void RmapSamplingIK<SamplingSpaceType>::sampleOnce(int sample_idx)
     rbd::forwardKinematics(*rb, *rbc);
 
     // Solve IK
-    problem_->run(ik_loop_num_);
+    problem_->run(config_.ik_loop_num);
     taskset_.update(rb_arr_, rbc_arr_, aux_rb_arr_);
 
-    if (taskset_.errorSquaredNorm() < std::pow(ik_error_thre_, 2)) {
+    if (taskset_.errorSquaredNorm() < std::pow(config_.ik_error_thre, 2)) {
       reachability = true;
       break;
     }

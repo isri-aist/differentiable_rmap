@@ -1,0 +1,11 @@
+# Number of samples to make bounding box
+bbox_sample_num: 1000
+
+# Number of IK trial
+ik_trial_num: 10
+
+# Number of IK loop
+ik_loop_num: 50
+
+# Threshold of IK [m], [rad]
+ik_error_thre: 1e-2

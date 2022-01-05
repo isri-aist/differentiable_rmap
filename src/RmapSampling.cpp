@@ -32,6 +32,13 @@ RmapSampling<SamplingSpaceType>::RmapSampling(
 }
 
 template <SamplingSpace SamplingSpaceType>
+void RmapSampling<SamplingSpaceType>::configure(const mc_rtc::Configuration& mc_rtc_config)
+{
+  mc_rtc_config_ = mc_rtc_config;
+  config_.load(mc_rtc_config);
+}
+
+template <SamplingSpace SamplingSpaceType>
 void RmapSampling<SamplingSpaceType>::run(
     const std::string& bag_path,
     int sample_num,

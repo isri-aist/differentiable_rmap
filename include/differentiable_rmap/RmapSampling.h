@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <mc_rtc/Configuration.h>
+
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud.h>
 
@@ -16,6 +18,11 @@ namespace DiffRmap
 class RmapSamplingBase
 {
  public:
+  /** \brief Configure from mc_rtc configuration.
+      \param mc_rtc_config mc_rtc configuration
+   */
+  virtual void configure(const mc_rtc::Configuration& mc_rtc_config) = 0;
+
   /** \brief Run sample generation
       \param bag_path path of ROS bag file
       \param sample_num number of samples to be generated
@@ -33,6 +40,16 @@ template <SamplingSpace SamplingSpaceType>
 class RmapSampling: public RmapSamplingBase
 {
  public:
+  /*! \brief Configuration. */
+  struct Configuration
+  {
+    /*! \brief Load mc_rtc configuration. */
+    inline virtual void load(const mc_rtc::Configuration& mc_rtc_config)
+    {
+    }
+  };
+
+ public:
   /*! \brief Dimension of sample. */
   static constexpr int sample_dim_ = sampleDim<SamplingSpaceType>();
 
@@ -49,6 +66,11 @@ class RmapSampling: public RmapSamplingBase
   RmapSampling(const std::shared_ptr<OmgCore::Robot>& rb,
                const std::string& body_name,
                const std::vector<std::string>& joint_name_list);
+
+  /** \brief Configure from mc_rtc configuration.
+      \param mc_rtc_config mc_rtc configuration
+   */
+  virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
 
   /** \brief Run sample generation
       \param bag_path path of ROS bag file
@@ -70,6 +92,12 @@ class RmapSampling: public RmapSamplingBase
   void dumpBag(const std::string& bag_path) const;
 
  protected:
+  //! mc_rtc Configuration
+  mc_rtc::Configuration mc_rtc_config_;
+
+  //! Configuration
+  Configuration config_;
+
   //! Robot array (single robot is stored)
   OmgCore::RobotArray rb_arr_;
   //! Robot configuration array (single robot configuration is stored)

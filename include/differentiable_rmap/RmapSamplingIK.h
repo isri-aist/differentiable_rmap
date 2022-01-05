@@ -17,6 +17,32 @@ template <SamplingSpace SamplingSpaceType>
 class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
 {
  public:
+  /*! \brief Configuration. */
+  struct Configuration: public RmapSampling<SamplingSpaceType>::Configuration
+  {
+    //! Number of samples to make bounding box
+    int bbox_sample_num = 1000;
+
+    //! Number of IK trial
+    int ik_trial_num = 10;
+
+    //! Number of IK loop
+    int ik_loop_num = 50;
+
+    //! Threshold of IK [m], [rad]
+    double ik_error_thre = 1e-2;
+
+    /*! \brief Load mc_rtc configuration. */
+    inline virtual void load(const mc_rtc::Configuration& mc_rtc_config) override
+    {
+      mc_rtc_config("bbox_sample_num", bbox_sample_num);
+      mc_rtc_config("ik_trial_num", ik_trial_num);
+      mc_rtc_config("ik_loop_num", ik_loop_num);
+      mc_rtc_config("ik_error_thre", ik_error_thre);
+    }
+  };
+
+ public:
   /*! \brief Dimension of sample. */
   static constexpr int sample_dim_ = sampleDim<SamplingSpaceType>();
 
@@ -34,7 +60,15 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
                  const std::string& body_name,
                  const std::vector<std::string>& joint_name_list);
 
+  /** \brief Configure from mc_rtc configuration.
+      \param mc_rtc_config mc_rtc configuration
+   */
+  virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
+
  protected:
+  //! Configuration
+  Configuration config_;
+
   /** \brief Setup sampling. */
   virtual void setupSampling() override;
 
@@ -58,18 +92,6 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
   Eigen::Vector3d body_pos_coeff_;
   //! Body position offset to make sample from [-1:1] random value
   Eigen::Vector3d body_pos_offset_;
-
-  //! Number of samples to make bounding box
-  int bbox_sample_num_ = 1000;
-
-  //! Number of IK trial
-  int ik_trial_num_ = 10;
-
-  //! Number of IK loop
-  int ik_loop_num_ = 50;
-
-  //! Threshold of IK [m], [rad]
-  double ik_error_thre_ = 1e-2;
 
  private:
   // See https://stackoverflow.com/a/6592617
