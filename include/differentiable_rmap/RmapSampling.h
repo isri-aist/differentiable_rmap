@@ -89,7 +89,7 @@ class RmapSampling: public RmapSamplingBase
   ros::NodeHandle nh_;
 
   ros::Publisher rs_arr_pub_;
-  ros::Publisher rmap_cloud_pub_;
+  ros::Publisher reachable_cloud_pub_;
 };
 
 /** \brief Create RmapSampling instance.

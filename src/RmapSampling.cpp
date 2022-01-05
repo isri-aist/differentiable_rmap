@@ -28,7 +28,7 @@ RmapSampling<SamplingSpaceType>::RmapSampling(
 
   // Setup ROS
   rs_arr_pub_ = nh_.advertise<optmotiongen_msgs::RobotStateArray>("robot_state_arr", 1, true);
-  rmap_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("rmap_cloud", 1, true);
+  reachable_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("reachable_cloud", 1, true);
 
   // Setup sampling
   joint_idx_list_.resize(joint_name_list_.size());
@@ -86,7 +86,7 @@ void RmapSampling<SamplingSpaceType>::run(
 
       // Publish cloud
       cloud_msg.header.stamp = ros::Time::now();
-      rmap_cloud_pub_.publish(cloud_msg);
+      reachable_cloud_pub_.publish(cloud_msg);
     }
 
     if (sleep_rate > 0) {

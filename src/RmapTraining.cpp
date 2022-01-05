@@ -38,8 +38,8 @@ RmapTraining<SamplingSpaceType>::RmapTraining(const std::string& bag_path,
   setupSVMParam();
 
   // Setup ROS
-  rmap_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("rmap_cloud", 1, true);
-  sliced_rmap_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("rmap_cloud_sliced", 1, true);
+  reachable_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("reachable_cloud", 1, true);
+  sliced_reachable_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("reachable_cloud_sliced", 1, true);
   marker_arr_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("marker_arr", 1, true);
   grid_map_pub_ = nh_.advertise<grid_map_msgs::GridMap>("grid_map", 1, true);
 
@@ -294,7 +294,7 @@ void RmapTraining<SamplingSpaceType>::loadBag(const std::string& bag_path)
     for (size_t i = 0; i < sample_list_.size(); i++) {
       cloud_msg.points[i] = OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample_list_[i]));
     }
-    rmap_cloud_pub_.publish(cloud_msg);
+    reachable_cloud_pub_.publish(cloud_msg);
   }
 
   // Setup SVM problem
@@ -478,7 +478,7 @@ void RmapTraining<SamplingSpaceType>::publishSlicedCloud() const
 
     cloud_msg.points.push_back(OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample)));
   }
-  sliced_rmap_cloud_pub_.publish(cloud_msg);
+  sliced_reachable_cloud_pub_.publish(cloud_msg);
 }
 
 template <SamplingSpace SamplingSpaceType>

@@ -187,8 +187,8 @@ class RmapTraining: public RmapTrainingBase
   //! ROS related members
   ros::NodeHandle nh_;
 
-  ros::Publisher rmap_cloud_pub_;
-  ros::Publisher sliced_rmap_cloud_pub_;
+  ros::Publisher reachable_cloud_pub_;
+  ros::Publisher sliced_reachable_cloud_pub_;
   ros::Publisher marker_arr_pub_;
   ros::Publisher grid_map_pub_;
 
