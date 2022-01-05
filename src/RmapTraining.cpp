@@ -16,6 +16,7 @@
 
 #include <differentiable_rmap/RmapTraining.h>
 #include <differentiable_rmap/SVMUtils.h>
+#include <differentiable_rmap/libsvm_hotfix.h>
 
 using namespace DiffRmap;
 
@@ -353,8 +354,8 @@ void RmapTraining<SamplingSpaceType>::trainSVM()
     auto start_time = std::chrono::system_clock::now();
 
     ROS_INFO_STREAM("Save SVM model to " << svm_path_);
-    // \todo This causes SEGV
-    // svm_save_model(svm_path_.c_str(), svm_mo_);
+    // The original function causes SEGV, so use the hotfix version
+    svm_save_model_hotfix(svm_path_.c_str(), svm_mo_);
 
     double duration = 1e3 * std::chrono::duration_cast<std::chrono::duration<double>>(
         std::chrono::system_clock::now() - start_time).count();
