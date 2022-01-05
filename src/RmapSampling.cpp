@@ -1,7 +1,6 @@
 /* Author: Masaki Murooka */
 
 #include <rosbag/bag.h>
-#include <sensor_msgs/PointCloud.h>
 #include <optmotiongen_msgs/RobotStateArray.h>
 #include <differentiable_rmap/RmapSampleSet.h>
 
@@ -53,37 +52,20 @@ void RmapSampling<SamplingSpaceType>::run(
     }
   }
 
-  const auto& rb = rb_arr_[0];
-  const auto& rbc = rbc_arr_[0];
-
-  sensor_msgs::PointCloud reachable_cloud_msg;
-  sensor_msgs::PointCloud unreachable_cloud_msg;
-  reachable_cloud_msg.header.frame_id = "world";
-  unreachable_cloud_msg.header.frame_id = "world";
+  sample_list_.resize(sample_num);
+  reachability_list_.resize(sample_num);
+  reachable_cloud_msg_.points.clear();
+  unreachable_cloud_msg_.points.clear();
 
   ros::Rate rate(sleep_rate > 0 ? sleep_rate : 1000);
   int loop_idx = 0;
-  sample_list_.resize(sample_num);
-  reachability_list_.resize(sample_num);
   while (ros::ok()) {
     if (loop_idx == sample_num) {
       break;
     }
 
-    // Sample random posture
-    {
-      Eigen::VectorXd joint_pos =
-          joint_pos_coeff_.cwiseProduct(Eigen::VectorXd::Random(joint_name_list_.size())) + joint_pos_offset_;
-      for (size_t i = 0; i < joint_name_list_.size(); i++) {
-        rbc->q[joint_idx_list_[i]][0] = joint_pos[i];
-      }
-      rbd::forwardKinematics(*rb, *rbc);
-      const auto& body_pose = rbc->bodyPosW[body_idx_];
-      const SampleVector& sample = poseToSample<SamplingSpaceType>(body_pose);
-      sample_list_[loop_idx] = sample;
-      reachability_list_[loop_idx] = true;
-      reachable_cloud_msg.points.push_back(OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample)));
-    }
+    // Sample once
+    sampleOnce(loop_idx);
 
     if(loop_idx % 100 == 0) {
       // Publish robot
@@ -91,10 +73,12 @@ void RmapSampling<SamplingSpaceType>::run(
 
       // Publish cloud
       const auto& time_now = ros::Time::now();
-      reachable_cloud_msg.header.stamp = time_now;
-      reachable_cloud_pub_.publish(reachable_cloud_msg);
-      unreachable_cloud_msg.header.stamp = time_now;
-      unreachable_cloud_pub_.publish(unreachable_cloud_msg);
+      reachable_cloud_msg_.header.frame_id = "world";
+      reachable_cloud_msg_.header.stamp = time_now;
+      reachable_cloud_pub_.publish(reachable_cloud_msg_);
+      unreachable_cloud_msg_.header.frame_id = "world";
+      unreachable_cloud_msg_.header.stamp = time_now;
+      unreachable_cloud_pub_.publish(unreachable_cloud_msg_);
     }
 
     if (sleep_rate > 0) {
@@ -106,6 +90,25 @@ void RmapSampling<SamplingSpaceType>::run(
 
   // Dump sample set
   dumpBag(bag_path);
+}
+
+template <SamplingSpace SamplingSpaceType>
+void RmapSampling<SamplingSpaceType>::sampleOnce(int sample_idx)
+{
+  const auto& rb = rb_arr_[0];
+  const auto& rbc = rbc_arr_[0];
+
+  Eigen::VectorXd joint_pos =
+      joint_pos_coeff_.cwiseProduct(Eigen::VectorXd::Random(joint_name_list_.size())) + joint_pos_offset_;
+  for (size_t i = 0; i < joint_name_list_.size(); i++) {
+    rbc->q[joint_idx_list_[i]][0] = joint_pos[i];
+  }
+  rbd::forwardKinematics(*rb, *rbc);
+  const auto& body_pose = rbc->bodyPosW[body_idx_];
+  const SampleVector& sample = poseToSample<SamplingSpaceType>(body_pose);
+  sample_list_[sample_idx] = sample;
+  reachability_list_[sample_idx] = true;
+  reachable_cloud_msg_.points.push_back(OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample)));
 }
 
 template <SamplingSpace SamplingSpaceType>

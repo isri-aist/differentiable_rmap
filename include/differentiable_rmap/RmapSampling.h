@@ -3,6 +3,7 @@
 #pragma once
 
 #include <ros/ros.h>
+#include <sensor_msgs/PointCloud.h>
 
 #include <optmotiongen/Utils/RobotUtils.h>
 
@@ -59,6 +60,9 @@ class RmapSampling: public RmapSamplingBase
                    double sleep_rate = 0) override;
 
  protected:
+  /** \brief Generate one sample. */
+  virtual void sampleOnce(int sample_idx);
+
   /** \brief Dump generated sample set to ROS bag. */
   void dumpBag(const std::string& bag_path) const;
 
@@ -94,6 +98,9 @@ class RmapSampling: public RmapSamplingBase
   ros::Publisher rs_arr_pub_;
   ros::Publisher reachable_cloud_pub_;
   ros::Publisher unreachable_cloud_pub_;
+
+  sensor_msgs::PointCloud reachable_cloud_msg_;
+  sensor_msgs::PointCloud unreachable_cloud_msg_;
 };
 
 /** \brief Create RmapSampling instance.
