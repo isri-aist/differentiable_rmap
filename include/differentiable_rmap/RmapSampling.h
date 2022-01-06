@@ -35,7 +35,7 @@ class RmapSamplingBase
 
 /** \brief Class to generate samples for reachability map.
     \tparam SamplingSpaceType sampling space
- */
+*/
 template <SamplingSpace SamplingSpaceType>
 class RmapSampling: public RmapSamplingBase
 {

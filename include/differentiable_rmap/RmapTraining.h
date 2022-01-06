@@ -32,7 +32,7 @@ class RmapTrainingBase
 
 /** \brief Class to train SVM for differentiable reachability map.
     \tparam SamplingSpaceType sampling space
- */
+*/
 template <SamplingSpace SamplingSpaceType>
 class RmapTraining: public RmapTrainingBase
 {

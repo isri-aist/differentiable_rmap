@@ -12,7 +12,7 @@ namespace DiffRmap
 {
 /** \brief Class to generate samples for reachability map based on inverse kinematics.
     \tparam SamplingSpaceType sampling space
- */
+*/
 template <SamplingSpace SamplingSpaceType>
 class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
 {
@@ -66,9 +66,6 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
   virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
 
  protected:
-  //! Configuration
-  Configuration config_;
-
   /** \brief Setup sampling. */
   virtual void setupSampling() override;
 
@@ -76,6 +73,9 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
   virtual void sampleOnce(int sample_idx) override;
 
  protected:
+  //! Configuration
+  Configuration config_;
+
   //! Taskset for IK
   OmgCore::Taskset taskset_;
 
