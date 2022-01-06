@@ -11,4 +11,4 @@ ik_trial_num: 10
 ik_loop_num: 50
 
 # Threshold of IK [m], [rad]
-ik_error_thre: 1e-2
+ik_error_thre: 2e-3
