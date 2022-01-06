@@ -1,10 +1,13 @@
 <launch>
-  <!-- R2, SE2, R3, or SE3 are supported -->
-  <arg name="sampling_space" default="SE2" />
+  <!-- only SE2 is supported -->
+  <arg name="sampling_space" value="SE2" />
 
   <!-- load robot description -->
   <arg name="robot_model_path" value="$(find hrp5_p_description)/urdf/HRP5Pmain.urdf" />
   <param name="robot_description" command="$(find xacro)/xacro $(arg robot_model_path)" />
+  <rosparam subst_value="true">
+    robot/convex_path: $(find hrp5_p_description)/convex/HRP5Pmain/
+  </rosparam>
 
   <node pkg="differentiable_rmap" type="NodeRmapSamplingFootstep" name="rmap_sampling_footstep"
         output="screen">

@@ -23,7 +23,7 @@ RmapSamplingFootstep<SamplingSpaceType>::RmapSamplingFootstep(
   swing_foot_body_idx_(rb->bodyIndexByName(swing_foot_body_name_)),
   waist_body_idx_(rb->bodyIndexByName(waist_body_name_))
 {
-  // Setup task and problem
+  // Setup task
   support_foot_body_task_ = std::make_shared<OmgCore::BodyPoseTask>(
       std::make_shared<OmgCore::BodyFunc>(
           rb_arr_,
@@ -45,18 +45,6 @@ RmapSamplingFootstep<SamplingSpaceType>::RmapSamplingFootstep(
           waist_body_name_),
       sva::PTransformd::Identity(),
       "WaistBodyPoseTask");
-
-  taskset_.addTask(support_foot_body_task_);
-  taskset_.addTask(swing_foot_body_task_);
-  taskset_.addTask(waist_body_task_);
-
-  problem_ = std::make_shared<OmgCore::IterativeQpProblem>(rb_arr_);
-  problem_->setup(
-      std::vector<OmgCore::Taskset>{taskset_},
-      std::vector<OmgCore::QpSolverType>{OmgCore::QpSolverType::JRLQP});
-
-  // Copy problem rbc_arr to member rb_arr to synchronize them
-  rbc_arr_ = problem_->rbcArr();
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -69,6 +57,23 @@ void RmapSamplingFootstep<SamplingSpaceType>::configure(const mc_rtc::Configurat
 template <SamplingSpace SamplingSpaceType>
 void RmapSamplingFootstep<SamplingSpaceType>::setupSampling()
 {
+  // Setup problem
+  taskset_.addTask(support_foot_body_task_);
+  taskset_.addTask(swing_foot_body_task_);
+  taskset_.addTask(waist_body_task_);
+
+  for (const auto& additional_task : additional_task_list_) {
+    taskset_.addTask(additional_task);
+  }
+
+  problem_ = std::make_shared<OmgCore::IterativeQpProblem>(rb_arr_);
+  problem_->setup(
+      std::vector<OmgCore::Taskset>{taskset_},
+      std::vector<OmgCore::QpSolverType>{OmgCore::QpSolverType::JRLQP});
+
+  // Copy problem rbc_arr to member rb_arr to synchronize them
+  rbc_arr_ = problem_->rbcArr();
+
   // Calculate coefficient and offset to make random position
   footstep_pos_coeff_ = (config_.upper_footstep_pos - config_.lower_footstep_pos) / 2;
   footstep_pos_offset_ = (config_.upper_footstep_pos + config_.lower_footstep_pos) / 2;

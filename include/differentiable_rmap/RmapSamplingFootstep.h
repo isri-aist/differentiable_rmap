@@ -72,6 +72,14 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
    */
   virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
 
+  /** \brief Set additional task list in IK
+      \param additional_task_list additional task list in IK
+  */
+  inline void setAdditionalTaskList(const std::vector<std::shared_ptr<OmgCore::TaskBase>>& additional_task_list)
+  {
+    additional_task_list_ = additional_task_list;
+  }
+
  protected:
   /** \brief Setup sampling. */
   virtual void setupSampling() override;
@@ -87,6 +95,9 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
   std::shared_ptr<OmgCore::BodyPoseTask> support_foot_body_task_;
   std::shared_ptr<OmgCore::BodyPoseTask> swing_foot_body_task_;
   std::shared_ptr<OmgCore::BodyPoseTask> waist_body_task_;
+
+  //! Additional task list in IK
+  std::vector<std::shared_ptr<OmgCore::TaskBase>> additional_task_list_;
 
   //! Name of bodies used in IK
   std::string support_foot_body_name_;

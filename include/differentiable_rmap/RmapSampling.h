@@ -81,6 +81,12 @@ class RmapSampling: public RmapSamplingBase
                    int sample_num = 10000,
                    double sleep_rate = 0) override;
 
+  /** \brief Accessor to Robot array. */
+  inline const OmgCore::RobotArray& rbArr() const
+  {
+    return rb_arr_;
+  }
+
  protected:
   /** \brief Constructor.
       \param rb robot
