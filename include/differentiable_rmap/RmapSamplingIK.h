@@ -66,6 +66,11 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
   virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
 
  protected:
+  /** \brief Constructor.
+      \param rb robot
+  */
+  RmapSamplingIK(const std::shared_ptr<OmgCore::Robot>& rb);
+
   /** \brief Setup sampling. */
   virtual void setupSampling() override;
 

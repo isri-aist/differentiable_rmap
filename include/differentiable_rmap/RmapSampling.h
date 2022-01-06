@@ -82,6 +82,11 @@ class RmapSampling: public RmapSamplingBase
                    double sleep_rate = 0) override;
 
  protected:
+  /** \brief Constructor.
+      \param rb robot
+  */
+  RmapSampling(const std::shared_ptr<OmgCore::Robot>& rb);
+
   /** \brief Setup sampling. */
   virtual void setupSampling();
 

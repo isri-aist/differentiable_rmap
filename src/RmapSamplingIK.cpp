@@ -36,6 +36,13 @@ std::vector<size_t> getSelectIdxs(SamplingSpace sampling_space)
 
 template <SamplingSpace SamplingSpaceType>
 RmapSamplingIK<SamplingSpaceType>::RmapSamplingIK(
+    const std::shared_ptr<OmgCore::Robot>& rb):
+    RmapSampling<SamplingSpaceType>(rb)
+{
+}
+
+template <SamplingSpace SamplingSpaceType>
+RmapSamplingIK<SamplingSpaceType>::RmapSamplingIK(
     const std::shared_ptr<OmgCore::Robot>& rb,
     const std::string& body_name,
     const std::vector<std::string>& joint_name_list):
@@ -54,9 +61,10 @@ RmapSamplingIK<SamplingSpaceType>::RmapSamplingIK(
   taskset_.addTask(body_task_);
 
   problem_ = std::make_shared<OmgCore::IterativeQpProblem>(rb_arr_);
+  // JRLQP is superior to other QP solvers in terms of computational time and solvability
   problem_->setup(
       std::vector<OmgCore::Taskset>{taskset_},
-      std::vector<OmgCore::QpSolverType>{OmgCore::QpSolverType::OSQP});
+      std::vector<OmgCore::QpSolverType>{OmgCore::QpSolverType::JRLQP});
 
   // Copy problem rbc_arr to member rb_arr to synchronize them
   rbc_arr_ = problem_->rbcArr();

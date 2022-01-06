@@ -13,12 +13,7 @@ using namespace DiffRmap;
 
 template <SamplingSpace SamplingSpaceType>
 RmapSampling<SamplingSpaceType>::RmapSampling(
-    const std::shared_ptr<OmgCore::Robot>& rb,
-    const std::string& body_name,
-    const std::vector<std::string>& joint_name_list):
-    body_name_(body_name),
-    body_idx_(rb->bodyIndexByName(body_name_)),
-    joint_name_list_(joint_name_list)
+    const std::shared_ptr<OmgCore::Robot>& rb)
 {
   // Setup robot
   rb_arr_.push_back(rb);
@@ -29,6 +24,19 @@ RmapSampling<SamplingSpaceType>::RmapSampling(
   rs_arr_pub_ = nh_.advertise<optmotiongen_msgs::RobotStateArray>("robot_state_arr", 1, true);
   reachable_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("reachable_cloud", 1, true);
   unreachable_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("unreachable_cloud", 1, true);
+}
+
+template <SamplingSpace SamplingSpaceType>
+RmapSampling<SamplingSpaceType>::RmapSampling(
+    const std::shared_ptr<OmgCore::Robot>& rb,
+    const std::string& body_name,
+    const std::vector<std::string>& joint_name_list):
+    RmapSampling(rb)
+{
+  // Setup body and joint
+  body_name_ = body_name;
+  body_idx_ = rb->bodyIndexByName(body_name_);
+  joint_name_list_ = joint_name_list;
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -184,4 +192,15 @@ std::shared_ptr<RmapSamplingBase> DiffRmap::createRmapSampling(
     mc_rtc::log::error_and_throw<std::runtime_error>(
         "[createRmapSampling] Unsupported SamplingSpace: {}", std::to_string(sampling_space));
   }
+}
+
+// See method 1 in https://www.codeproject.com/Articles/48575/How-to-Define-a-Template-Class-in-a-h-File-and-Imp
+void instantiateRmapSampling()
+{
+  RmapSampling<SamplingSpace::R2> rmap_sampling_R2(nullptr, "", std::vector<std::string>{""});
+  RmapSampling<SamplingSpace::SO2> rmap_sampling_SO2(nullptr, "", std::vector<std::string>{""});
+  RmapSampling<SamplingSpace::SE2> rmap_sampling_SE2(nullptr, "", std::vector<std::string>{""});
+  RmapSampling<SamplingSpace::R3> rmap_sampling_R3(nullptr, "", std::vector<std::string>{""});
+  RmapSampling<SamplingSpace::SO3> rmap_sampling_SO3(nullptr, "", std::vector<std::string>{""});
+  RmapSampling<SamplingSpace::SE3> rmap_sampling_SE3(nullptr, "", std::vector<std::string>{""});
 }
