@@ -2,6 +2,7 @@ add_library(DiffRmap
   SamplingUtils.cpp
   RmapSampling.cpp
   RmapSamplingIK.cpp
+  RmapSamplingFootstep.cpp
   RmapTraining.cpp
   )
 target_link_libraries(DiffRmap PUBLIC

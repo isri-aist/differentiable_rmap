@@ -98,7 +98,7 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
   //! Body position offset to make sample from [-1:1] random value
   Eigen::Vector3d body_pos_offset_;
 
- private:
+ protected:
   // See https://stackoverflow.com/a/6592617
   using RmapSampling<SamplingSpaceType>::rb_arr_;
   using RmapSampling<SamplingSpaceType>::rbc_arr_;

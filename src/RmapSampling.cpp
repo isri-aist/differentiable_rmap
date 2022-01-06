@@ -194,13 +194,11 @@ std::shared_ptr<RmapSamplingBase> DiffRmap::createRmapSampling(
   }
 }
 
-// See method 1 in https://www.codeproject.com/Articles/48575/How-to-Define-a-Template-Class-in-a-h-File-and-Imp
-void instantiateRmapSampling()
-{
-  RmapSampling<SamplingSpace::R2> rmap_sampling_R2(nullptr, "", std::vector<std::string>{""});
-  RmapSampling<SamplingSpace::SO2> rmap_sampling_SO2(nullptr, "", std::vector<std::string>{""});
-  RmapSampling<SamplingSpace::SE2> rmap_sampling_SE2(nullptr, "", std::vector<std::string>{""});
-  RmapSampling<SamplingSpace::R3> rmap_sampling_R3(nullptr, "", std::vector<std::string>{""});
-  RmapSampling<SamplingSpace::SO3> rmap_sampling_SO3(nullptr, "", std::vector<std::string>{""});
-  RmapSampling<SamplingSpace::SE3> rmap_sampling_SE3(nullptr, "", std::vector<std::string>{""});
-}
+// Declear template specialized class
+// See https://stackoverflow.com/a/8752879
+template class RmapSampling<SamplingSpace::R2>;
+template class RmapSampling<SamplingSpace::SO2>;
+template class RmapSampling<SamplingSpace::SE2>;
+template class RmapSampling<SamplingSpace::R3>;
+template class RmapSampling<SamplingSpace::SO3>;
+template class RmapSampling<SamplingSpace::SE3>;

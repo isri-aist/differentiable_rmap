@@ -200,3 +200,12 @@ std::shared_ptr<RmapSamplingBase> DiffRmap::createRmapSamplingIK(
         "[createRmapSamplingIK] Unsupported SamplingSpace: {}", std::to_string(sampling_space));
   }
 }
+
+// Declear template specialized class
+// See https://stackoverflow.com/a/8752879
+template class RmapSamplingIK<SamplingSpace::R2>;
+template class RmapSamplingIK<SamplingSpace::SO2>;
+template class RmapSamplingIK<SamplingSpace::SE2>;
+template class RmapSamplingIK<SamplingSpace::R3>;
+template class RmapSamplingIK<SamplingSpace::SO3>;
+template class RmapSamplingIK<SamplingSpace::SE3>;
