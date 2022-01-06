@@ -1,7 +1,5 @@
 /* Author: Masaki Murooka */
 
-#include <map>
-#include <unordered_set>
 #include <chrono>
 
 #include <mc_rtc/constants.h>
