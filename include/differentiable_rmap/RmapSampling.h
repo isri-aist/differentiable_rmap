@@ -43,9 +43,13 @@ class RmapSampling: public RmapSamplingBase
   /*! \brief Configuration. */
   struct Configuration
   {
+    //! Interval of loop counts to publish ROS message
+    int publish_loop_interval = 100;
+
     /*! \brief Load mc_rtc configuration. */
     inline virtual void load(const mc_rtc::Configuration& mc_rtc_config)
     {
+      mc_rtc_config("publish_loop_interval", publish_loop_interval);
     }
   };
 

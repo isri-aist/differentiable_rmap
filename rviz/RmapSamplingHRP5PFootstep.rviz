@@ -1799,6 +1799,15 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /collision_marker
+      Name: CollisionMarkerArray
+      Namespaces:
+        closest_lines: true
+        closest_points: true
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 255; 255; 255
@@ -1827,25 +1836,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 3.939642906188965
+      Distance: 3.3152272701263428
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.07056526094675064
-        Y: 0.27925023436546326
-        Z: 0.3936519920825958
+        X: 0.06443876773118973
+        Y: 0.2885998785495758
+        Z: 0.409577876329422
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.347084105014801
+      Pitch: 0.5070840716362
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 6.210002899169922
+      Yaw: 5.950006484985352
     Saved: ~
 Window Geometry:
   Displays:

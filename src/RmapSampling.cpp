@@ -69,7 +69,7 @@ void RmapSampling<SamplingSpaceType>::run(
     // Sample once
     sampleOnce(loop_idx);
 
-    if(loop_idx % 100 == 0) {
+    if(loop_idx % config_.publish_loop_interval == 0) {
       publish();
     }
 

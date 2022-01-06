@@ -1,3 +1,6 @@
+# Interval of loop counts to publish ROS message
+publish_loop_interval: 100
+
 # Number of samples to make bounding box
 bbox_sample_num: 1000
 
