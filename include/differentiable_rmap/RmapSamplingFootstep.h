@@ -87,6 +87,9 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
   /** \brief Generate one sample. */
   virtual void sampleOnce(int sample_idx) override;
 
+  /** \brief Publish ROS message. */
+  virtual void publish() override;
+
  protected:
   //! Configuration
   Configuration config_;
@@ -114,6 +117,9 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
   //! Footstep position offset to make sample from [-1:1] random value
   FootstepPos footstep_pos_offset_;
 
+  //! ROS related members
+  ros::Publisher collision_marker_pub_;
+
  protected:
   // See https://stackoverflow.com/a/6592617
   using RmapSamplingIK<SamplingSpaceType>::rb_arr_;
@@ -130,6 +136,8 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
   using RmapSamplingIK<SamplingSpaceType>::sample_list_;
 
   using RmapSamplingIK<SamplingSpaceType>::reachability_list_;
+
+  using RmapSamplingIK<SamplingSpaceType>::nh_;
 
   using RmapSamplingIK<SamplingSpaceType>::reachable_cloud_msg_;
   using RmapSamplingIK<SamplingSpaceType>::unreachable_cloud_msg_;

@@ -99,6 +99,9 @@ class RmapSampling: public RmapSamplingBase
   /** \brief Generate one sample. */
   virtual void sampleOnce(int sample_idx);
 
+  /** \brief Publish ROS message. */
+  virtual void publish();
+
   /** \brief Dump generated sample set to ROS bag. */
   void dumpBag(const std::string& bag_path) const;
 

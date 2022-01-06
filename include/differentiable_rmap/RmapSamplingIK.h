@@ -115,6 +115,8 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
 
   using RmapSampling<SamplingSpaceType>::reachability_list_;
 
+  using RmapSampling<SamplingSpaceType>::nh_;
+
   using RmapSampling<SamplingSpaceType>::reachable_cloud_msg_;
   using RmapSampling<SamplingSpaceType>::unreachable_cloud_msg_;
 };

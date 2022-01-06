@@ -70,17 +70,7 @@ void RmapSampling<SamplingSpaceType>::run(
     sampleOnce(loop_idx);
 
     if(loop_idx % 100 == 0) {
-      // Publish robot
-      rs_arr_pub_.publish(rb_arr_.makeRobotStateArrayMsg(rbc_arr_));
-
-      // Publish cloud
-      const auto& time_now = ros::Time::now();
-      reachable_cloud_msg_.header.frame_id = "world";
-      reachable_cloud_msg_.header.stamp = time_now;
-      reachable_cloud_pub_.publish(reachable_cloud_msg_);
-      unreachable_cloud_msg_.header.frame_id = "world";
-      unreachable_cloud_msg_.header.stamp = time_now;
-      unreachable_cloud_pub_.publish(unreachable_cloud_msg_);
+      publish();
     }
 
     if (sleep_rate > 0) {
@@ -132,6 +122,22 @@ void RmapSampling<SamplingSpaceType>::sampleOnce(int sample_idx)
   sample_list_[sample_idx] = sample;
   reachability_list_[sample_idx] = true;
   reachable_cloud_msg_.points.push_back(OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample)));
+}
+
+template <SamplingSpace SamplingSpaceType>
+void RmapSampling<SamplingSpaceType>::publish()
+{
+  // Publish robot
+  rs_arr_pub_.publish(rb_arr_.makeRobotStateArrayMsg(rbc_arr_));
+
+  // Publish cloud
+  const auto& time_now = ros::Time::now();
+  reachable_cloud_msg_.header.frame_id = "world";
+  reachable_cloud_msg_.header.stamp = time_now;
+  reachable_cloud_pub_.publish(reachable_cloud_msg_);
+  unreachable_cloud_msg_.header.frame_id = "world";
+  unreachable_cloud_msg_.header.stamp = time_now;
+  unreachable_cloud_pub_.publish(unreachable_cloud_msg_);
 }
 
 template <SamplingSpace SamplingSpaceType>
