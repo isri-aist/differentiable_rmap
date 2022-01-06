@@ -492,12 +492,13 @@ void RmapTraining<SamplingSpaceType>::publishSlicedCloud() const
           continue;
         }
       } else if constexpr (SamplingSpaceType == SamplingSpace::SE3) {
+        double origin_z = slice_origin_.translation().z();
         Eigen::Quaterniond origin_quat(slice_origin_.rotation().transpose());
         Eigen::Matrix<double, sampleDim<SamplingSpace::SO3>(), 1> sample_so3 =
             sample.template tail<sampleDim<SamplingSpace::SO3>()>();
         Eigen::Quaterniond sample_quat(sample_so3.w(), sample_so3.x(), sample_so3.y(), sample_so3.z());
         double theta_diff = std::fabs(Eigen::AngleAxisd(origin_quat.inverse() * sample_quat).angle());
-        if (std::fabs(sample.z() - slice_origin_.translation().z()) > config_.slice_se3_z_thre ||
+        if (std::fabs(sample.z() - origin_z) > config_.slice_se3_z_thre ||
             theta_diff > mc_rtc::constants::toRad(config_.slice_se3_theta_thre)) {
           continue;
         }
