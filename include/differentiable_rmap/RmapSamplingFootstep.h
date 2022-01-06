@@ -99,6 +99,9 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
   std::shared_ptr<OmgCore::BodyPoseTask> swing_foot_body_task_;
   std::shared_ptr<OmgCore::BodyPoseTask> waist_body_task_;
 
+  //! Taskset list for IK
+  std::vector<OmgCore::Taskset> taskset_list_;
+
   //! Additional task list in IK
   std::vector<std::shared_ptr<OmgCore::TaskBase>> additional_task_list_;
 

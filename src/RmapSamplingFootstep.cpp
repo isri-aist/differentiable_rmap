@@ -63,18 +63,19 @@ template <SamplingSpace SamplingSpaceType>
 void RmapSamplingFootstep<SamplingSpaceType>::setupSampling()
 {
   // Setup problem
-  taskset_.addTask(support_foot_body_task_);
-  taskset_.addTask(swing_foot_body_task_);
-  taskset_.addTask(waist_body_task_);
+  taskset_list_.resize(2);
+  taskset_list_[0].addTask(support_foot_body_task_);
+  taskset_list_[1].addTask(swing_foot_body_task_);
+  taskset_list_[1].addTask(waist_body_task_);
 
   for (const auto& additional_task : additional_task_list_) {
-    taskset_.addTask(additional_task);
+    taskset_list_[1].addTask(additional_task);
   }
 
   problem_ = std::make_shared<OmgCore::IterativeQpProblem>(rb_arr_);
   problem_->setup(
-      std::vector<OmgCore::Taskset>{taskset_},
-      std::vector<OmgCore::QpSolverType>{OmgCore::QpSolverType::JRLQP});
+      taskset_list_,
+      std::vector<OmgCore::QpSolverType>(taskset_list_.size(), OmgCore::QpSolverType::JRLQP));
 
   // Copy problem rbc_arr to member rb_arr to synchronize them
   rbc_arr_ = problem_->rbcArr();
@@ -124,10 +125,16 @@ void RmapSamplingFootstep<SamplingSpaceType>::sampleOnce(int sample_idx)
 
     // Solve IK
     problem_->run(config_.ik_loop_num);
-    taskset_.update(rb_arr_, rbc_arr_, aux_rb_arr_);
 
-    if (taskset_.errorSquaredNorm() > std::pow(config_.ik_error_thre, 2)) {
-      reachability = false;
+    // Check task error
+    for (auto& taskset : taskset_list_) {
+      taskset.update(rb_arr_, rbc_arr_, aux_rb_arr_);
+      if (taskset.errorSquaredNorm() > std::pow(config_.ik_error_thre, 2)) {
+        reachability = false;
+        break;
+      }
+    }
+    if (!reachability) {
       break;
     }
   }
