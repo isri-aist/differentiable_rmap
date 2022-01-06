@@ -1,7 +1,6 @@
 /* Author: Masaki Murooka */
 
-#include <differentiable_rmap/RmapSampling.h>
-#include <differentiable_rmap/RmapSamplingIK.h>
+#include <differentiable_rmap/RmapSamplingFootstep.h>
 
 using namespace DiffRmap;
 
@@ -9,7 +8,7 @@ using namespace DiffRmap;
 int main(int argc, char **argv)
 {
   // Setup ROS
-  ros::init(argc, argv, "rmap_sampling");
+  ros::init(argc, argv, "rmap_sampling_footstep");
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
 
@@ -17,7 +16,7 @@ int main(int argc, char **argv)
       OmgCore::parseUrdfFromRosparam(
           nh,
           "robot_description",
-          rbd::Joint::Type::Fixed,
+          rbd::Joint::Type::Free,
           {});
   auto rb = std::make_shared<OmgCore::Robot>(
       parse_res->mb,
@@ -28,33 +27,23 @@ int main(int argc, char **argv)
   // no velocity limit for the offline posture generator
   rb->jvel_max_scale_ = 1e10;
 
-  std::string sampling_space_str = "R2";
+  std::string sampling_space_str = "SE2";
   pnh.param<std::string>("sampling_space", sampling_space_str, sampling_space_str);
   SamplingSpace sampling_space = strToSamplingSpace(sampling_space_str);
 
-  std::string body_name = "tool0";
-  pnh.param<std::string>("body_name", body_name, body_name);
+  std::string support_foot_body_name = "Rleg_Link5";
+  pnh.param<std::string>("support_foot_body_name", support_foot_body_name, support_foot_body_name);
+  std::string swing_foot_body_name = "Lleg_Link5";
+  pnh.param<std::string>("swing_foot_body_name", swing_foot_body_name, swing_foot_body_name);
+  std::string waist_body_name = "Body";
+  pnh.param<std::string>("waist_body_name", waist_body_name, waist_body_name);
 
-  std::vector<std::string> joint_name_list;
-  pnh.param<std::vector<std::string>>("joint_name_list", joint_name_list, joint_name_list);
-
-  bool use_ik = false;
-  pnh.param<bool>("use_ik", use_ik, use_ik);
-
-  std::shared_ptr<RmapSamplingBase> rmap_sampling;
-  if (use_ik) {
-    rmap_sampling = createRmapSamplingIK(
-        sampling_space,
-        rb,
-        body_name,
-        joint_name_list);
-  } else {
-    rmap_sampling = createRmapSampling(
-        sampling_space,
-        rb,
-        body_name,
-        joint_name_list);
-  }
+  std::shared_ptr<RmapSamplingBase> rmap_sampling = createRmapSamplingFootstep(
+      sampling_space,
+      rb,
+      support_foot_body_name,
+      swing_foot_body_name,
+      waist_body_name);
 
   if (pnh.hasParam("config_path")) {
     std::string config_path;

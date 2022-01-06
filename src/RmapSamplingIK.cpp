@@ -201,7 +201,7 @@ std::shared_ptr<RmapSamplingBase> DiffRmap::createRmapSamplingIK(
   }
 }
 
-// Declear template specialized class
+// Declare template specialized class
 // See https://stackoverflow.com/a/8752879
 template class RmapSamplingIK<SamplingSpace::R2>;
 template class RmapSamplingIK<SamplingSpace::SO2>;
