@@ -89,4 +89,38 @@ double calcSVMValue(
   return svm_coeff_vec.dot(
       (-svm_param.gamma * (svm_sv_mat.colwise() - input).colwise().squaredNorm()).array().exp().matrix()) - svm_mo->rho[0];
 }
+
+/** \brief Calculate gradient of SVM value.
+    \tparam SamplingSpaceType sampling space
+    \param input SVM input
+    \param svm_param SVM parameter
+    \param svm_mo SVM model
+    \param svm_coeff_vec support vector coefficients
+    \param svm_sv_mat support vector matrix
+    \return gradient of predicted SVM value (column vector)
+*/
+template <SamplingSpace SamplingSpaceType>
+Input<SamplingSpaceType> calcSVMGrad(
+    const Input<SamplingSpaceType>& input,
+    const svm_parameter& svm_param,
+    svm_model *svm_mo,
+    const Eigen::VectorXd& svm_coeff_vec,
+    const Eigen::Matrix<double, inputDim<SamplingSpaceType>(), Eigen::Dynamic>& svm_sv_mat)
+{
+  if (!(svm_mo->param.svm_type == ONE_CLASS || svm_mo->param.svm_type == NU_SVC)) {
+    mc_rtc::log::error_and_throw<std::runtime_error>(
+        "[calcSVMGrad] Only one-class or nu-svc SVM is supported: {}", svm_mo->param.svm_type);
+  }
+
+  if (svm_param.kernel_type != RBF) {
+    mc_rtc::log::error_and_throw<std::runtime_error>(
+        "[calcSVMGrad] Only RBF kernel is supported: {}", svm_param.kernel_type);
+  }
+
+  Eigen::Matrix<double, inputDim<SamplingSpaceType>(), Eigen::Dynamic> sv_mat_minus_input =
+      svm_sv_mat.colwise() - input;
+
+  return 2 * svm_param.gamma * sv_mat_minus_input *
+      svm_coeff_vec.cwiseProduct((-svm_param.gamma * sv_mat_minus_input.colwise().squaredNorm()).array().exp().matrix().transpose());
+}
 }

@@ -130,6 +130,15 @@ class RmapTraining: public RmapTrainingBase
                         double& svm_value_eigen,
                         const SampleType& sample) const;
 
+  /** \brief Test SVM grad calculation.
+      \param[out] svm_grad_analytical SVM grad calculated analytically
+      \param[out] svm_grad_numerical  SVM grad calculated numerically
+      \param[in] sample
+   */
+  void testCalcSVMGrad(Eigen::Ref<Input<SamplingSpaceType>> svm_grad_analytical,
+                       Eigen::Ref<Input<SamplingSpaceType>> svm_grad_numerical,
+                       const SampleType& sample) const;
+
  protected:
   /** \brief Setup SVM parameter. */
   void setupSVMParam();

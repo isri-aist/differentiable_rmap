@@ -26,35 +26,12 @@ void test()
   }
 }
 
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsR2)
-{
-  test<SamplingSpace::R2>();
-}
-
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsSO2)
-{
-  test<SamplingSpace::SO2>();
-}
-
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsSE2)
-{
-  test<SamplingSpace::SE2>();
-}
-
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsR3)
-{
-  test<SamplingSpace::R3>();
-}
-
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsSO3)
-{
-  test<SamplingSpace::SO3>();
-}
-
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsSE3)
-{
-  test<SamplingSpace::SE3>();
-}
+BOOST_AUTO_TEST_CASE(TestSamplingUtilsR2) { test<SamplingSpace::R2>(); }
+BOOST_AUTO_TEST_CASE(TestSamplingUtilsSO2) { test<SamplingSpace::SO2>(); }
+BOOST_AUTO_TEST_CASE(TestSamplingUtilsSE2) { test<SamplingSpace::SE2>(); }
+BOOST_AUTO_TEST_CASE(TestSamplingUtilsR3) { test<SamplingSpace::R3>(); }
+BOOST_AUTO_TEST_CASE(TestSamplingUtilsSO3) { test<SamplingSpace::SO3>(); }
+BOOST_AUTO_TEST_CASE(TestSamplingUtilsSE3) { test<SamplingSpace::SE3>(); }
 
 BOOST_AUTO_TEST_CASE(TestSamplingUtilsRot3D)
 {

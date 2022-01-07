@@ -565,9 +565,10 @@ void RmapTraining<SamplingSpaceType>::publishMarkerArray() const
 }
 
 template <SamplingSpace SamplingSpaceType>
-void RmapTraining<SamplingSpaceType>::testCalcSVMValue(double& svm_value_libsvm,
-                                                       double& svm_value_eigen,
-                                                       const SampleType& sample) const
+void RmapTraining<SamplingSpaceType>::testCalcSVMValue(
+    double& svm_value_libsvm,
+    double& svm_value_eigen,
+    const SampleType& sample) const
 {
   svm_node input_node[input_dim_ + 1];
   setInputNode<SamplingSpaceType>(input_node, sampleToInput<SamplingSpaceType>(sample));
@@ -579,6 +580,40 @@ void RmapTraining<SamplingSpaceType>::testCalcSVMValue(double& svm_value_libsvm,
       svm_mo_,
       svm_coeff_vec_,
       svm_sv_mat_);
+}
+
+template <SamplingSpace SamplingSpaceType>
+void RmapTraining<SamplingSpaceType>::testCalcSVMGrad(
+    Eigen::Ref<Input<SamplingSpaceType>> svm_grad_analytical,
+    Eigen::Ref<Input<SamplingSpaceType>> svm_grad_numerical,
+    const SampleType& sample) const
+{
+  svm_grad_analytical = calcSVMGrad<SamplingSpaceType>(
+      sampleToInput<SamplingSpaceType>(sample),
+      svm_mo_->param,
+      svm_mo_,
+      svm_coeff_vec_,
+      svm_sv_mat_);
+
+  double eps = 1e-6;
+  for (int i = 0; i < inputDim<SamplingSpaceType>(); i++) {
+    svm_grad_numerical[i] =
+        (
+            calcSVMValue<SamplingSpaceType>(
+                sampleToInput<SamplingSpaceType>(sample) + eps * Input<SamplingSpaceType>::Unit(i),
+                svm_mo_->param,
+                svm_mo_,
+                svm_coeff_vec_,
+                svm_sv_mat_)
+            -
+            calcSVMValue<SamplingSpaceType>(
+                sampleToInput<SamplingSpaceType>(sample) - eps * Input<SamplingSpaceType>::Unit(i),
+                svm_mo_->param,
+                svm_mo_,
+                svm_coeff_vec_,
+                svm_sv_mat_)
+         ) / (2 * eps);
+  }
 }
 
 std::shared_ptr<RmapTrainingBase> DiffRmap::createRmapTraining(
