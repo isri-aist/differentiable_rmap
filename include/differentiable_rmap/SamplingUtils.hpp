@@ -347,7 +347,9 @@ inline Sample<SamplingSpace::SO3> inputToSample<SamplingSpace::SO3>(
 {
   Sample<SamplingSpace::SO3> sample;
   Eigen::Matrix3d mat;
-  mat << input;
+  for (int i = 0; i < 3; i++) {
+    mat.row(i) = input.segment<3>(3 * i).transpose();
+  }
   sample << Eigen::Quaterniond(mat).coeffs();
   return sample;
 }
