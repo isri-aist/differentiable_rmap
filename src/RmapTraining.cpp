@@ -142,7 +142,7 @@ void RmapTraining<SamplingSpaceType>::run()
     if (train_updated_ || slice_updated_) {
       train_updated_ = false;
       slice_updated_ = false;
-      predictOnGridMap();
+      predictOnSlicePlane();
       publishSlicedCloud();
     }
 
@@ -248,7 +248,7 @@ void RmapTraining<SamplingSpaceType>::setupGridMap()
 
   // Create grid map
   {
-    grid_map_ = std::make_shared<grid_map::GridMap>(std::vector<std::string>{"svm_prediction"});
+    grid_map_ = std::make_shared<grid_map::GridMap>(std::vector<std::string>{"svm_value"});
 
     SampleVector sample_center = (sample_min + sample_max) / 2;
     grid_map_->setFrameId("world");
@@ -405,14 +405,16 @@ void RmapTraining<SamplingSpaceType>::setSVMPredictionMat()
 }
 
 template <SamplingSpace SamplingSpaceType>
-void RmapTraining<SamplingSpaceType>::predictOnGridMap()
+void RmapTraining<SamplingSpaceType>::predictOnSlicePlane()
 {
   // Predict
   {
     auto start_time = std::chrono::system_clock::now();
 
+    svm_node input_node[input_dim_ + 1];
+
     if constexpr (use_libsvm_prediction_) {
-        setInputNode<SamplingSpaceType>(input_node_, InputVector::Zero());
+        setInputNode<SamplingSpaceType>(input_node, InputVector::Zero());
       }
 
     size_t grid_idx = 0;
@@ -429,8 +431,8 @@ void RmapTraining<SamplingSpaceType>::predictOnGridMap()
 
       double svm_value;
       if constexpr (use_libsvm_prediction_) {
-          setInputNodeOnlyValue<SamplingSpaceType>(input_node_, sampleToInput<SamplingSpaceType>(sample));
-          svm_predict_values(svm_mo_, input_node_, &svm_value);
+          setInputNodeOnlyValue<SamplingSpaceType>(input_node, sampleToInput<SamplingSpaceType>(sample));
+          svm_predict_values(svm_mo_, input_node, &svm_value);
         } else {
         svm_value = calcSVMValue<SamplingSpaceType>(
             sampleToInput<SamplingSpaceType>(sample),
@@ -439,7 +441,8 @@ void RmapTraining<SamplingSpaceType>::predictOnGridMap()
             svm_coeff_vec_,
             svm_sv_mat_);
       }
-      grid_map_->at("svm_prediction", *it) = config_.grid_map_height_scale * svm_value;
+      grid_map_->at("svm_value", *it) = config_.grid_map_height_scale * svm_value;
+
       grid_idx++;
     }
 

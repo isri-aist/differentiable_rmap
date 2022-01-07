@@ -8,7 +8,7 @@ static const char *kernel_type_table[]=
 	"linear","polynomial","rbf","sigmoid","precomputed",NULL
 };
 
-int svm_save_model_hotfix(const char *model_file_name, const svm_model *model)
+inline int svm_save_model_hotfix(const char *model_file_name, const svm_model *model)
 {
 	FILE *fp = fopen(model_file_name,"w");
 	if(fp==NULL) return -1;

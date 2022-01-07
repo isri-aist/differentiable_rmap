@@ -54,10 +54,10 @@ Visualization Manager:
       Autocompute Intensity Bounds: true
       Class: grid_map_rviz_plugin/GridMap
       Color: 200; 200; 200
-      Color Layer: svm_prediction
+      Color Layer: svm_value
       Color Transformer: IntensityLayer
       Enabled: true
-      Height Layer: svm_prediction
+      Height Layer: svm_value
       Height Transformer: Layer
       History Length: 1
       Invert Rainbow: false

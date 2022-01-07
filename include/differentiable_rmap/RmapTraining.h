@@ -135,7 +135,7 @@ class RmapTraining: public RmapTrainingBase
   void setSVMPredictionMat();
 
   /** \brief Predict SVM on grid map. */
-  void predictOnGridMap();
+  void predictOnSlicePlane();
 
   /** \brief Publish sliced cloud. */
   void publishSlicedCloud() const;
@@ -161,8 +161,6 @@ class RmapTraining: public RmapTrainingBase
   //! path of SVM model file
   std::string svm_path_;
 
-  //! SVM input node which is used for prediction
-  svm_node input_node_[input_dim_ + 1];
   //! SVM input node list which is used for training
   svm_node* all_input_nodes_;
   //! SVM problem
