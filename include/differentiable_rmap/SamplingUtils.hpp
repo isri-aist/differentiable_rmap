@@ -299,4 +299,67 @@ inline Input<SamplingSpace::SE3> sampleToInput<SamplingSpace::SE3>(
       sampleToInput<SamplingSpace::SO3>(sample.tail<sampleDim<SamplingSpace::SO3>()>());
   return input;
 }
+
+template <SamplingSpace SamplingSpaceType>
+Sample<SamplingSpaceType> inputToSample(const Input<SamplingSpaceType>& input)
+{
+  mc_rtc::log::error_and_throw<std::runtime_error>(
+      "[inputToSample] Need to be specialized for {}.", std::to_string(SamplingSpaceType));
+}
+
+template <>
+inline Sample<SamplingSpace::R2> inputToSample<SamplingSpace::R2>(
+    const Input<SamplingSpace::R2>& input)
+{
+  return input;
+}
+
+template <>
+inline Sample<SamplingSpace::SO2> inputToSample<SamplingSpace::SO2>(
+    const Input<SamplingSpace::SO2>& input)
+{
+  Sample<SamplingSpace::SO2> sample;
+  sample << std::atan2(input[2], input[0]);
+  return sample;
+}
+
+template <>
+inline Sample<SamplingSpace::SE2> inputToSample<SamplingSpace::SE2>(
+    const Input<SamplingSpace::SE2>& input)
+{
+  Sample<SamplingSpace::SE2> sample;
+  sample <<
+      inputToSample<SamplingSpace::R2>(input.head<inputDim<SamplingSpace::R2>()>()),
+      inputToSample<SamplingSpace::SO2>(input.tail<inputDim<SamplingSpace::SO2>()>());
+  return sample;
+}
+
+template <>
+inline Sample<SamplingSpace::R3> inputToSample<SamplingSpace::R3>(
+    const Input<SamplingSpace::R3>& input)
+{
+  return input;
+}
+
+template <>
+inline Sample<SamplingSpace::SO3> inputToSample<SamplingSpace::SO3>(
+    const Input<SamplingSpace::SO3>& input)
+{
+  Sample<SamplingSpace::SO3> sample;
+  Eigen::Matrix3d mat;
+  mat << input;
+  sample << Eigen::Quaterniond(mat).coeffs();
+  return sample;
+}
+
+template <>
+inline Sample<SamplingSpace::SE3> inputToSample<SamplingSpace::SE3>(
+    const Input<SamplingSpace::SE3>& input)
+{
+  Sample<SamplingSpace::SE3> sample;
+  sample <<
+      inputToSample<SamplingSpace::R3>(input.head<inputDim<SamplingSpace::R3>()>()),
+      inputToSample<SamplingSpace::SO3>(input.tail<inputDim<SamplingSpace::SO3>()>());
+  return sample;
+}
 }

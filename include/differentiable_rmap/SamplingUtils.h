@@ -41,7 +41,7 @@ constexpr int inputDim();
 template <SamplingSpace SamplingSpaceType>
 using Sample = Eigen::Matrix<double, sampleDim<SamplingSpaceType>(), 1>;
 
-/*! \brief Type of input vector. */
+/*! \brief Type of SVM input vector. */
 template <SamplingSpace SamplingSpaceType>
 using Input = Eigen::Matrix<double, inputDim<SamplingSpaceType>(), 1>;
 
@@ -76,6 +76,14 @@ Eigen::Vector3d sampleToCloudPos(const Sample<SamplingSpaceType>& sample);
 */
 template <SamplingSpace SamplingSpaceType>
 Input<SamplingSpaceType> sampleToInput(const Sample<SamplingSpaceType>& sample);
+
+/** \brief Convert SVM input to sample.
+    \tparam SamplingSpaceType sampling space
+    \param[in] input SVM input
+    \return sample (fixed size Eigen::Vector)
+*/
+template <SamplingSpace SamplingSpaceType>
+Sample<SamplingSpaceType> inputToSample(const Input<SamplingSpaceType>& input);
 }
 
 namespace std
