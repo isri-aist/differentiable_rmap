@@ -91,6 +91,31 @@ inline constexpr int inputDim<SamplingSpace::SE3>()
   return inputDim<SamplingSpace::R3>() + inputDim<SamplingSpace::SO3>();
 }
 
+// \todo Fix calcSVMGrad dimensions
+template <SamplingSpace SamplingSpaceType>
+constexpr int velDim()
+{
+  return inputDim<SamplingSpaceType>();
+}
+
+// template <SamplingSpace SamplingSpaceType>
+// constexpr int velDim()
+// {
+//   return sampleDim<SamplingSpaceType>();
+// }
+
+// template <>
+// inline constexpr int velDim<SamplingSpace::SO3>()
+// {
+//   return 3;
+// }
+
+// template <>
+// inline constexpr int velDim<SamplingSpace::SE3>()
+// {
+//   return velDim<SamplingSpace::R3>() + velDim<SamplingSpace::SO3>();
+// }
+
 template <SamplingSpace SamplingSpaceType>
 Sample<SamplingSpaceType> poseToSample(const sva::PTransformd& pose)
 {

@@ -135,8 +135,8 @@ class RmapTraining: public RmapTrainingBase
       \param[out] svm_grad_numerical  SVM grad calculated numerically
       \param[in] sample
    */
-  void testCalcSVMGrad(Eigen::Ref<Input<SamplingSpaceType>> svm_grad_analytical,
-                       Eigen::Ref<Input<SamplingSpaceType>> svm_grad_numerical,
+  void testCalcSVMGrad(Eigen::Ref<Vel<SamplingSpaceType>> svm_grad_analytical,
+                       Eigen::Ref<Vel<SamplingSpaceType>> svm_grad_numerical,
                        const SampleType& sample) const;
 
  protected:

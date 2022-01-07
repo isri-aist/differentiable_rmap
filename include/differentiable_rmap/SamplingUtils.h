@@ -22,14 +22,15 @@ enum class SamplingSpace
   SE3 = 33
 };
 
-/** \brief Convert string to sampling space. */
-SamplingSpace strToSamplingSpace(const std::string& sampling_space_str);
-
 /** \brief Get dimension of sample.
     \tparam SamplingSpaceType sampling space
 */
 template <SamplingSpace SamplingSpaceType>
 constexpr int sampleDim();
+
+/*! \brief Type of sample vector. */
+template <SamplingSpace SamplingSpaceType>
+using Sample = Eigen::Matrix<double, sampleDim<SamplingSpaceType>(), 1>;
 
 /** \brief Get dimension of SVM input.
     \tparam SamplingSpaceType sampling space
@@ -37,13 +38,19 @@ constexpr int sampleDim();
 template <SamplingSpace SamplingSpaceType>
 constexpr int inputDim();
 
-/*! \brief Type of sample vector. */
-template <SamplingSpace SamplingSpaceType>
-using Sample = Eigen::Matrix<double, sampleDim<SamplingSpaceType>(), 1>;
-
 /*! \brief Type of SVM input vector. */
 template <SamplingSpace SamplingSpaceType>
 using Input = Eigen::Matrix<double, inputDim<SamplingSpaceType>(), 1>;
+
+/** \brief Get dimension of sample velocity.
+    \tparam SamplingSpaceType sampling space
+*/
+template <SamplingSpace SamplingSpaceType>
+constexpr int velDim();
+
+/*! \brief Type of sample vector. */
+template <SamplingSpace SamplingSpaceType>
+using Vel = Eigen::Matrix<double, velDim<SamplingSpaceType>(), 1>;
 
 /** \brief Convert pose to sample.
     \tparam SamplingSpaceType sampling space
@@ -90,6 +97,9 @@ Sample<SamplingSpaceType> inputToSample(const Input<SamplingSpaceType>& input);
 */
 template <SamplingSpace SamplingSpaceType>
 sva::PTransformd getRandomPose();
+
+/** \brief Convert string to sampling space. */
+SamplingSpace strToSamplingSpace(const std::string& sampling_space_str);
 }
 
 namespace std

@@ -584,8 +584,8 @@ void RmapTraining<SamplingSpaceType>::testCalcSVMValue(
 
 template <SamplingSpace SamplingSpaceType>
 void RmapTraining<SamplingSpaceType>::testCalcSVMGrad(
-    Eigen::Ref<Input<SamplingSpaceType>> svm_grad_analytical,
-    Eigen::Ref<Input<SamplingSpaceType>> svm_grad_numerical,
+    Eigen::Ref<Vel<SamplingSpaceType>> svm_grad_analytical,
+    Eigen::Ref<Vel<SamplingSpaceType>> svm_grad_numerical,
     const SampleType& sample) const
 {
   svm_grad_analytical = calcSVMGrad<SamplingSpaceType>(
@@ -596,7 +596,7 @@ void RmapTraining<SamplingSpaceType>::testCalcSVMGrad(
       svm_sv_mat_);
 
   double eps = 1e-6;
-  for (int i = 0; i < inputDim<SamplingSpaceType>(); i++) {
+  for (int i = 0; i < velDim<SamplingSpaceType>(); i++) {
     svm_grad_numerical[i] =
         (
             calcSVMValue<SamplingSpaceType>(
