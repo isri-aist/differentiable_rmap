@@ -150,6 +150,63 @@ inline Sample<SamplingSpace::SE3> poseToSample<SamplingSpace::SE3>(
 }
 
 template <SamplingSpace SamplingSpaceType>
+sva::PTransformd sampleToPose(const Sample<SamplingSpaceType>& sample)
+{
+  mc_rtc::log::error_and_throw<std::runtime_error>(
+      "[sampleToPose] Need to be specialized for {}.", std::to_string(SamplingSpaceType));
+}
+
+template <>
+inline sva::PTransformd sampleToPose<SamplingSpace::R2>(
+    const Sample<SamplingSpace::R2>& sample)
+{
+  return sva::PTransformd(Eigen::Vector3d(sample.x(), sample.y(), 0));
+}
+
+template <>
+inline sva::PTransformd sampleToPose<SamplingSpace::SO2>(
+    const Sample<SamplingSpace::SO2>& sample)
+{
+  return sva::PTransformd(Eigen::Matrix3d(
+      Eigen::AngleAxisd(sample.x(), Eigen::Vector3d::UnitZ()).toRotationMatrix().transpose()));
+}
+
+template <>
+inline sva::PTransformd sampleToPose<SamplingSpace::SE2>(
+    const Sample<SamplingSpace::SE2>& sample)
+{
+  return sva::PTransformd(
+      Eigen::AngleAxisd(sample.z(), Eigen::Vector3d::UnitZ()).toRotationMatrix().transpose(),
+      Eigen::Vector3d(sample.x(), sample.y(), 0));
+}
+
+template <>
+inline sva::PTransformd sampleToPose<SamplingSpace::R3>(
+    const Sample<SamplingSpace::R3>& sample)
+{
+  return sva::PTransformd(sample);
+}
+
+template <>
+inline sva::PTransformd sampleToPose<SamplingSpace::SO3>(
+    const Sample<SamplingSpace::SO3>& sample)
+{
+  return sva::PTransformd(Eigen::Quaterniond(sample.w(), sample.x(), sample.y(), sample.z()).inverse());
+}
+
+template <>
+inline sva::PTransformd sampleToPose<SamplingSpace::SE3>(
+    const Sample<SamplingSpace::SE3>& sample)
+{
+  return sva::PTransformd(
+      Eigen::Quaterniond(sample.tail<sampleDim<SamplingSpace::SO3>()>().w(),
+                         sample.tail<sampleDim<SamplingSpace::SO3>()>().x(),
+                         sample.tail<sampleDim<SamplingSpace::SO3>()>().y(),
+                         sample.tail<sampleDim<SamplingSpace::SO3>()>().z()).inverse(),
+      sample.head<sampleDim<SamplingSpace::R3>()>());
+}
+
+template <SamplingSpace SamplingSpaceType>
 Eigen::Vector3d sampleToCloudPos(const Sample<SamplingSpaceType>& sample)
 {
   return sample.head(3);
