@@ -8,7 +8,7 @@ settings:
     is_repeat: false
     max: 0.99
     min: 0.01
-  /variable/xy_plane_height/data:
+  /variable/svm_thre/data:
     is_repeat: false
     max: 0.5
     min: -0.5
@@ -31,7 +31,7 @@ settings:
 texts:
 - /variable/svm_gamma/data
 - /variable/svm_nu/data
-- /variable/xy_plane_height/data
+- /variable/svm_thre/data
 - /variable/slice_z/data
 - /variable/slice_roll/data
 - /variable/slice_pitch/data

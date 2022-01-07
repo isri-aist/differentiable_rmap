@@ -205,7 +205,7 @@ class RmapTraining: public RmapTrainingBase
   ros::Publisher marker_arr_pub_;
   ros::Publisher grid_map_pub_;
 
-  std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> xy_plane_height_manager_;
+  std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> svm_thre_manager_;
   std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> svm_gamma_manager_;
   std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> svm_nu_manager_;
   std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> slice_z_manager_;

@@ -46,9 +46,9 @@ RmapTraining<SamplingSpaceType>::RmapTraining(const std::string& bag_path,
 
   // Setup SubscVariableManager
   // This must be called after setupSVMParam() because this depends on SVM parameter
-  xy_plane_height_manager_ =
+  svm_thre_manager_ =
       std::make_shared<SubscVariableManager<std_msgs::Float64, double>>(
-          "variable/xy_plane_height",
+          "variable/svm_thre",
           0.0);
   if (!load_svm_) {
     svm_gamma_manager_ =
@@ -107,8 +107,8 @@ void RmapTraining<SamplingSpaceType>::configure(const mc_rtc::Configuration& mc_
   mc_rtc_config_ = mc_rtc_config;
   config_.load(mc_rtc_config);
 
-  if (mc_rtc_config_.has("xy_plane_height")) {
-    xy_plane_height_manager_->setValue(static_cast<double>(mc_rtc_config_("xy_plane_height")));
+  if (mc_rtc_config_.has("svm_thre")) {
+    svm_thre_manager_->setValue(static_cast<double>(mc_rtc_config_("svm_thre")));
   }
   if (!load_svm_ && mc_rtc_config_.has("svm_gamma")) {
     svm_gamma_manager_->setValue(static_cast<double>(mc_rtc_config_("svm_gamma")));
@@ -543,7 +543,7 @@ void RmapTraining<SamplingSpaceType>::publishMarkerArray() const
   xy_plane_marker.scale.y = 100.0;
   xy_plane_marker.scale.z = plane_thickness;
   xy_plane_marker.pose = OmgCore::toPoseMsg(
-      sva::PTransformd(Eigen::Vector3d(0, 0, xy_plane_height_manager_->value() - 0.5 * plane_thickness)));
+      sva::PTransformd(Eigen::Vector3d(0, 0, svm_thre_manager_->value() - 0.5 * plane_thickness)));
   marker_arr_msg.markers.push_back(xy_plane_marker);
 
   marker_arr_pub_.publish(marker_arr_msg);
