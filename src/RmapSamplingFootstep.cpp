@@ -140,7 +140,7 @@ void RmapSamplingFootstep<SamplingSpaceType>::sampleOnce(int sample_idx)
   }
 
   // Append new sample to sample list
-  const SampleVector& sample = poseToSample<SamplingSpaceType>(swing_foot_body_task_->target());
+  const SampleType& sample = poseToSample<SamplingSpaceType>(swing_foot_body_task_->target());
   sample_list_[sample_idx] = sample;
   reachability_list_[sample_idx] = reachability;
   if (reachability) {

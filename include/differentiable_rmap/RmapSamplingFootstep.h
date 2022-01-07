@@ -17,7 +17,7 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
 {
  public:
   /*! \brief Type of footstep position. */
-  using FootstepPos = Eigen::Matrix<double, sampleDim<SamplingSpace::SE2>(), 1>;
+  using FootstepPos = Sample<SamplingSpace::SE2>;
 
  public:
   /*! \brief Configuration. */
@@ -53,7 +53,7 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
 
  public:
   /*! \brief Type of sample vector. */
-  using SampleVector = Eigen::Matrix<double, sample_dim_, 1>;
+  using SampleType = Sample<SamplingSpaceType>;
 
  public:
   /** \brief Constructor.

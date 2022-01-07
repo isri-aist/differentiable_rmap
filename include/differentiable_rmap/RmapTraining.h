@@ -83,10 +83,10 @@ class RmapTraining: public RmapTrainingBase
 
  public:
   /*! \brief Type of sample vector. */
-  using SampleVector = Eigen::Matrix<double, sample_dim_, 1>;
+  using SampleType = Sample<SamplingSpaceType>;
 
   /*! \brief Type of input vector. */
-  using InputVector = Eigen::Matrix<double, input_dim_, 1>;
+  using InputType = Input<SamplingSpaceType>;
 
  public:
   /** \brief Constructor.
@@ -151,7 +151,7 @@ class RmapTraining: public RmapTrainingBase
   Configuration config_;
 
   //! Sample list
-  std::vector<SampleVector> sample_list_;
+  std::vector<SampleType> sample_list_;
 
   //! Reachability list
   std::vector<bool> reachability_list_;

@@ -37,14 +37,29 @@ constexpr int sampleDim();
 template <SamplingSpace SamplingSpaceType>
 constexpr int inputDim();
 
+/*! \brief Type of sample vector. */
+template <SamplingSpace SamplingSpaceType>
+using Sample = Eigen::Matrix<double, sampleDim<SamplingSpaceType>(), 1>;
+
+/*! \brief Type of input vector. */
+template <SamplingSpace SamplingSpaceType>
+using Input = Eigen::Matrix<double, inputDim<SamplingSpaceType>(), 1>;
+
 /** \brief Convert pose to sample.
     \tparam SamplingSpaceType sampling space
     \param[in] pose pose
     \return sample (fixed size Eigen::Vector)
  */
 template <SamplingSpace SamplingSpaceType>
-Eigen::Matrix<double, sampleDim<SamplingSpaceType>(), 1> poseToSample(
-    const sva::PTransformd& pose);
+Sample<SamplingSpaceType> poseToSample(const sva::PTransformd& pose);
+
+/** \brief Convert sample to pose.
+    \tparam SamplingSpaceType sampling space
+    \param[in] sample sample
+    \return pose
+ */
+template <SamplingSpace SamplingSpaceType>
+sva::PTransformd sampleToPose(const Sample<SamplingSpaceType>& sample);
 
 /** \brief Convert sample to pointcloud position.
     \tparam SamplingSpaceType sampling space
@@ -52,8 +67,7 @@ Eigen::Matrix<double, sampleDim<SamplingSpaceType>(), 1> poseToSample(
     \return pointcloud position (Eigen::Vector3d)
  */
 template <SamplingSpace SamplingSpaceType>
-Eigen::Vector3d sampleToCloudPos(
-    const Eigen::Matrix<double, sampleDim<SamplingSpaceType>(), 1>& sample);
+Eigen::Vector3d sampleToCloudPos(const Sample<SamplingSpaceType>& sample);
 
 /** \brief Convert sample to SVM input.
     \tparam SamplingSpaceType sampling space
@@ -61,8 +75,7 @@ Eigen::Vector3d sampleToCloudPos(
     \return SVM input (fixed size Eigen::Vector)
 */
 template <SamplingSpace SamplingSpaceType>
-Eigen::Matrix<double, inputDim<SamplingSpaceType>(), 1> sampleToInput(
-    const Eigen::Matrix<double, sampleDim<SamplingSpaceType>(), 1>& sample);
+Input<SamplingSpaceType> sampleToInput(const Sample<SamplingSpaceType>& sample);
 }
 
 namespace std

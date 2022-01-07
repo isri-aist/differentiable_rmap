@@ -15,7 +15,7 @@ namespace DiffRmap
 template <SamplingSpace SamplingSpaceType>
 void setInputNode(
     svm_node* input_node,
-    const Eigen::Matrix<double, inputDim<SamplingSpaceType>(), 1>& input)
+    const Input<SamplingSpaceType>& input)
 {
   for (int i = 0; i < inputDim<SamplingSpaceType>() + 1; i++) {
     if (i == inputDim<SamplingSpaceType>()) {
@@ -35,7 +35,7 @@ void setInputNode(
 template <SamplingSpace SamplingSpaceType>
 void setInputNodeOnlyValue(
     svm_node* input_node,
-    const Eigen::Matrix<double, inputDim<SamplingSpaceType>(), 1>& input)
+    const Input<SamplingSpaceType>& input)
 {
   for (int i = 0; i < inputDim<SamplingSpaceType>(); i++) {
     input_node[i].value = input[i];
@@ -47,10 +47,10 @@ void setInputNodeOnlyValue(
     \param input_node SVM input node
 */
 template <SamplingSpace SamplingSpaceType>
-Eigen::Matrix<double, inputDim<SamplingSpaceType>(), 1> toEigenVector(
+Input<SamplingSpaceType> toEigenVector(
     const svm_node *input_node)
 {
-  Eigen::Matrix<double, inputDim<SamplingSpaceType>(), 1> input;
+  Input<SamplingSpaceType> input;
   for (int i = 0; i < inputDim<SamplingSpaceType>(); i++) {
     input[i] = input_node[i].value;
   }
@@ -68,7 +68,7 @@ Eigen::Matrix<double, inputDim<SamplingSpaceType>(), 1> toEigenVector(
 */
 template <SamplingSpace SamplingSpaceType>
 double calcSVMValue(
-    const Eigen::Matrix<double, inputDim<SamplingSpaceType>(), 1>& input,
+    const Input<SamplingSpaceType>& input,
     const svm_parameter& svm_param,
     svm_model *svm_mo,
     const Eigen::VectorXd& svm_coeff_vec,

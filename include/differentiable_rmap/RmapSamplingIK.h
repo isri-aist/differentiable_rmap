@@ -48,7 +48,7 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
 
  public:
   /*! \brief Type of sample vector. */
-  using SampleVector = Eigen::Matrix<double, sample_dim_, 1>;
+  using SampleType = Sample<SamplingSpaceType>;
 
  public:
   /** \brief Constructor.

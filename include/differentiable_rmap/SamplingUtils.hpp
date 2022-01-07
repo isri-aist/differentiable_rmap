@@ -92,124 +92,121 @@ inline constexpr int inputDim<SamplingSpace::SE3>()
 }
 
 template <SamplingSpace SamplingSpaceType>
-Eigen::Matrix<double, sampleDim<SamplingSpaceType>(), 1> poseToSample(
-    const sva::PTransformd& pose)
+Sample<SamplingSpaceType> poseToSample(const sva::PTransformd& pose)
 {
   mc_rtc::log::error_and_throw<std::runtime_error>(
       "[poseToSample] Need to be specialized for {}.", std::to_string(SamplingSpaceType));
 }
 
 template <>
-inline Eigen::Matrix<double, sampleDim<SamplingSpace::R2>(), 1> poseToSample<SamplingSpace::R2>(
+inline Sample<SamplingSpace::R2> poseToSample<SamplingSpace::R2>(
     const sva::PTransformd& pose)
 {
   return pose.translation().head(2);
 }
 
 template <>
-inline Eigen::Matrix<double, sampleDim<SamplingSpace::SO2>(), 1> poseToSample<SamplingSpace::SO2>(
+inline Sample<SamplingSpace::SO2> poseToSample<SamplingSpace::SO2>(
     const sva::PTransformd& pose)
 {
-  Eigen::Matrix<double, sampleDim<SamplingSpace::SO2>(), 1> sample;
+  Sample<SamplingSpace::SO2> sample;
   sample << calcYawAngle(pose.rotation().transpose());
   return sample;
 }
 
 template <>
-inline Eigen::Matrix<double, sampleDim<SamplingSpace::SE2>(), 1> poseToSample<SamplingSpace::SE2>(
+inline Sample<SamplingSpace::SE2> poseToSample<SamplingSpace::SE2>(
     const sva::PTransformd& pose)
 {
-  Eigen::Matrix<double, sampleDim<SamplingSpace::SE2>(), 1> sample;
+  Sample<SamplingSpace::SE2> sample;
   sample << poseToSample<SamplingSpace::R2>(pose), poseToSample<SamplingSpace::SO2>(pose);
   return sample;
 }
 
 template <>
-inline Eigen::Matrix<double, sampleDim<SamplingSpace::R3>(), 1> poseToSample<SamplingSpace::R3>(
+inline Sample<SamplingSpace::R3> poseToSample<SamplingSpace::R3>(
     const sva::PTransformd& pose)
 {
   return pose.translation();
 }
 
 template <>
-inline Eigen::Matrix<double, sampleDim<SamplingSpace::SO3>(), 1> poseToSample<SamplingSpace::SO3>(
+inline Sample<SamplingSpace::SO3> poseToSample<SamplingSpace::SO3>(
     const sva::PTransformd& pose)
 {
   // Element order is (x, y, z, w)
-  Eigen::Matrix<double, sampleDim<SamplingSpace::SO3>(), 1> sample;
+  Sample<SamplingSpace::SO3> sample;
   sample << Eigen::Quaterniond(pose.rotation().transpose()).coeffs();
   return sample;
 }
 
 template <>
-inline Eigen::Matrix<double, sampleDim<SamplingSpace::SE3>(), 1> poseToSample<SamplingSpace::SE3>(
+inline Sample<SamplingSpace::SE3> poseToSample<SamplingSpace::SE3>(
     const sva::PTransformd& pose)
 {
-  Eigen::Matrix<double, sampleDim<SamplingSpace::SE3>(), 1> sample;
+  Sample<SamplingSpace::SE3> sample;
   sample << poseToSample<SamplingSpace::R3>(pose), poseToSample<SamplingSpace::SO3>(pose);
   return sample;
 }
 
 template <SamplingSpace SamplingSpaceType>
-Eigen::Vector3d sampleToCloudPos(
-    const Eigen::Matrix<double, sampleDim<SamplingSpaceType>(), 1>& sample)
+Eigen::Vector3d sampleToCloudPos(const Sample<SamplingSpaceType>& sample)
 {
   return sample.head(3);
 }
 
 template <>
 inline Eigen::Vector3d sampleToCloudPos<SamplingSpace::R2>(
-    const Eigen::Matrix<double, sampleDim<SamplingSpace::R2>(), 1>& sample)
+    const Sample<SamplingSpace::R2>& sample)
 {
   return Eigen::Vector3d(sample.x(), sample.y(), 0);
 }
 
 template <>
 inline Eigen::Vector3d sampleToCloudPos<SamplingSpace::SO2>(
-    const Eigen::Matrix<double, sampleDim<SamplingSpace::SO2>(), 1>& sample)
+    const Sample<SamplingSpace::SO2>& sample)
 {
   return Eigen::Vector3d(sample.x(), 0, 0);
 }
 
 template <>
 inline Eigen::Vector3d sampleToCloudPos<SamplingSpace::SO3>(
-    const Eigen::Matrix<double, sampleDim<SamplingSpace::SO3>(), 1>& sample)
+    const Sample<SamplingSpace::SO3>& sample)
 {
   Eigen::AngleAxisd aa(Eigen::Quaterniond(sample.w(), sample.x(), sample.y(), sample.z()));
   return aa.angle() * aa.axis();
 }
 
 template <SamplingSpace SamplingSpaceType>
-Eigen::Matrix<double, inputDim<SamplingSpaceType>(), 1> sampleToInput(
-    const Eigen::Matrix<double, sampleDim<SamplingSpaceType>(), 1>& sample)
+Input<SamplingSpaceType> sampleToInput(const Sample<SamplingSpaceType>& sample)
 {
   mc_rtc::log::error_and_throw<std::runtime_error>(
       "[sampleToInput] Need to be specialized for {}.", std::to_string(SamplingSpaceType));
 }
 
 template <>
-inline Eigen::Matrix<double, inputDim<SamplingSpace::R2>(), 1> sampleToInput<SamplingSpace::R2>(
-    const Eigen::Matrix<double, sampleDim<SamplingSpace::R2>(), 1>& sample)
+inline Input<SamplingSpace::R2> sampleToInput<SamplingSpace::R2>(
+    const Sample<SamplingSpace::R2>& sample)
 {
   return sample;
 }
 
 template <>
-inline Eigen::Matrix<double, inputDim<SamplingSpace::SO2>(), 1> sampleToInput<SamplingSpace::SO2>(
-    const Eigen::Matrix<double, sampleDim<SamplingSpace::SO2>(), 1>& sample)
+inline Input<SamplingSpace::SO2> sampleToInput<SamplingSpace::SO2>(
+    const Sample<SamplingSpace::SO2>& sample)
 {
   double cos = std::cos(sample.x());
   double sin = std::sin(sample.x());
-  Eigen::Matrix<double, inputDim<SamplingSpace::SO2>(), 1> input;
+  Input<SamplingSpace::SO2> input;
   input << cos, -sin, sin, cos;
   return input;
 }
 
 template <>
-inline Eigen::Matrix<double, inputDim<SamplingSpace::SE2>(), 1> sampleToInput<SamplingSpace::SE2>(
-    const Eigen::Matrix<double, sampleDim<SamplingSpace::SE2>(), 1>& sample)
+inline Input<SamplingSpace::SE2> sampleToInput<SamplingSpace::SE2>(
+    const Sample<SamplingSpace::SE2>& sample)
 {
-  Eigen::Matrix<double, inputDim<SamplingSpace::SE2>(), 1> input;
+  Input<SamplingSpace::SE2> input;
   input <<
       sampleToInput<SamplingSpace::R2>(sample.head<sampleDim<SamplingSpace::R2>()>()),
       sampleToInput<SamplingSpace::SO2>(sample.tail<sampleDim<SamplingSpace::SO2>()>());
@@ -217,15 +214,15 @@ inline Eigen::Matrix<double, inputDim<SamplingSpace::SE2>(), 1> sampleToInput<Sa
 }
 
 template <>
-inline Eigen::Matrix<double, inputDim<SamplingSpace::R3>(), 1> sampleToInput<SamplingSpace::R3>(
-    const Eigen::Matrix<double, sampleDim<SamplingSpace::R3>(), 1>& sample)
+inline Input<SamplingSpace::R3> sampleToInput<SamplingSpace::R3>(
+    const Sample<SamplingSpace::R3>& sample)
 {
   return sample;
 }
 
 template <>
-inline Eigen::Matrix<double, inputDim<SamplingSpace::SO3>(), 1> sampleToInput<SamplingSpace::SO3>(
-    const Eigen::Matrix<double, sampleDim<SamplingSpace::SO3>(), 1>& sample)
+inline Input<SamplingSpace::SO3> sampleToInput<SamplingSpace::SO3>(
+    const Sample<SamplingSpace::SO3>& sample)
 {
   Eigen::Quaterniond quat(sample.w(), sample.x(), sample.y(), sample.z());
   Eigen::Matrix3d mat = quat.toRotationMatrix();
@@ -236,10 +233,10 @@ inline Eigen::Matrix<double, inputDim<SamplingSpace::SO3>(), 1> sampleToInput<Sa
 }
 
 template <>
-inline Eigen::Matrix<double, inputDim<SamplingSpace::SE3>(), 1> sampleToInput<SamplingSpace::SE3>(
-    const Eigen::Matrix<double, sampleDim<SamplingSpace::SE3>(), 1>& sample)
+inline Input<SamplingSpace::SE3> sampleToInput<SamplingSpace::SE3>(
+    const Sample<SamplingSpace::SE3>& sample)
 {
-  Eigen::Matrix<double, inputDim<SamplingSpace::SE3>(), 1> input;
+  Input<SamplingSpace::SE3> input;
   input <<
       sampleToInput<SamplingSpace::R3>(sample.head<sampleDim<SamplingSpace::R3>()>()),
       sampleToInput<SamplingSpace::SO3>(sample.tail<sampleDim<SamplingSpace::SO3>()>());

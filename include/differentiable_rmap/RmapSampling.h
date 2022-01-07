@@ -59,7 +59,7 @@ class RmapSampling: public RmapSamplingBase
 
  public:
   /*! \brief Type of sample vector. */
-  using SampleVector = Eigen::Matrix<double, sample_dim_, 1>;
+  using SampleType = Sample<SamplingSpaceType>;
 
  public:
   /** \brief Constructor.
@@ -136,7 +136,7 @@ class RmapSampling: public RmapSamplingBase
   Eigen::VectorXd joint_pos_offset_;
 
   //! Sample list
-  std::vector<SampleVector> sample_list_;
+  std::vector<SampleType> sample_list_;
 
   //! Reachability list
   std::vector<bool> reachability_list_;

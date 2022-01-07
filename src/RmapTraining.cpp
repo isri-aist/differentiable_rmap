@@ -231,11 +231,11 @@ template <SamplingSpace SamplingSpaceType>
 void RmapTraining<SamplingSpaceType>::setupGridMap()
 {
   // Calculate sample min/max
-  SampleVector sample_min = SampleVector::Constant(1e10);
-  SampleVector sample_max = SampleVector::Constant(-1e10);
-  SampleVector sample_range;
+  SampleType sample_min = SampleType::Constant(1e10);
+  SampleType sample_max = SampleType::Constant(-1e10);
+  SampleType sample_range;
   {
-    for (const SampleVector& sample : sample_list_) {
+    for (const SampleType& sample : sample_list_) {
       sample_min = sample_min.cwiseMin(sample);
       sample_max = sample_max.cwiseMax(sample);
     }
@@ -250,7 +250,7 @@ void RmapTraining<SamplingSpaceType>::setupGridMap()
   {
     grid_map_ = std::make_shared<grid_map::GridMap>(std::vector<std::string>{"svm_value"});
 
-    SampleVector sample_center = (sample_min + sample_max) / 2;
+    SampleType sample_center = (sample_min + sample_max) / 2;
     grid_map_->setFrameId("world");
     grid_map_->setGeometry(grid_map::Length(sample_range[0], sample_range[1]),
                            config_.grid_map_resolution,
@@ -328,7 +328,7 @@ void RmapTraining<SamplingSpaceType>::loadBag(const std::string& bag_path)
 
     all_input_nodes_ = new svm_node[(input_dim_ + 1) * svm_prob_.l];
     for (size_t i = 0; i < sample_list_.size(); i++) {
-      const SampleVector& sample = sample_list_[i];
+      const SampleType& sample = sample_list_[i];
       size_t idx = (input_dim_ + 1) * i;
       setInputNode<SamplingSpaceType>(&(all_input_nodes_[idx]), sampleToInput<SamplingSpaceType>(sample));
       svm_prob_.x[i] = &all_input_nodes_[idx];
@@ -414,16 +414,16 @@ void RmapTraining<SamplingSpaceType>::predictOnSlicePlane()
     svm_node input_node[input_dim_ + 1];
 
     if constexpr (use_libsvm_prediction_) {
-        setInputNode<SamplingSpaceType>(input_node, InputVector::Zero());
+        setInputNode<SamplingSpaceType>(input_node, InputType::Zero());
       }
 
     size_t grid_idx = 0;
-    SampleVector origin_sample = poseToSample<SamplingSpaceType>(slice_origin_);
+    SampleType origin_sample = poseToSample<SamplingSpaceType>(slice_origin_);
     for (grid_map::GridMapIterator it(*grid_map_); !it.isPastEnd(); ++it) {
       grid_map::Position pos;
       grid_map_->getPosition(*it, pos);
 
-      SampleVector sample = origin_sample;
+      SampleType sample = origin_sample;
       sample.x() = pos.x();
       if constexpr (sample_dim_ > 1) {
           sample.y() = pos.y();
@@ -480,7 +480,7 @@ void RmapTraining<SamplingSpaceType>::publishSlicedCloud() const
   reachable_cloud_msg.header = header_msg;
   unreachable_cloud_msg.header = header_msg;
   for (size_t i = 0; i < sample_list_.size(); i++) {
-    const SampleVector& sample = sample_list_[i];
+    const SampleType& sample = sample_list_[i];
 
     if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
         double origin_theta = calcYawAngle(slice_origin_.rotation().transpose());
@@ -497,7 +497,7 @@ void RmapTraining<SamplingSpaceType>::publishSlicedCloud() const
       } else if constexpr (SamplingSpaceType == SamplingSpace::SE3) {
         double origin_z = slice_origin_.translation().z();
         Eigen::Quaterniond origin_quat(slice_origin_.rotation().transpose());
-        Eigen::Matrix<double, sampleDim<SamplingSpace::SO3>(), 1> sample_so3 =
+        Sample<SamplingSpace::SO3> sample_so3 =
             sample.template tail<sampleDim<SamplingSpace::SO3>()>();
         Eigen::Quaterniond sample_quat(sample_so3.w(), sample_so3.x(), sample_so3.y(), sample_so3.z());
         double theta_diff = std::fabs(Eigen::AngleAxisd(origin_quat.inverse() * sample_quat).angle());

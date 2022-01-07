@@ -118,7 +118,7 @@ void RmapSampling<SamplingSpaceType>::sampleOnce(int sample_idx)
 
   // Append new sample to sample list
   const auto& body_pose = rbc->bodyPosW[body_idx_];
-  const SampleVector& sample = poseToSample<SamplingSpaceType>(body_pose);
+  const SampleType& sample = poseToSample<SamplingSpaceType>(body_pose);
   sample_list_[sample_idx] = sample;
   reachability_list_[sample_idx] = true;
   reachable_cloud_msg_.points.push_back(OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample)));

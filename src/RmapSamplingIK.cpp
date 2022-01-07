@@ -106,7 +106,7 @@ void RmapSamplingIK<SamplingSpaceType>::setupSampling()
 
   Eigen::Vector3d upper_body_pos = Eigen::Vector3d::Constant(-1e10);
   Eigen::Vector3d lower_body_pos = Eigen::Vector3d::Constant(1e10);
-  for (const SampleVector& sample : sample_list_) {
+  for (const SampleType& sample : sample_list_) {
     const Eigen::Vector3d& cloud_pos = sampleToCloudPos<SamplingSpaceType>(sample);
     upper_body_pos = upper_body_pos.cwiseMax(cloud_pos);
     lower_body_pos = lower_body_pos.cwiseMin(cloud_pos);
@@ -167,7 +167,7 @@ void RmapSamplingIK<SamplingSpaceType>::sampleOnce(int sample_idx)
   }
 
   // Append new sample to sample list
-  const SampleVector& sample = poseToSample<SamplingSpaceType>(body_task_->target());
+  const SampleType& sample = poseToSample<SamplingSpaceType>(body_task_->target());
   sample_list_[sample_idx] = sample;
   reachability_list_[sample_idx] = reachability;
   if (reachability) {
