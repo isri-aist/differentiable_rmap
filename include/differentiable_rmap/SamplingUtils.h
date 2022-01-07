@@ -84,6 +84,12 @@ Input<SamplingSpaceType> sampleToInput(const Sample<SamplingSpaceType>& sample);
 */
 template <SamplingSpace SamplingSpaceType>
 Sample<SamplingSpaceType> inputToSample(const Input<SamplingSpaceType>& input);
+
+/** \brief Get random pose in sampling space.
+    \tparam SamplingSpaceType sampling space
+*/
+template <SamplingSpace SamplingSpaceType>
+sva::PTransformd getRandomPose();
 }
 
 namespace std

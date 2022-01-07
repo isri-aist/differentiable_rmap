@@ -2,6 +2,7 @@ find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 
 set(differentiable_rmap_test_list
   TestSamplingUtils
+  TestSVMUtils
   )
 
 foreach(NAME IN LISTS differentiable_rmap_test_list)

@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <libsvm/svm.h>
+
 #include <differentiable_rmap/SamplingUtils.h>
 
 

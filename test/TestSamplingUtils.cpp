@@ -3,35 +3,9 @@
 #include <mc_rtc/logging.h>
 
 #include <differentiable_rmap/SamplingUtils.h>
-#include <differentiable_rmap/MathUtils.h>
 
 using namespace DiffRmap;
 
-
-template <SamplingSpace SamplingSpaceType>
-sva::PTransformd getRandomPose()
-{
-  sva::PTransformd pose = sva::PTransformd::Identity();
-  if constexpr (SamplingSpaceType == SamplingSpace::R2) {
-      pose.translation().head<2>().setRandom();
-    } else if constexpr (SamplingSpaceType == SamplingSpace::SO2) {
-      pose.rotation() = Eigen::AngleAxisd(
-          M_PI * Eigen::Matrix<double, 1, 1>::Random()[0],
-          Eigen::Vector3d::UnitZ()).toRotationMatrix();
-    } else if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
-      pose = getRandomPose<SamplingSpace::SO2>() * getRandomPose<SamplingSpace::R2>();
-    } else if constexpr (SamplingSpaceType == SamplingSpace::R3) {
-      pose.translation().setRandom();
-    } else if constexpr (SamplingSpaceType == SamplingSpace::SO3) {
-      pose.rotation() = Eigen::Quaterniond::UnitRandom().toRotationMatrix();
-    } else if constexpr (SamplingSpaceType == SamplingSpace::SE3) {
-      pose = getRandomPose<SamplingSpace::SO3>() * getRandomPose<SamplingSpace::R3>();
-    } else {
-    mc_rtc::log::error_and_throw<std::runtime_error>(
-        "[getRandomPose] unsupported for SamplingSpace {}", SamplingSpaceType);
-  }
-  return pose;
-}
 
 template <SamplingSpace SamplingSpaceType>
 void test()

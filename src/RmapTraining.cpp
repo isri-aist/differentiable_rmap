@@ -119,35 +119,47 @@ void RmapTraining<SamplingSpaceType>::configure(const mc_rtc::Configuration& mc_
 }
 
 template <SamplingSpace SamplingSpaceType>
-void RmapTraining<SamplingSpaceType>::run()
+void RmapTraining<SamplingSpaceType>::setup()
 {
   // Setup grid map
   setupGridMap();
+}
+
+template <SamplingSpace SamplingSpaceType>
+void RmapTraining<SamplingSpaceType>::runOnce()
+{
+  // Update
+  if (!load_svm_) {
+    updateSVMParam();
+  }
+  updateSliceOrigin();
+
+  // Train SVM
+  if (train_required_) {
+    train_required_ = false;
+    trainSVM();
+  }
+
+  // Predict SVM
+  if (train_updated_ || slice_updated_) {
+    train_updated_ = false;
+    slice_updated_ = false;
+    predictOnSlicePlane();
+    publishSlicedCloud();
+  }
+
+  // Publish
+  publishMarkerArray();
+}
+
+template <SamplingSpace SamplingSpaceType>
+void RmapTraining<SamplingSpaceType>::runLoop()
+{
+  setup();
 
   ros::Rate rate(100);
   while (ros::ok()) {
-    // Update
-    if (!load_svm_) {
-      updateSVMParam();
-    }
-    updateSliceOrigin();
-
-    // Train SVM
-    if (train_required_) {
-      train_required_ = false;
-      trainSVM();
-    }
-
-    // Predict SVM
-    if (train_updated_ || slice_updated_) {
-      train_updated_ = false;
-      slice_updated_ = false;
-      predictOnSlicePlane();
-      publishSlicedCloud();
-    }
-
-    // Publish
-    publishMarkerArray();
+    runOnce();
 
     rate.sleep();
     ros::spinOnce();
@@ -552,6 +564,23 @@ void RmapTraining<SamplingSpaceType>::publishMarkerArray() const
   marker_arr_pub_.publish(marker_arr_msg);
 }
 
+template <SamplingSpace SamplingSpaceType>
+void RmapTraining<SamplingSpaceType>::testCalcSVMValue(double& svm_value_libsvm,
+                                                       double& svm_value_eigen,
+                                                       const SampleType& sample) const
+{
+  svm_node input_node[input_dim_ + 1];
+  setInputNode<SamplingSpaceType>(input_node, sampleToInput<SamplingSpaceType>(sample));
+  svm_predict_values(svm_mo_, input_node, &svm_value_libsvm);
+
+  svm_value_eigen = calcSVMValue<SamplingSpaceType>(
+      sampleToInput<SamplingSpaceType>(sample),
+      svm_mo_->param,
+      svm_mo_,
+      svm_coeff_vec_,
+      svm_sv_mat_);
+}
+
 std::shared_ptr<RmapTrainingBase> DiffRmap::createRmapTraining(
     SamplingSpace sampling_space,
     const std::string& bag_path,
@@ -575,3 +604,12 @@ std::shared_ptr<RmapTrainingBase> DiffRmap::createRmapTraining(
         "[createRmapTraining] Unsupported SamplingSpace: {}", std::to_string(sampling_space));
   }
 }
+
+// Declare template specialized class
+// See https://stackoverflow.com/a/8752879
+template class RmapTraining<SamplingSpace::R2>;
+template class RmapTraining<SamplingSpace::SO2>;
+template class RmapTraining<SamplingSpace::SE2>;
+template class RmapTraining<SamplingSpace::R3>;
+template class RmapTraining<SamplingSpace::SO3>;
+template class RmapTraining<SamplingSpace::SE3>;

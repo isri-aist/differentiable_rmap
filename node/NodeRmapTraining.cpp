@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     rmap_training->configure(mc_rtc::Configuration(config_path));
   }
 
-  rmap_training->run();
+  rmap_training->runLoop();
 
   bool keep_alive = true;
   pnh.param<bool>("keep_alive", keep_alive, keep_alive);

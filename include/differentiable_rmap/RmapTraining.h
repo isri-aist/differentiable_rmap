@@ -26,8 +26,14 @@ class RmapTrainingBase
    */
   virtual void configure(const mc_rtc::Configuration& mc_rtc_config) = 0;
 
-  /** \brief Run SVM training. */
-  virtual void run() = 0;
+  /** \brief Setup SVM training. */
+  virtual void setup() = 0;
+
+  /** \brief Run SVM training once. */
+  virtual void runOnce() = 0;
+
+  /** \brief Setup and run SVM training loop. */
+  virtual void runLoop() = 0;
 };
 
 /** \brief Class to train SVM for differentiable reachability map.
@@ -106,8 +112,23 @@ class RmapTraining: public RmapTrainingBase
    */
   virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
 
-  /** \brief Run SVM training. */
-  virtual void run() override;
+  /** \brief Setup SVM training. */
+  virtual void setup() override;
+
+  /** \brief Run SVM training once. */
+  virtual void runOnce() override;
+
+  /** \brief Setup and run SVM training loop. */
+  virtual void runLoop() override;
+
+  /** \brief Test SVM value calculation.
+      \param[out] svm_value_libsvm SVM value calculated by libsvm
+      \param[out] svm_value_eigen  SVM value calculated by Eigen
+      \param[in] sample
+   */
+  void testCalcSVMValue(double& svm_value_libsvm,
+                        double& svm_value_eigen,
+                        const SampleType& sample) const;
 
  protected:
   /** \brief Setup SVM parameter. */
