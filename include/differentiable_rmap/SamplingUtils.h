@@ -92,6 +92,15 @@ Input<SamplingSpaceType> sampleToInput(const Sample<SamplingSpaceType>& sample);
 template <SamplingSpace SamplingSpaceType>
 Sample<SamplingSpaceType> inputToSample(const Input<SamplingSpaceType>& input);
 
+/** \brief Integrate velocity to sample. (duration is assumed to be one)
+    \tparam SamplingSpaceType sampling space
+    \param[in,out] sample sample
+    \param[in] vel velocity
+*/
+template <SamplingSpace SamplingSpaceType>
+void integrateVelToSample(Eigen::Ref<Sample<SamplingSpaceType>> sample,
+                          const Vel<SamplingSpaceType>& vel);
+
 /** \brief Get random pose in sampling space.
     \tparam SamplingSpaceType sampling space
 */

@@ -91,30 +91,23 @@ inline constexpr int inputDim<SamplingSpace::SE3>()
   return inputDim<SamplingSpace::R3>() + inputDim<SamplingSpace::SO3>();
 }
 
-// \todo Fix calcSVMGrad dimensions
 template <SamplingSpace SamplingSpaceType>
 constexpr int velDim()
 {
-  return inputDim<SamplingSpaceType>();
+  return sampleDim<SamplingSpaceType>();
 }
 
-// template <SamplingSpace SamplingSpaceType>
-// constexpr int velDim()
-// {
-//   return sampleDim<SamplingSpaceType>();
-// }
+template <>
+inline constexpr int velDim<SamplingSpace::SO3>()
+{
+  return 3;
+}
 
-// template <>
-// inline constexpr int velDim<SamplingSpace::SO3>()
-// {
-//   return 3;
-// }
-
-// template <>
-// inline constexpr int velDim<SamplingSpace::SE3>()
-// {
-//   return velDim<SamplingSpace::R3>() + velDim<SamplingSpace::SO3>();
-// }
+template <>
+inline constexpr int velDim<SamplingSpace::SE3>()
+{
+  return velDim<SamplingSpace::R3>() + velDim<SamplingSpace::SO3>();
+}
 
 template <SamplingSpace SamplingSpaceType>
 Sample<SamplingSpaceType> poseToSample(const sva::PTransformd& pose)
@@ -388,6 +381,36 @@ inline Sample<SamplingSpace::SE3> inputToSample<SamplingSpace::SE3>(
       inputToSample<SamplingSpace::R3>(input.head<inputDim<SamplingSpace::R3>()>()),
       inputToSample<SamplingSpace::SO3>(input.tail<inputDim<SamplingSpace::SO3>()>());
   return sample;
+}
+
+template <SamplingSpace SamplingSpaceType>
+void integrateVelToSample(Eigen::Ref<Sample<SamplingSpaceType>> sample,
+                          const Vel<SamplingSpaceType>& vel)
+{
+  sample += vel;
+}
+
+template <>
+inline void integrateVelToSample<SamplingSpace::SO3>(
+    Eigen::Ref<Sample<SamplingSpace::SO3>> sample, // 4 dimensions
+    const Vel<SamplingSpace::SO3>& vel) // 3 dimensions
+{
+  Eigen::Quaterniond quat(sample.w(), sample.x(), sample.y(), sample.z());
+  quat *= Eigen::Quaterniond(Eigen::AngleAxisd(vel.norm(), vel.normalized()));
+  sample << quat.coeffs();
+}
+
+template <>
+inline void integrateVelToSample<SamplingSpace::SE3>(
+    Eigen::Ref<Sample<SamplingSpace::SE3>> sample, // 7 dimensions
+    const Vel<SamplingSpace::SE3>& vel) // 6 dimensions
+{
+  integrateVelToSample<SamplingSpace::R3>(
+      sample.head<sampleDim<SamplingSpace::R3>()>(),
+      vel.head<velDim<SamplingSpace::R3>()>());
+  integrateVelToSample<SamplingSpace::SO3>(
+      sample.tail<sampleDim<SamplingSpace::SO3>()>(),
+      vel.tail<velDim<SamplingSpace::SO3>()>());
 }
 
 template <SamplingSpace SamplingSpaceType>
