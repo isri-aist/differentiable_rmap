@@ -85,10 +85,10 @@ void testCalcSVMGrad(const std::string& bag_path)
         svm_grad_numerical,
         poseToSample<SamplingSpaceType>(getRandomPose<SamplingSpaceType>()));
 
-    std::cout << "[testCalcSVMGrad]" << std::endl;
-    std::cout << "  svm_grad_analytical: " << svm_grad_analytical.transpose() << std::endl;
-    std::cout << "  svm_grad_numerical: " << svm_grad_numerical.transpose() << std::endl;
-    std::cout << "  error: " << (svm_grad_analytical - svm_grad_numerical).norm() << std::endl;
+    // std::cout << "[testCalcSVMGrad]" << std::endl;
+    // std::cout << "  svm_grad_analytical: " << svm_grad_analytical.transpose() << std::endl;
+    // std::cout << "  svm_grad_numerical: " << svm_grad_numerical.transpose() << std::endl;
+    // std::cout << "  error: " << (svm_grad_analytical - svm_grad_numerical).norm() << std::endl;
 
     BOOST_CHECK((svm_grad_analytical - svm_grad_numerical).norm() < 1e-3);
   }
@@ -126,10 +126,10 @@ void testInputToVelMat()
           (sampleToInput<SamplingSpaceType>(sample_plus) - sampleToInput<SamplingSpaceType>(sample_minus)) / (2 * eps);
     }
 
-    std::cout << "[testInputToVelMat]" << std::endl;
-    std::cout << "  mat_analytical:\n" << mat_analytical << std::endl;
-    std::cout << "  mat_numerical:\n" << mat_numerical << std::endl;
-    std::cout << "  error: " << (mat_analytical - mat_numerical).norm() << std::endl;
+    // std::cout << "[testInputToVelMat]" << std::endl;
+    // std::cout << "  mat_analytical:\n" << mat_analytical << std::endl;
+    // std::cout << "  mat_numerical:\n" << mat_numerical << std::endl;
+    // std::cout << "  error: " << (mat_analytical - mat_numerical).norm() << std::endl;
 
     BOOST_CHECK((mat_analytical - mat_numerical).norm() < 1e-8);
   }

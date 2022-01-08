@@ -112,8 +112,8 @@ inline InputToVelMat<SamplingSpace::SE2> inputToVelMat<SamplingSpace::SE2>(
     const Sample<SamplingSpace::SE2>& sample)
 {
   InputToVelMat<SamplingSpace::SE2> mat = InputToVelMat<SamplingSpace::SE2>::Zero();
-  mat.block<velDim<SamplingSpace::R2>(), inputDim<SamplingSpace::R2>()>(
-      0, 0).diagonal().setConstant(1);
+  mat.block<velDim<SamplingSpace::R2>(), inputDim<SamplingSpace::R2>()>(0, 0) =
+      inputToVelMat<SamplingSpace::R2>(sample.head<sampleDim<SamplingSpace::R2>()>());
   mat.block<velDim<SamplingSpace::SO2>(), inputDim<SamplingSpace::SO2>()>(
       velDim<SamplingSpace::R2>(), inputDim<SamplingSpace::R2>()) =
       inputToVelMat<SamplingSpace::SO2>(sample.tail<sampleDim<SamplingSpace::SO2>()>());
@@ -124,13 +124,43 @@ template <>
 inline InputToVelMat<SamplingSpace::SO3> inputToVelMat<SamplingSpace::SO3>(
     const Sample<SamplingSpace::SO3>& sample)
 {
-  return InputToVelMat<SamplingSpace::SO3>::Zero();
+  double qw = sample.w();
+  double qx = sample.x();
+  double qy = sample.y();
+  double qz = sample.z();
+
+  Eigen::Matrix<double, sampleDim<SamplingSpace::SO3>(), velDim<SamplingSpace::SO3>()>
+      vel_to_sample_mat; // 4 x 3 matrix
+  vel_to_sample_mat <<
+      -qx, -qy, -qz, qw, -qz, qy, qz, qw, -qx, -qy, qx, qw;
+
+  Eigen::Matrix<double, inputDim<SamplingSpace::SO3>(), sampleDim<SamplingSpace::SO3>()>
+      sample_to_input_mat; // 9 x 4 matrix
+  sample_to_input_mat <<
+      0, 0, -2*qy, -2*qz,
+      -qz, qy, qx, -qw,
+      qy, qz, qw, qx,
+      qz, qy, qx, qw,
+      0, -2*qx, 0, -2*qz,
+      -qx, -qw, qz, qy,
+      -qy, qz, -qw, qx,
+      qx, qw, qz, qy,
+      0, -2*qx, -2*qy, 0;
+  sample_to_input_mat *= 2;
+
+  return vel_to_sample_mat.transpose() * sample_to_input_mat.transpose() / 2;
 }
 
 template <>
 inline InputToVelMat<SamplingSpace::SE3> inputToVelMat<SamplingSpace::SE3>(
     const Sample<SamplingSpace::SE3>& sample)
 {
-  return InputToVelMat<SamplingSpace::SE3>::Zero();
+  InputToVelMat<SamplingSpace::SE3> mat = InputToVelMat<SamplingSpace::SE3>::Zero();
+  mat.block<velDim<SamplingSpace::R3>(), inputDim<SamplingSpace::R3>()>(0, 0) =
+      inputToVelMat<SamplingSpace::R3>(sample.head<sampleDim<SamplingSpace::R3>()>());
+  mat.block<velDim<SamplingSpace::SO3>(), inputDim<SamplingSpace::SO3>()>(
+      velDim<SamplingSpace::R3>(), inputDim<SamplingSpace::R3>()) =
+      inputToVelMat<SamplingSpace::SO3>(sample.tail<sampleDim<SamplingSpace::SO3>()>());
+  return mat;
 }
 }
