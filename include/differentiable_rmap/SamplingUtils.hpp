@@ -414,6 +414,61 @@ inline void integrateVelToSample<SamplingSpace::SE3>(
 }
 
 template <SamplingSpace SamplingSpaceType>
+Vel<SamplingSpaceType> sampleError(const Sample<SamplingSpaceType>& sample1,
+                                   const Sample<SamplingSpaceType>& sample2)
+{
+  return sample2 - sample1;
+}
+
+template <>
+inline Vel<SamplingSpace::SO2> sampleError<SamplingSpace::SO2>(
+    const Sample<SamplingSpace::SO2>& sample1,
+    const Sample<SamplingSpace::SO2>& sample2)
+{
+  Vel<SamplingSpace::SO2> error = sample2 - sample1;
+  // Range within [-pi, pi]
+  error.x() = std::atan2(std::sin(error.x()), std::cos(error.x()));
+  return error;
+}
+
+template <>
+inline Vel<SamplingSpace::SE2> sampleError<SamplingSpace::SE2>(
+    const Sample<SamplingSpace::SE2>& sample1,
+    const Sample<SamplingSpace::SE2>& sample2)
+{
+  Vel<SamplingSpace::SE2> error;
+  error.head<velDim<SamplingSpace::R2>()>() = sampleError<SamplingSpace::R2>(
+      sample1.head<sampleDim<SamplingSpace::R2>()>(),
+      sample2.head<sampleDim<SamplingSpace::R2>()>());
+  error.tail<velDim<SamplingSpace::SO2>()>() = sampleError<SamplingSpace::SO2>(
+      sample1.tail<sampleDim<SamplingSpace::SO2>()>(),
+      sample2.tail<sampleDim<SamplingSpace::SO2>()>());
+  return error;
+}
+
+template <>
+inline Vel<SamplingSpace::SO3> sampleError<SamplingSpace::SO3>(
+    const Sample<SamplingSpace::SO3>& sample1,
+    const Sample<SamplingSpace::SO3>& sample2)
+{
+  // sva::rotationError receives transposed rotation matrix
+  return sva::rotationError(
+      Eigen::Matrix3d(Eigen::Quaterniond(
+          sample1.w(), sample1.x(), sample1.y(), sample1.z()).toRotationMatrix().transpose()),
+      Eigen::Matrix3d(Eigen::Quaterniond(
+          sample2.w(), sample2.x(), sample2.y(), sample2.z()).toRotationMatrix().transpose()));
+}
+
+template <>
+inline Vel<SamplingSpace::SE3> sampleError<SamplingSpace::SE3>(
+    const Sample<SamplingSpace::SE3>& sample1,
+    const Sample<SamplingSpace::SE3>& sample2)
+{
+  return sva::transformError(
+      sampleToPose<SamplingSpace::SE3>(sample1), sampleToPose<SamplingSpace::SE3>(sample2)).vector();
+}
+
+template <SamplingSpace SamplingSpaceType>
 sva::PTransformd getRandomPose()
 {
   sva::PTransformd pose = sva::PTransformd::Identity();

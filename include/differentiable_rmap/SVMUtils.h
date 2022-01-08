@@ -82,33 +82,26 @@ using InputToVelMat = Eigen::Matrix<double, velDim<SamplingSpaceType>(), inputDi
 template <SamplingSpace SamplingSpaceType>
 InputToVelMat<SamplingSpaceType> inputToVelMat(const Sample<SamplingSpaceType>& sample);
 
-// /** \brief Set inequality matrix and vecor for SVM constraint in QP.
-//     \tparam SamplingSpaceType sampling space
-//     \param ineq_mat[out] inequality matrix
-//     \param ineq_vec[out] inequality vector
-// */
-// template <SamplingSpace SamplingSpaceType>
-// void setSVMIneq(Eigen::Ref<Eigen::MatrixXd> ineq_mat,
-//                 Eigen::Ref<Eigen::MatrixXd> ineq_vec,
-//                 const Sample<SamplingSpaceType>& sample,
-//                 const svm_parameter& svm_param,
-//                 svm_model *svm_mo,
-//                 const Eigen::VectorXd& svm_coeff_vec,
-//                 const Eigen::Matrix<double, inputDim<SamplingSpaceType>(), Eigen::Dynamic>& svm_sv_mat,
-//                 double svm_thre)
-// {
-//   // There is a problem with receiving a fixed size matrix with Ref, so we receive a dynamic size matrix.
-//   // See https://stackoverflow.com/a/54966664
-//   assert(ineq_mat.rows() == 1);
-//   assert(ineq_mat.cols() == sampleDim<SamplingSpaceType>());
-//   assert(ineq_vec.rows() == 1);
-//   assert(ineq_vec.cols() == 1);
-
-//   Eigen::VectorXd svm_grad = calcSVMGrad<SamplingSpaceType>(sample, svm_param, svm_mo, svm_coeff_vec, svm_sv_mat);
-//   // \todo: transform rotation to theta
-//   ineq_mat = -1 * svm_grad.transpose();
-//   ineq_vec(0, 0) = calcSVMValue<SamplingSpaceType>(sample, svm_param, svm_mo, svm_coeff_vec, svm_sv_mat) - svm_thre;
-// }
+/** \brief Set inequality matrix and vecor for SVM constraint in QP.
+    \tparam SamplingSpaceType sampling space
+    \param[out] ineq_mat inequality matrix
+    \param[out] ineq_vec inequality vector
+    \param[in] sample sample
+    \param[in] svm_param SVM parameter
+    \param[in] svm_mo SVM model
+    \param[in] svm_coeff_vec support vector coefficients
+    \param[in] svm_sv_mat support vector matrix
+    \param[in] svm_thre threshold of SVM predict value to be determined as reachable
+*/
+template <SamplingSpace SamplingSpaceType>
+void setSVMIneq(Eigen::Ref<Eigen::MatrixXd> ineq_mat,
+                Eigen::Ref<Eigen::MatrixXd> ineq_vec,
+                const Sample<SamplingSpaceType>& sample,
+                const svm_parameter& svm_param,
+                svm_model *svm_mo,
+                const Eigen::VectorXd& svm_coeff_vec,
+                const Eigen::Matrix<double, inputDim<SamplingSpaceType>(), Eigen::Dynamic>& svm_sv_mat,
+                double svm_thre);
 }
 
 // See method 3 in https://www.codeproject.com/Articles/48575/How-to-Define-a-Template-Class-in-a-h-File-and-Imp

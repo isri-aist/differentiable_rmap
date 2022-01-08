@@ -101,6 +101,16 @@ template <SamplingSpace SamplingSpaceType>
 void integrateVelToSample(Eigen::Ref<Sample<SamplingSpaceType>> sample,
                           const Vel<SamplingSpaceType>& vel);
 
+/** \brief Calculate error between two samples.
+    \tparam SamplingSpaceType sampling space
+    \param sample1 start sample
+    \param sample2 goal sample
+    \return velocity corresponding to the error from sample1 to sample2
+*/
+template <SamplingSpace SamplingSpaceType>
+Vel<SamplingSpaceType> sampleError(const Sample<SamplingSpaceType>& sample1,
+                                   const Sample<SamplingSpaceType>& sample2);
+
 /** \brief Get random pose in sampling space.
     \tparam SamplingSpaceType sampling space
 */
