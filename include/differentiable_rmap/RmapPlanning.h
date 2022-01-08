@@ -11,6 +11,8 @@
 
 #include <libsvm/svm.h>
 
+#include <optmotiongen/Utils/QpUtils.h>
+
 #include <differentiable_rmap/SamplingUtils.h>
 #include <differentiable_rmap/RosUtils.h>
 

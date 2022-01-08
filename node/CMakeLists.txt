@@ -12,3 +12,8 @@ add_executable(NodeRmapTraining
   NodeRmapTraining.cpp)
 target_link_libraries(NodeRmapTraining PRIVATE
   DiffRmap)
+
+add_executable(NodeRmapPlanning
+  NodeRmapPlanning.cpp)
+target_link_libraries(NodeRmapPlanning PRIVATE
+  DiffRmap)

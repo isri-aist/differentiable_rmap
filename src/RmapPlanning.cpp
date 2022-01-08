@@ -9,7 +9,6 @@
 #include <visualization_msgs/MarkerArray.h>
 
 #include <optmotiongen/Utils/RosUtils.h>
-#include <optmotiongen/Utils/QpUtils.h>
 
 #include <differentiable_rmap/RmapPlanning.h>
 #include <differentiable_rmap/SVMUtils.h>
