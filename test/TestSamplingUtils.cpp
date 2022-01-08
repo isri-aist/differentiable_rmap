@@ -101,20 +101,28 @@ void testIntegrate()
     // }
 
     if constexpr (SamplingSpaceType == SamplingSpace::SO2) {
+        // Allow 2 pi deviation for Yaw
         BOOST_CHECK(std::fmod(integrated_sample[0] - integrated_sample2[0], 2 * M_PI) < 1e-10);
       } else if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
         BOOST_CHECK((integrated_sample.template head<2>() - integrated_sample2.template head<2>()).norm() < 1e-10);
+        // Allow 2 pi deviation for Yaw
         BOOST_CHECK(std::fmod(integrated_sample[2] - integrated_sample2[2], 2 * M_PI) < 1e-10);
       } else if constexpr (SamplingSpaceType == SamplingSpace::SO3) {
+        // Quaternion multiplied by -1 represents the same rotation
         BOOST_CHECK((integrated_sample - integrated_sample2).norm() < 1e-10 ||
                     (integrated_sample + integrated_sample2).norm() < 1e-10);
       } else if constexpr (SamplingSpaceType == SamplingSpace::SE3) {
-        BOOST_CHECK((integrated_sample.template head<3>() - integrated_sample2.template head<3>()).norm() < 1e-10 &&
-                    ((integrated_sample.template tail<4>() - integrated_sample2.template tail<4>()).norm() < 1e-10 ||
-                     (integrated_sample.template tail<4>() + integrated_sample2.template tail<4>()).norm() < 1e-10));
+        BOOST_CHECK((integrated_sample.template head<3>() - integrated_sample2.template head<3>()).norm() < 1e-10);
+        // Quaternion multiplied by -1 represents the same rotation
+        BOOST_CHECK((integrated_sample.template tail<4>() - integrated_sample2.template tail<4>()).norm() < 1e-10 ||
+                    (integrated_sample.template tail<4>() + integrated_sample2.template tail<4>()).norm() < 1e-10);
       } else {
       BOOST_CHECK((integrated_sample - integrated_sample2).norm() < 1e-10);
     }
+
+    BOOST_CHECK(
+        sva::transformError(sampleToPose<SamplingSpaceType>(integrated_sample),
+                            sampleToPose<SamplingSpaceType>(integrated_sample2)).vector().norm() < 1e-10);
   }
 }
 

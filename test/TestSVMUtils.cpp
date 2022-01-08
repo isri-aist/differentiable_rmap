@@ -54,6 +54,16 @@ void testCalcSVMValue(const std::string& bag_path)
   }
 }
 
+BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueR2) { testCalcSVMValue<SamplingSpace::R2>("rmap_sample_set_R2_test.bag"); }
+BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueSE2) { testCalcSVMValue<SamplingSpace::SE2>("rmap_sample_set_SE2_test.bag"); }
+BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueR3) { testCalcSVMValue<SamplingSpace::R3>("rmap_sample_set_R3_test.bag"); }
+BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueSE3) { testCalcSVMValue<SamplingSpace::SE3>("rmap_sample_set_SE3_test.bag"); }
+
+BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueR2IK) { testCalcSVMValue<SamplingSpace::R2>("rmap_sample_set_R2_test_ik.bag"); }
+BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueSE2IK) { testCalcSVMValue<SamplingSpace::SE2>("rmap_sample_set_SE2_test_ik.bag"); }
+BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueR3IK) { testCalcSVMValue<SamplingSpace::R3>("rmap_sample_set_R3_test_ik.bag"); }
+BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueSE3IK) { testCalcSVMValue<SamplingSpace::SE3>("rmap_sample_set_SE3_test_ik.bag"); }
+
 template <SamplingSpace SamplingSpaceType>
 void testCalcSVMGrad(const std::string& bag_path)
 {
@@ -83,16 +93,6 @@ void testCalcSVMGrad(const std::string& bag_path)
     BOOST_CHECK((svm_grad_analytical - svm_grad_numerical).norm() < 1e-3);
   }
 }
-
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueR2) { testCalcSVMValue<SamplingSpace::R2>("rmap_sample_set_R2_test.bag"); }
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueSE2) { testCalcSVMValue<SamplingSpace::SE2>("rmap_sample_set_SE2_test.bag"); }
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueR3) { testCalcSVMValue<SamplingSpace::R3>("rmap_sample_set_R3_test.bag"); }
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueSE3) { testCalcSVMValue<SamplingSpace::SE3>("rmap_sample_set_SE3_test.bag"); }
-
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueR2IK) { testCalcSVMValue<SamplingSpace::R2>("rmap_sample_set_R2_test_ik.bag"); }
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueSE2IK) { testCalcSVMValue<SamplingSpace::SE2>("rmap_sample_set_SE2_test_ik.bag"); }
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueR3IK) { testCalcSVMValue<SamplingSpace::R3>("rmap_sample_set_R3_test_ik.bag"); }
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueSE3IK) { testCalcSVMValue<SamplingSpace::SE3>("rmap_sample_set_SE3_test_ik.bag"); }
 
 BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradR2) { testCalcSVMGrad<SamplingSpace::R2>("rmap_sample_set_R2_test.bag"); }
 BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradSE2) { testCalcSVMGrad<SamplingSpace::SE2>("rmap_sample_set_SE2_test.bag"); }
