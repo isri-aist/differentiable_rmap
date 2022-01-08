@@ -71,13 +71,16 @@ Vel<SamplingSpaceType> calcSVMGrad(
     const Eigen::VectorXd& svm_coeff_vec,
     const Eigen::Matrix<double, inputDim<SamplingSpaceType>(), Eigen::Dynamic>& svm_sv_mat);
 
+/*! \brief Type of matrix to represent the linear relation from input to vel. */
+template <SamplingSpace SamplingSpaceType>
+using InputToVelMat = Eigen::Matrix<double, velDim<SamplingSpaceType>(), inputDim<SamplingSpaceType>()>;
+
 /** \brief Get matrix to convert gradient for input to gradient for vel. Gradient is assumed to be column vector.
     \tparam SamplingSpaceType sampling space
     \param sample sample
 */
 template <SamplingSpace SamplingSpaceType>
-Eigen::Matrix<double, velDim<SamplingSpaceType>(), inputDim<SamplingSpaceType>()>
-inputToVelMat(const Sample<SamplingSpaceType>& sample);
+InputToVelMat<SamplingSpaceType> inputToVelMat(const Sample<SamplingSpaceType>& sample);
 
 // /** \brief Set inequality matrix and vecor for SVM constraint in QP.
 //     \tparam SamplingSpaceType sampling space

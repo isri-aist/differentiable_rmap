@@ -103,3 +103,41 @@ BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradR2IK) { testCalcSVMGrad<SamplingSpac
 BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradSE2IK) { testCalcSVMGrad<SamplingSpace::SE2>("rmap_sample_set_SE2_test_ik.bag"); }
 BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradR3IK) { testCalcSVMGrad<SamplingSpace::R3>("rmap_sample_set_R3_test_ik.bag"); }
 BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradSE3IK) { testCalcSVMGrad<SamplingSpace::SE3>("rmap_sample_set_SE3_test_ik.bag"); }
+
+template <SamplingSpace SamplingSpaceType>
+void testInputToVelMat()
+{
+  int test_num = 1000;
+  for (int i = 0; i < test_num; i++) {
+    sva::PTransformd pose = getRandomPose<SamplingSpaceType>();
+    Sample<SamplingSpaceType> sample = poseToSample<SamplingSpaceType>(pose);
+
+    InputToVelMat<SamplingSpaceType> mat_analytical = inputToVelMat<SamplingSpaceType>(sample);
+
+    InputToVelMat<SamplingSpaceType> mat_numerical;
+    double eps = 1e-6;
+    for (int j = 0; j < velDim<SamplingSpaceType>(); j++) {
+      Vel<SamplingSpaceType> vel = eps * Vel<SamplingSpaceType>::Unit(j);
+      Sample<SamplingSpaceType> sample_plus = sample;
+      integrateVelToSample<SamplingSpaceType>(sample_plus, vel);
+      Sample<SamplingSpaceType> sample_minus = sample;
+      integrateVelToSample<SamplingSpaceType>(sample_minus, -vel);
+      mat_numerical.row(j) =
+          (sampleToInput<SamplingSpaceType>(sample_plus) - sampleToInput<SamplingSpaceType>(sample_minus)) / (2 * eps);
+    }
+
+    std::cout << "[testInputToVelMat]" << std::endl;
+    std::cout << "  mat_analytical:\n" << mat_analytical << std::endl;
+    std::cout << "  mat_numerical:\n" << mat_numerical << std::endl;
+    std::cout << "  error: " << (mat_analytical - mat_numerical).norm() << std::endl;
+
+    BOOST_CHECK((mat_analytical - mat_numerical).norm() < 1e-8);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(TestInputToVelMatR2) { testInputToVelMat<SamplingSpace::R2>(); }
+BOOST_AUTO_TEST_CASE(TestInputToVelMatSO2) { testInputToVelMat<SamplingSpace::SO2>(); }
+BOOST_AUTO_TEST_CASE(TestInputToVelMatSE2) { testInputToVelMat<SamplingSpace::SE2>(); }
+BOOST_AUTO_TEST_CASE(TestInputToVelMatR3) { testInputToVelMat<SamplingSpace::R3>(); }
+BOOST_AUTO_TEST_CASE(TestInputToVelMatSO3) { testInputToVelMat<SamplingSpace::SO3>(); }
+BOOST_AUTO_TEST_CASE(TestInputToVelMatSE3) { testInputToVelMat<SamplingSpace::SE3>(); }

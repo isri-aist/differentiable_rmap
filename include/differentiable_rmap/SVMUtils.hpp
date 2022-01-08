@@ -89,50 +89,48 @@ Vel<SamplingSpaceType> calcSVMGrad(
 }
 
 template <SamplingSpace SamplingSpaceType>
-Eigen::Matrix<double, velDim<SamplingSpaceType>(), inputDim<SamplingSpaceType>()>
-inputToVelMat(const Sample<SamplingSpaceType>& sample)
+InputToVelMat<SamplingSpaceType> inputToVelMat(const Sample<SamplingSpaceType>& sample)
 {
   static_assert(velDim<SamplingSpaceType>() == inputDim<SamplingSpaceType>());
 
-  return Eigen::Matrix<double, velDim<SamplingSpaceType>(), velDim<SamplingSpaceType>()>::Identity();
+  return InputToVelMat<SamplingSpaceType>::Identity();
 }
 
 template <>
-inline Eigen::Matrix<double, velDim<SamplingSpace::SO2>(), inputDim<SamplingSpace::SO2>()>
-inputToVelMat<SamplingSpace::SO2>(const Sample<SamplingSpace::SO2>& sample)
+inline InputToVelMat<SamplingSpace::SO2> inputToVelMat<SamplingSpace::SO2>(
+    const Sample<SamplingSpace::SO2>& sample)
 {
   double cos = std::cos(sample.x());
   double sin = std::sin(sample.x());
-  Eigen::Matrix<double, velDim<SamplingSpace::SO2>(), inputDim<SamplingSpace::SO2>()> mat;
+  InputToVelMat<SamplingSpace::SO2> mat;
   mat << -sin, -cos, cos, -sin;
   return mat;
 }
 
 template <>
-inline Eigen::Matrix<double, velDim<SamplingSpace::SE2>(), inputDim<SamplingSpace::SE2>()>
-inputToVelMat<SamplingSpace::SE2>(const Sample<SamplingSpace::SE2>& sample)
+inline InputToVelMat<SamplingSpace::SE2> inputToVelMat<SamplingSpace::SE2>(
+    const Sample<SamplingSpace::SE2>& sample)
 {
-  Eigen::Matrix<double, velDim<SamplingSpace::SE2>(), inputDim<SamplingSpace::SE2>()> mat =
-      Eigen::Matrix<double, velDim<SamplingSpace::SE2>(), inputDim<SamplingSpace::SE2>()>::Zero();
+  InputToVelMat<SamplingSpace::SE2> mat = InputToVelMat<SamplingSpace::SE2>::Zero();
   mat.block<velDim<SamplingSpace::R2>(), inputDim<SamplingSpace::R2>()>(
       0, 0).diagonal().setConstant(1);
   mat.block<velDim<SamplingSpace::SO2>(), inputDim<SamplingSpace::SO2>()>(
       velDim<SamplingSpace::R2>(), inputDim<SamplingSpace::R2>()) =
-            inputToVelMat<SamplingSpace::SO2>(sample.tail<sampleDim<SamplingSpace::SO2>()>());
+      inputToVelMat<SamplingSpace::SO2>(sample.tail<sampleDim<SamplingSpace::SO2>()>());
   return mat;
 }
 
 template <>
-inline Eigen::Matrix<double, velDim<SamplingSpace::SO3>(), inputDim<SamplingSpace::SO3>()>
-inputToVelMat<SamplingSpace::SO3>(const Sample<SamplingSpace::SO3>& sample)
+inline InputToVelMat<SamplingSpace::SO3> inputToVelMat<SamplingSpace::SO3>(
+    const Sample<SamplingSpace::SO3>& sample)
 {
-  return Eigen::Matrix<double, velDim<SamplingSpace::SO3>(), inputDim<SamplingSpace::SO3>()>::Zero();
+  return InputToVelMat<SamplingSpace::SO3>::Zero();
 }
 
 template <>
-inline Eigen::Matrix<double, velDim<SamplingSpace::SE3>(), inputDim<SamplingSpace::SE3>()>
-inputToVelMat<SamplingSpace::SE3>(const Sample<SamplingSpace::SE3>& sample)
+inline InputToVelMat<SamplingSpace::SE3> inputToVelMat<SamplingSpace::SE3>(
+    const Sample<SamplingSpace::SE3>& sample)
 {
-  return Eigen::Matrix<double, velDim<SamplingSpace::SE3>(), inputDim<SamplingSpace::SE3>()>::Zero();
+  return InputToVelMat<SamplingSpace::SE3>::Zero();
 }
 }
