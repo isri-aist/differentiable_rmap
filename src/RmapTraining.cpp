@@ -412,7 +412,7 @@ void RmapTraining<SamplingSpaceType>::setSVMPredictionMat()
   svm_sv_mat_.resize(input_dim_, num_sv);
   for (int i = 0; i < num_sv; i++) {
     svm_coeff_vec_[i] = svm_mo_->sv_coef[0][i];
-    svm_sv_mat_.col(i) = toEigenVector<SamplingSpaceType>(svm_mo_->SV[i]);
+    svm_sv_mat_.col(i) = svmNodeToEigenVec<SamplingSpaceType>(svm_mo_->SV[i]);
   }
 }
 
@@ -597,17 +597,23 @@ void RmapTraining<SamplingSpaceType>::testCalcSVMGrad(
 
   double eps = 1e-6;
   for (int i = 0; i < velDim<SamplingSpaceType>(); i++) {
+    Vel<SamplingSpaceType> vel = eps * Vel<SamplingSpaceType>::Unit(i);
+    Sample<SamplingSpaceType> sample_plus = sample;
+    integrateVelToSample<SamplingSpaceType>(sample_plus, vel);
+    Sample<SamplingSpaceType> sample_minus = sample;
+    integrateVelToSample<SamplingSpaceType>(sample_minus, -vel);
+
     svm_grad_numerical[i] =
         (
             calcSVMValue<SamplingSpaceType>(
-                sampleToInput<SamplingSpaceType>(sample) + eps * Input<SamplingSpaceType>::Unit(i),
+                sampleToInput<SamplingSpaceType>(sample_plus),
                 svm_mo_->param,
                 svm_mo_,
                 svm_coeff_vec_,
                 svm_sv_mat_)
             -
             calcSVMValue<SamplingSpaceType>(
-                sampleToInput<SamplingSpaceType>(sample) - eps * Input<SamplingSpaceType>::Unit(i),
+                sampleToInput<SamplingSpaceType>(sample_minus),
                 svm_mo_->param,
                 svm_mo_,
                 svm_coeff_vec_,

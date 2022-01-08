@@ -18,6 +18,11 @@ std::shared_ptr<RmapTraining<SamplingSpaceType>> setupSVM(const std::string& bag
       "/tmp/rmap_svm_model.libsvm",
       false);
 
+  mc_rtc::Configuration mc_rtc_config;
+  // Set grid map resolution large to reduce the number of prediction
+  mc_rtc_config.add("grid_map_resolution", 1.0);
+  rmap_training->configure(mc_rtc_config);
+
   rmap_training->setup();
   rmap_training->runOnce();
 
@@ -63,12 +68,17 @@ void testCalcSVMGrad(const std::string& bag_path)
 
   int test_num = 1000;
   for (int i = 0; i < test_num; i++) {
-    Input<SamplingSpaceType> svm_grad_analytical;
-    Input<SamplingSpaceType> svm_grad_numerical;
+    Vel<SamplingSpaceType> svm_grad_analytical;
+    Vel<SamplingSpaceType> svm_grad_numerical;
     rmap_sampling->testCalcSVMGrad(
         svm_grad_analytical,
         svm_grad_numerical,
         poseToSample<SamplingSpaceType>(getRandomPose<SamplingSpaceType>()));
+
+    // std::cout << "[testCalcSVMGrad]" << std::endl;
+    // std::cout << "  svm_grad_analytical: " << svm_grad_analytical.transpose() << std::endl;
+    // std::cout << "  svm_grad_numerical: " << svm_grad_numerical.transpose() << std::endl;
+    // std::cout << "  error: " << (svm_grad_analytical - svm_grad_numerical).norm() << std::endl;
 
     BOOST_CHECK((svm_grad_analytical - svm_grad_numerical).norm() < 1e-3);
   }

@@ -17,17 +17,7 @@ namespace DiffRmap
 template <SamplingSpace SamplingSpaceType>
 void setInputNode(
     svm_node* input_node,
-    const Input<SamplingSpaceType>& input)
-{
-  for (int i = 0; i < inputDim<SamplingSpaceType>() + 1; i++) {
-    if (i == inputDim<SamplingSpaceType>()) {
-      input_node[i].index = -1; // last index must be -1
-    } else {
-      input_node[i].index = i + 1; // index starts from 1
-      input_node[i].value = input[i];
-    }
-  }
-}
+    const Input<SamplingSpaceType>& input);
 
 /** \brief Set SVM input to node (only value).
     \tparam SamplingSpaceType sampling space
@@ -37,27 +27,15 @@ void setInputNode(
 template <SamplingSpace SamplingSpaceType>
 void setInputNodeOnlyValue(
     svm_node* input_node,
-    const Input<SamplingSpaceType>& input)
-{
-  for (int i = 0; i < inputDim<SamplingSpaceType>(); i++) {
-    input_node[i].value = input[i];
-  }
-}
+    const Input<SamplingSpaceType>& input);
 
 /** \brief Convert SVM input node to Eigen::Vector.
     \tparam SamplingSpaceType sampling space
     \param input_node SVM input node
 */
 template <SamplingSpace SamplingSpaceType>
-Input<SamplingSpaceType> toEigenVector(
-    const svm_node *input_node)
-{
-  Input<SamplingSpaceType> input;
-  for (int i = 0; i < inputDim<SamplingSpaceType>(); i++) {
-    input[i] = input_node[i].value;
-  }
-  return input;
-}
+Input<SamplingSpaceType> svmNodeToEigenVec(
+    const svm_node *input_node);
 
 /** \brief Calculate SVM value.
     \tparam SamplingSpaceType sampling space
@@ -74,21 +52,7 @@ double calcSVMValue(
     const svm_parameter& svm_param,
     svm_model *svm_mo,
     const Eigen::VectorXd& svm_coeff_vec,
-    const Eigen::Matrix<double, inputDim<SamplingSpaceType>(), Eigen::Dynamic>& svm_sv_mat)
-{
-  if (!(svm_mo->param.svm_type == ONE_CLASS || svm_mo->param.svm_type == NU_SVC)) {
-    mc_rtc::log::error_and_throw<std::runtime_error>(
-        "[calcSVMValue] Only one-class or nu-svc SVM is supported: {}", svm_mo->param.svm_type);
-  }
-
-  if (svm_param.kernel_type != RBF) {
-    mc_rtc::log::error_and_throw<std::runtime_error>(
-        "[calcSVMValue] Only RBF kernel is supported: {}", svm_param.kernel_type);
-  }
-
-  return svm_coeff_vec.dot(
-      (-svm_param.gamma * (svm_sv_mat.colwise() - input).colwise().squaredNorm()).array().exp().matrix()) - svm_mo->rho[0];
-}
+    const Eigen::Matrix<double, inputDim<SamplingSpaceType>(), Eigen::Dynamic>& svm_sv_mat);
 
 /** \brief Calculate gradient of SVM value.
     \tparam SamplingSpaceType sampling space
@@ -105,22 +69,44 @@ Vel<SamplingSpaceType> calcSVMGrad(
     const svm_parameter& svm_param,
     svm_model *svm_mo,
     const Eigen::VectorXd& svm_coeff_vec,
-    const Eigen::Matrix<double, inputDim<SamplingSpaceType>(), Eigen::Dynamic>& svm_sv_mat)
-{
-  if (!(svm_mo->param.svm_type == ONE_CLASS || svm_mo->param.svm_type == NU_SVC)) {
-    mc_rtc::log::error_and_throw<std::runtime_error>(
-        "[calcSVMGrad] Only one-class or nu-svc SVM is supported: {}", svm_mo->param.svm_type);
-  }
+    const Eigen::Matrix<double, inputDim<SamplingSpaceType>(), Eigen::Dynamic>& svm_sv_mat);
 
-  if (svm_param.kernel_type != RBF) {
-    mc_rtc::log::error_and_throw<std::runtime_error>(
-        "[calcSVMGrad] Only RBF kernel is supported: {}", svm_param.kernel_type);
-  }
+/** \brief Get matrix to convert gradient for input to gradient for vel. Gradient is assumed to be column vector.
+    \tparam SamplingSpaceType sampling space
+    \param sample sample
+*/
+template <SamplingSpace SamplingSpaceType>
+Eigen::Matrix<double, velDim<SamplingSpaceType>(), inputDim<SamplingSpaceType>()>
+inputToVelMat(const Sample<SamplingSpaceType>& sample);
 
-  Eigen::Matrix<double, inputDim<SamplingSpaceType>(), Eigen::Dynamic> sv_mat_minus_input =
-      svm_sv_mat.colwise() - input;
+// /** \brief Set inequality matrix and vecor for SVM constraint in QP.
+//     \tparam SamplingSpaceType sampling space
+//     \param ineq_mat[out] inequality matrix
+//     \param ineq_vec[out] inequality vector
+// */
+// template <SamplingSpace SamplingSpaceType>
+// void setSVMIneq(Eigen::Ref<Eigen::MatrixXd> ineq_mat,
+//                 Eigen::Ref<Eigen::MatrixXd> ineq_vec,
+//                 const Input<SamplingSpaceType>& input,
+//                 const svm_parameter& svm_param,
+//                 svm_model *svm_mo,
+//                 const Eigen::VectorXd& svm_coeff_vec,
+//                 const Eigen::Matrix<double, inputDim<SamplingSpaceType>(), Eigen::Dynamic>& svm_sv_mat,
+//                 double svm_thre)
+// {
+//   // There is a problem with receiving a fixed size matrix with Ref, so we receive a dynamic size matrix.
+//   // See https://stackoverflow.com/a/54966664
+//   assert(ineq_mat.rows() == 1);
+//   assert(ineq_mat.cols() == sampleDim<SamplingSpaceType>());
+//   assert(ineq_vec.rows() == 1);
+//   assert(ineq_vec.cols() == 1);
 
-  return 2 * svm_param.gamma * sv_mat_minus_input *
-      svm_coeff_vec.cwiseProduct((-svm_param.gamma * sv_mat_minus_input.colwise().squaredNorm()).array().exp().matrix().transpose());
+//   Eigen::VectorXd svm_grad = calcSVMGrad<SamplingSpaceType>(input, svm_param, svm_mo, svm_coeff_vec, svm_sv_mat);
+//   // \todo: transform rotation to theta
+//   ineq_mat = -1 * svm_grad.transpose();
+//   ineq_vec(0, 0) = calcSVMValue<SamplingSpaceType>(input, svm_param, svm_mo, svm_coeff_vec, svm_sv_mat) - svm_thre;
+// }
 }
-}
+
+// See method 3 in https://www.codeproject.com/Articles/48575/How-to-Define-a-Template-Class-in-a-h-File-and-Imp
+#include <differentiable_rmap/SVMUtils.hpp>
