@@ -1,9 +1,5 @@
 /* Author: Masaki Murooka */
 
-#include <mc_rtc/Configuration.h>
-
-#include <optmotiongen_msgs/RobotStateArray.h>
-
 #include <differentiable_rmap/RmapTraining.h>
 
 using namespace DiffRmap;

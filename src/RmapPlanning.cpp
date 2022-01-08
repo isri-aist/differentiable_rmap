@@ -48,7 +48,7 @@ void RmapPlanning<SamplingSpaceType>::configure(const mc_rtc::Configuration& mc_
 }
 
 template <SamplingSpace SamplingSpaceType>
-void RmapPlanning<SamplingSpaceType>::run()
+void RmapPlanning<SamplingSpaceType>::setup()
 {
   // Setup grid map
   setupGridMap();
@@ -56,42 +56,53 @@ void RmapPlanning<SamplingSpaceType>::run()
   // Publish (MarkerArray message is fixed)
   publishMarkerArray();
 
-  OmgCore::QpCoeff qp_coeff;
-  qp_coeff.setup(vel_dim_, 0, 1);
-  qp_coeff.x_min_.setConstant(-config_.delta_config_limit);
-  qp_coeff.x_max_.setConstant(config_.delta_config_limit);
+  qp_coeff_.setup(vel_dim_, 0, 1);
+  qp_coeff_.x_min_.setConstant(-config_.delta_config_limit);
+  qp_coeff_.x_max_.setConstant(config_.delta_config_limit);
 
-  std::shared_ptr<OmgCore::QpSolver> qp_solver = OmgCore::allocateQpSolver(OmgCore::QpSolverType::JRLQP);
+  qp_solver_ = OmgCore::allocateQpSolver(OmgCore::QpSolverType::JRLQP);
 
   current_sample_ = poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
+}
+
+template <SamplingSpace SamplingSpaceType>
+void RmapPlanning<SamplingSpaceType>::runOnce()
+{
+  // Set QP coefficients
+  qp_coeff_.obj_vec_ = sampleError<SamplingSpaceType>(target_sample_, current_sample_);
+  double lambda = qp_coeff_.obj_vec_.squaredNorm() + 1e-3;
+  qp_coeff_.obj_mat_.diagonal().setConstant(1.0 + lambda);
+  setSVMIneq<SamplingSpaceType>(
+      qp_coeff_.ineq_mat_.block(0, 0, 1, velDim<SamplingSpaceType>()),
+      qp_coeff_.ineq_vec_.block(0, 0, 1, 1),
+      current_sample_,
+      svm_mo_->param,
+      svm_mo_,
+      svm_coeff_vec_,
+      svm_sv_mat_,
+      config_.svm_thre);
+
+  // Solve QP
+  const VelType& vel = qp_solver_->solve(qp_coeff_);
+
+  // Integrate
+  integrateVelToSample<SamplingSpaceType>(current_sample_, vel);
+
+  // Publish
+  publishCurrentState();
+
+  // Predict SVM
+  predictOnSlicePlane();
+}
+
+template <SamplingSpace SamplingSpaceType>
+void RmapPlanning<SamplingSpaceType>::runLoop()
+{
+  setup();
 
   ros::Rate rate(100);
   while (ros::ok()) {
-    // Set QP coefficients
-    qp_coeff.obj_vec_ = sampleError<SamplingSpaceType>(target_sample_, current_sample_);
-    double lambda = qp_coeff.obj_vec_.squaredNorm() + 1e-3;
-    qp_coeff.obj_mat_.diagonal().setConstant(1.0 + lambda);
-    setSVMIneq<SamplingSpaceType>(
-        qp_coeff.ineq_mat_.block(0, 0, 1, velDim<SamplingSpaceType>()),
-        qp_coeff.ineq_vec_.block(0, 0, 1, 1),
-        current_sample_,
-        svm_mo_->param,
-        svm_mo_,
-        svm_coeff_vec_,
-        svm_sv_mat_,
-        config_.svm_thre);
-
-    // Solve QP
-    const VelType& vel = qp_solver->solve(qp_coeff);
-
-    // Integrate
-    integrateVelToSample<SamplingSpaceType>(current_sample_, vel);
-
-    // Publish
-    publishCurrentState();
-
-    // Predict SVM
-    predictOnSlicePlane();
+    runOnce();
 
     rate.sleep();
     ros::spinOnce();

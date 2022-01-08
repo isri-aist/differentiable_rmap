@@ -26,8 +26,14 @@ class RmapPlanningBase
    */
   virtual void configure(const mc_rtc::Configuration& mc_rtc_config) = 0;
 
-  /** \brief Run SVM planning. */
-  virtual void run() = 0;
+  /** \brief Setup planning. */
+  virtual void setup() = 0;
+
+  /** \brief Run planning once. */
+  virtual void runOnce() = 0;
+
+  /** \brief Setup and run planning loop. */
+  virtual void runLoop() = 0;
 };
 
 /** \brief Class to plan in sample space based on differentiable reachability map.
@@ -100,8 +106,14 @@ class RmapPlanning: public RmapPlanningBase
    */
   virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
 
-  /** \brief Run SVM planning. */
-  virtual void run() override;
+  /** \brief Setup planning. */
+  virtual void setup() override;
+
+  /** \brief Run planning once. */
+  virtual void runOnce() override;
+
+  /** \brief Setup and run planning loop. */
+  virtual void runLoop() override;
 
  protected:
   /** \brief Setup grid map. */
@@ -134,6 +146,12 @@ class RmapPlanning: public RmapPlanningBase
 
   //! SVM model
   svm_model *svm_mo_;
+
+  //! QP coefficients
+  OmgCore::QpCoeff qp_coeff_;
+
+  //! QP solver
+  std::shared_ptr<OmgCore::QpSolver> qp_solver_;
 
   //! Current sample
   SampleType current_sample_ = poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
