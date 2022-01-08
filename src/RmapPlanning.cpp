@@ -113,8 +113,8 @@ void RmapPlanning<SamplingSpaceType>::setupGridMap()
 {
   // Calculate sample min/max
   // \todo Load from file
-  SampleType sample_min = SampleType::Constant(2.0);
-  SampleType sample_max = SampleType::Constant(-2.0);
+  SampleType sample_min = SampleType::Constant(-2.0);
+  SampleType sample_max = SampleType::Constant(2.0);
   SampleType sample_range = sample_max - sample_min;
   {
     sample_min -= config_.grid_map_margin_ratio * sample_range;

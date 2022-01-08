@@ -1,0 +1,14 @@
+# Height of xy plane marker
+svm_thre: -0.1
+
+# Limit of configuration update in one step [m], [rad]
+delta_config_limit: 0.1
+
+# Margin ratio of grid map
+grid_map_margin_ratio: 0.5
+
+# Resolution of grid map [m]
+grid_map_resolution: 0.075
+
+# Height scale of grid map
+grid_map_height_scale: 1.0
