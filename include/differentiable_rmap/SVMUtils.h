@@ -39,7 +39,7 @@ Input<SamplingSpaceType> svmNodeToEigenVec(
 
 /** \brief Calculate SVM value.
     \tparam SamplingSpaceType sampling space
-    \param input SVM input
+    \param sample sample
     \param svm_param SVM parameter
     \param svm_mo SVM model
     \param svm_coeff_vec support vector coefficients
@@ -48,7 +48,7 @@ Input<SamplingSpaceType> svmNodeToEigenVec(
 */
 template <SamplingSpace SamplingSpaceType>
 double calcSVMValue(
-    const Input<SamplingSpaceType>& input,
+    const Sample<SamplingSpaceType>& sample,
     const svm_parameter& svm_param,
     svm_model *svm_mo,
     const Eigen::VectorXd& svm_coeff_vec,
@@ -56,7 +56,7 @@ double calcSVMValue(
 
 /** \brief Calculate gradient of SVM value.
     \tparam SamplingSpaceType sampling space
-    \param input SVM input
+    \param sample sample
     \param svm_param SVM parameter
     \param svm_mo SVM model
     \param svm_coeff_vec support vector coefficients
@@ -65,7 +65,7 @@ double calcSVMValue(
 */
 template <SamplingSpace SamplingSpaceType>
 Vel<SamplingSpaceType> calcSVMGrad(
-    const Input<SamplingSpaceType>& input,
+    const Sample<SamplingSpaceType>& sample,
     const svm_parameter& svm_param,
     svm_model *svm_mo,
     const Eigen::VectorXd& svm_coeff_vec,
@@ -87,7 +87,7 @@ inputToVelMat(const Sample<SamplingSpaceType>& sample);
 // template <SamplingSpace SamplingSpaceType>
 // void setSVMIneq(Eigen::Ref<Eigen::MatrixXd> ineq_mat,
 //                 Eigen::Ref<Eigen::MatrixXd> ineq_vec,
-//                 const Input<SamplingSpaceType>& input,
+//                 const Sample<SamplingSpaceType>& sample,
 //                 const svm_parameter& svm_param,
 //                 svm_model *svm_mo,
 //                 const Eigen::VectorXd& svm_coeff_vec,
@@ -101,10 +101,10 @@ inputToVelMat(const Sample<SamplingSpaceType>& sample);
 //   assert(ineq_vec.rows() == 1);
 //   assert(ineq_vec.cols() == 1);
 
-//   Eigen::VectorXd svm_grad = calcSVMGrad<SamplingSpaceType>(input, svm_param, svm_mo, svm_coeff_vec, svm_sv_mat);
+//   Eigen::VectorXd svm_grad = calcSVMGrad<SamplingSpaceType>(sample, svm_param, svm_mo, svm_coeff_vec, svm_sv_mat);
 //   // \todo: transform rotation to theta
 //   ineq_mat = -1 * svm_grad.transpose();
-//   ineq_vec(0, 0) = calcSVMValue<SamplingSpaceType>(input, svm_param, svm_mo, svm_coeff_vec, svm_sv_mat) - svm_thre;
+//   ineq_vec(0, 0) = calcSVMValue<SamplingSpaceType>(sample, svm_param, svm_mo, svm_coeff_vec, svm_sv_mat) - svm_thre;
 // }
 }
 

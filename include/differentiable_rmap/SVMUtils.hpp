@@ -41,7 +41,7 @@ Input<SamplingSpaceType> svmNodeToEigenVec(
 
 template <SamplingSpace SamplingSpaceType>
 double calcSVMValue(
-    const Input<SamplingSpaceType>& input,
+    const Sample<SamplingSpaceType>& sample,
     const svm_parameter& svm_param,
     svm_model *svm_mo,
     const Eigen::VectorXd& svm_coeff_vec,
@@ -58,12 +58,13 @@ double calcSVMValue(
   }
 
   return svm_coeff_vec.dot(
-      (-svm_param.gamma * (svm_sv_mat.colwise() - input).colwise().squaredNorm()).array().exp().matrix()) - svm_mo->rho[0];
+      (-svm_param.gamma * (svm_sv_mat.colwise() - sampleToInput<SamplingSpaceType>(sample)).colwise().squaredNorm()).array().exp().matrix())
+      - svm_mo->rho[0];
 }
 
 template <SamplingSpace SamplingSpaceType>
 Vel<SamplingSpaceType> calcSVMGrad(
-    const Input<SamplingSpaceType>& input,
+    const Sample<SamplingSpaceType>& sample,
     const svm_parameter& svm_param,
     svm_model *svm_mo,
     const Eigen::VectorXd& svm_coeff_vec,
@@ -80,9 +81,9 @@ Vel<SamplingSpaceType> calcSVMGrad(
   }
 
   Eigen::Matrix<double, inputDim<SamplingSpaceType>(), Eigen::Dynamic> sv_mat_minus_input =
-      svm_sv_mat.colwise() - input;
+      svm_sv_mat.colwise() - sampleToInput<SamplingSpaceType>(sample);
 
-  return inputToVelMat<SamplingSpaceType>(inputToSample<SamplingSpaceType>(input)) *
+  return inputToVelMat<SamplingSpaceType>(sample) *
       2 * svm_param.gamma * sv_mat_minus_input *
       svm_coeff_vec.cwiseProduct((-svm_param.gamma * sv_mat_minus_input.colwise().squaredNorm()).array().exp().matrix().transpose());
 }

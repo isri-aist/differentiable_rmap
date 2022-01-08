@@ -447,7 +447,7 @@ void RmapTraining<SamplingSpaceType>::predictOnSlicePlane()
           svm_predict_values(svm_mo_, input_node, &svm_value);
         } else {
         svm_value = calcSVMValue<SamplingSpaceType>(
-            sampleToInput<SamplingSpaceType>(sample),
+            sample,
             svm_mo_->param,
             svm_mo_,
             svm_coeff_vec_,
@@ -575,7 +575,7 @@ void RmapTraining<SamplingSpaceType>::testCalcSVMValue(
   svm_predict_values(svm_mo_, input_node, &svm_value_libsvm);
 
   svm_value_eigen = calcSVMValue<SamplingSpaceType>(
-      sampleToInput<SamplingSpaceType>(sample),
+      sample,
       svm_mo_->param,
       svm_mo_,
       svm_coeff_vec_,
@@ -589,7 +589,7 @@ void RmapTraining<SamplingSpaceType>::testCalcSVMGrad(
     const SampleType& sample) const
 {
   svm_grad_analytical = calcSVMGrad<SamplingSpaceType>(
-      sampleToInput<SamplingSpaceType>(sample),
+      sample,
       svm_mo_->param,
       svm_mo_,
       svm_coeff_vec_,
@@ -606,14 +606,14 @@ void RmapTraining<SamplingSpaceType>::testCalcSVMGrad(
     svm_grad_numerical[i] =
         (
             calcSVMValue<SamplingSpaceType>(
-                sampleToInput<SamplingSpaceType>(sample_plus),
+                sample_plus,
                 svm_mo_->param,
                 svm_mo_,
                 svm_coeff_vec_,
                 svm_sv_mat_)
             -
             calcSVMValue<SamplingSpaceType>(
-                sampleToInput<SamplingSpaceType>(sample_minus),
+                sample_minus,
                 svm_mo_->param,
                 svm_mo_,
                 svm_coeff_vec_,
