@@ -64,27 +64,30 @@ void testIntegrate()
     Sample<SamplingSpaceType> integrated_sample = poseToSample<SamplingSpaceType>(pose);
     integrateVelToSample<SamplingSpaceType>(integrated_sample, vel);
 
-    sva::PTransformd integrated_pose2;
+    sva::PTransformd integrated_pose2 = pose;
     if constexpr (SamplingSpaceType == SamplingSpace::R2) {
-        integrated_pose2 = pose;
         integrated_pose2.translation().template head<2>() += vel;
       } else if constexpr (SamplingSpaceType == SamplingSpace::SO2) {
-        integrated_pose2 = sva::PTransformd(Eigen::Matrix3d(
-            Eigen::AngleAxisd(vel[0], Eigen::Vector3d::UnitZ()).toRotationMatrix().transpose())) * pose;
+        integrated_pose2.rotation() =
+            (pose.rotation().transpose() *
+             Eigen::AngleAxisd(vel[0], Eigen::Vector3d::UnitZ()).toRotationMatrix()).transpose();
       } else if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
-        integrated_pose2 = sva::PTransformd(Eigen::Matrix3d(
-            Eigen::AngleAxisd(vel[2], Eigen::Vector3d::UnitZ()).toRotationMatrix().transpose())) * pose;
         integrated_pose2.translation().template head<2>() += vel.template head<2>();
+        integrated_pose2.rotation() =
+            (pose.rotation().transpose() *
+             Eigen::AngleAxisd(vel[2], Eigen::Vector3d::UnitZ()).toRotationMatrix()).transpose();
       } else if constexpr (SamplingSpaceType == SamplingSpace::R3) {
-        integrated_pose2 = pose;
         integrated_pose2.translation() += vel;
       } else if constexpr (SamplingSpaceType == SamplingSpace::SO3) {
-        integrated_pose2 = sva::PTransformd(Eigen::Matrix3d(
-            Eigen::AngleAxisd(vel.norm(), vel.normalized()).toRotationMatrix().transpose())) * pose;
+        integrated_pose2.rotation() =
+            (pose.rotation().transpose() *
+             Eigen::AngleAxisd(vel.norm(), vel.normalized()).toRotationMatrix()).transpose();
       } else if constexpr (SamplingSpaceType == SamplingSpace::SE3) {
-        integrated_pose2 = sva::PTransformd(Eigen::Matrix3d(
-            Eigen::AngleAxisd(vel.template tail<3>().norm(), vel.template tail<3>().normalized()).toRotationMatrix().transpose())) * pose;
         integrated_pose2.translation() += vel.template head<3>();
+        integrated_pose2.rotation() =
+            (pose.rotation().transpose() *
+             Eigen::AngleAxisd(vel.template tail<3>().norm(), vel.template tail<3>().normalized()
+                               ).toRotationMatrix()).transpose();
       } else {
       static_assert(static_cast<bool>(static_cast<int>(SamplingSpaceType)) && false,
                     "[testIntegrate] Unsupported sampling space.");
@@ -132,3 +135,30 @@ BOOST_AUTO_TEST_CASE(TestSamplingUtilsIntegrateSE2) { testIntegrate<SamplingSpac
 BOOST_AUTO_TEST_CASE(TestSamplingUtilsIntegrateR3) { testIntegrate<SamplingSpace::R3>(); }
 BOOST_AUTO_TEST_CASE(TestSamplingUtilsIntegrateSO3) { testIntegrate<SamplingSpace::SO3>(); }
 BOOST_AUTO_TEST_CASE(TestSamplingUtilsIntegrateSE3) { testIntegrate<SamplingSpace::SE3>(); }
+
+template <SamplingSpace SamplingSpaceType>
+void testSampleError()
+{
+  int test_num = 1000;
+  for (int i = 0; i < test_num; i++) {
+    sva::PTransformd pose = getRandomPose<SamplingSpaceType>();
+    Vel<SamplingSpaceType> vel = 1e-3 * Vel<SamplingSpaceType>::Random();
+    Sample<SamplingSpaceType> sample = poseToSample<SamplingSpaceType>(pose);
+    Sample<SamplingSpaceType> integrated_sample = sample;
+    integrateVelToSample<SamplingSpaceType>(integrated_sample, vel);
+
+    // std::cout << "[testSampleError]" << std::endl;
+    // std::cout << "  vel: " << vel.transpose() << std::endl;
+    // std::cout << "  sample_error: " << sampleError<SamplingSpaceType>(sample, integrated_sample).transpose() << std::endl;
+    // std::cout << "  error: " << (vel - sampleError<SamplingSpaceType>(sample, integrated_sample)).norm() << std::endl;
+
+    BOOST_CHECK((vel - sampleError<SamplingSpaceType>(sample, integrated_sample)).norm() < 1e-10);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(TestSamplingUtilsSampleErrorR2) { testSampleError<SamplingSpace::R2>(); }
+BOOST_AUTO_TEST_CASE(TestSamplingUtilsSampleErrorSO2) { testSampleError<SamplingSpace::SO2>(); }
+BOOST_AUTO_TEST_CASE(TestSamplingUtilsSampleErrorSE2) { testSampleError<SamplingSpace::SE2>(); }
+BOOST_AUTO_TEST_CASE(TestSamplingUtilsSampleErrorR3) { testSampleError<SamplingSpace::R3>(); }
+BOOST_AUTO_TEST_CASE(TestSamplingUtilsSampleErrorSO3) { testSampleError<SamplingSpace::SO3>(); }
+BOOST_AUTO_TEST_CASE(TestSamplingUtilsSampleErrorSE3) { testSampleError<SamplingSpace::SE3>(); }
