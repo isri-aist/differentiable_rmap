@@ -120,7 +120,7 @@ template <>
 inline Sample<SamplingSpace::R2> poseToSample<SamplingSpace::R2>(
     const sva::PTransformd& pose)
 {
-  return pose.translation().head(2);
+  return pose.translation().head<2>();
 }
 
 template <>
@@ -227,7 +227,7 @@ inline sva::PTransformd sampleToPose<SamplingSpace::SE3>(
 template <SamplingSpace SamplingSpaceType>
 Eigen::Vector3d sampleToCloudPos(const Sample<SamplingSpaceType>& sample)
 {
-  return sample.head(3);
+  return sample.template head<3>();
 }
 
 template <>
