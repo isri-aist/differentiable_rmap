@@ -190,23 +190,17 @@ void RmapPlanning<SamplingSpaceType>::predictOnSlicePlane()
 
     double duration = 1e3 * std::chrono::duration_cast<std::chrono::duration<double>>(
         std::chrono::system_clock::now() - start_time).count();
-    ROS_INFO_STREAM("SVM predict duration: " << duration << " [ms] (predict-one: " <<
-                    duration / grid_idx <<" [ms])");
+    ROS_INFO_STREAM_THROTTLE(
+        10, "SVM predict duration: " << duration << " [ms] (predict-one: " <<
+        duration / grid_idx <<" [ms])");
   }
 
   // Publish
   {
-    auto start_time = std::chrono::system_clock::now();
-
     grid_map_->setTimestamp(ros::Time::now().toNSec());
     grid_map_msgs::GridMap grid_map_msg;
     grid_map::GridMapRosConverter::toMessage(*grid_map_, grid_map_msg);
     grid_map_pub_.publish(grid_map_msg);
-
-    double duration = 1e3 * std::chrono::duration_cast<std::chrono::duration<double>>(
-        std::chrono::system_clock::now() - start_time).count();
-    // Publish is fast compared with other process
-    // ROS_INFO_STREAM("SVM publish duration: " << duration << " [ms]");
   }
 }
 

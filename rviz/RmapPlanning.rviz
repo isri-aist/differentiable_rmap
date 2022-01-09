@@ -3,8 +3,7 @@ Panels:
     Help Height: 110
     Name: Displays
     Property Tree Widget:
-      Expanded:
-        - /InteractiveMarkers1
+      Expanded: ~
       Splitter Ratio: 0.6277258396148682
     Tree Height: 725
   - Class: rviz/Selection
@@ -197,23 +196,23 @@ Visualization Manager:
       Enabled: true
       Name: InteractiveMarkers
       Show Axes: false
-      Show Descriptions: true
+      Show Descriptions: false
       Show Visual Aids: false
       Update Topic: /interactive_marker_server/update
       Value: true
     - Alpha: 1
       Class: rviz/PointStamped
-      Color: 204; 41; 204
+      Color: 237; 212; 0
       Enabled: true
       History Length: 1
       Name: CurrentPoint
-      Radius: 0.20000000298023224
+      Radius: 0.03999999910593033
       Topic: /current_pos
       Unreliable: false
       Value: true
     - Alpha: 1
-      Axes Length: 1
-      Axes Radius: 0.10000000149011612
+      Axes Length: 0.20000000298023224
+      Axes Radius: 0.019999999552965164
       Class: rviz/Pose
       Color: 255; 25; 0
       Enabled: true
@@ -253,21 +252,26 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: 0
-      Class: rviz/TopDownOrtho
+      Class: rviz/Orbit
+      Distance: 1.3613224029541016
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
+      Focal Point:
+        X: 0.23424869775772095
+        Y: 0.214807391166687
+        Z: 0.21849580109119415
+      Focal Shape Fixed Size: false
+      Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 309.3540954589844
+      Pitch: 1.099797248840332
       Target Frame: <Fixed Frame>
-      Value: TopDownOrtho (rviz)
-      X: 0
-      Y: 0
+      Value: Orbit (rviz)
+      Yaw: 1.4154454469680786
     Saved: ~
 Window Geometry:
   Displays:
