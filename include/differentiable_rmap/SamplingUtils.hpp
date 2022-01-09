@@ -387,6 +387,7 @@ template <SamplingSpace SamplingSpaceType>
 void integrateVelToSample(Eigen::Ref<Sample<SamplingSpaceType>> sample,
                           const Vel<SamplingSpaceType>& vel)
 {
+  // Translation velocity is assumed to be represented in world frame
   sample += vel;
 }
 
@@ -396,6 +397,7 @@ inline void integrateVelToSample<SamplingSpace::SO3>(
     const Vel<SamplingSpace::SO3>& vel) // 3 dimensions
 {
   Eigen::Quaterniond quat(sample.w(), sample.x(), sample.y(), sample.z());
+  // Rotation velocity is assumed to be represented in sample frame
   quat *= Eigen::Quaterniond(Eigen::AngleAxisd(vel.norm(), vel.normalized()));
   sample << quat.coeffs();
 }
@@ -417,6 +419,7 @@ template <SamplingSpace SamplingSpaceType>
 Vel<SamplingSpaceType> sampleError(const Sample<SamplingSpaceType>& sample1,
                                    const Sample<SamplingSpaceType>& sample2)
 {
+  // Translation velocity is assumed to be represented in world frame
   return sample2 - sample1;
 }
 
@@ -451,12 +454,12 @@ inline Vel<SamplingSpace::SO3> sampleError<SamplingSpace::SO3>(
     const Sample<SamplingSpace::SO3>& sample1,
     const Sample<SamplingSpace::SO3>& sample2)
 {
-  // sva::rotationError receives transposed rotation matrix
-  return sva::rotationError(
-      Eigen::Matrix3d(Eigen::Quaterniond(
-          sample1.w(), sample1.x(), sample1.y(), sample1.z()).toRotationMatrix().transpose()),
-      Eigen::Matrix3d(Eigen::Quaterniond(
-          sample2.w(), sample2.x(), sample2.y(), sample2.z()).toRotationMatrix().transpose()));
+  // Rotation velocity is assumed to be represented in sample1 frame, so rotationError is not appropriate
+  return sva::rotationVelocity(Eigen::Matrix3d(
+      Eigen::Quaterniond(
+          sample2.w(), sample2.x(), sample2.y(), sample2.z()).toRotationMatrix().transpose() *
+      Eigen::Quaterniond(
+          sample1.w(), sample1.x(), sample1.y(), sample1.z()).toRotationMatrix()));
 }
 
 template <>
