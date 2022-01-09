@@ -464,8 +464,14 @@ inline Vel<SamplingSpace::SE3> sampleError<SamplingSpace::SE3>(
     const Sample<SamplingSpace::SE3>& sample1,
     const Sample<SamplingSpace::SE3>& sample2)
 {
-  return sva::transformError(
-      sampleToPose<SamplingSpace::SE3>(sample1), sampleToPose<SamplingSpace::SE3>(sample2)).vector();
+  Vel<SamplingSpace::SE3> error;
+  error.head<velDim<SamplingSpace::R3>()>() = sampleError<SamplingSpace::R3>(
+      sample1.head<sampleDim<SamplingSpace::R3>()>(),
+      sample2.head<sampleDim<SamplingSpace::R3>()>());
+  error.tail<velDim<SamplingSpace::SO3>()>() = sampleError<SamplingSpace::SO3>(
+      sample1.tail<sampleDim<SamplingSpace::SO3>()>(),
+      sample2.tail<sampleDim<SamplingSpace::SO3>()>());
+  return error;
 }
 
 template <SamplingSpace SamplingSpaceType>
