@@ -54,6 +54,9 @@ class RmapPlanning: public RmapPlanningBase
     //! Limit of configuration update in one step [m], [rad]
     double delta_config_limit = 0.1;
 
+    //! Initial sample pose
+    sva::PTransformd initial_sample_pose = sva::PTransformd::Identity();
+
     //! Margin ratio of grid map
     double grid_map_margin_ratio = 0.5;
 
@@ -68,6 +71,7 @@ class RmapPlanning: public RmapPlanningBase
     {
       mc_rtc_config("svm_thre", svm_thre);
       mc_rtc_config("delta_config_limit", delta_config_limit);
+      mc_rtc_config("initial_sample_pose", initial_sample_pose);
       mc_rtc_config("grid_map_margin_ratio", grid_map_margin_ratio);
       mc_rtc_config("grid_map_resolution", grid_map_resolution);
       mc_rtc_config("grid_map_height_scale", grid_map_height_scale);

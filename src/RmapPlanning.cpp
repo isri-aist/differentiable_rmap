@@ -61,7 +61,7 @@ void RmapPlanning<SamplingSpaceType>::setup()
 
   qp_solver_ = OmgCore::allocateQpSolver(OmgCore::QpSolverType::JRLQP);
 
-  current_sample_ = poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
+  current_sample_ = poseToSample<SamplingSpaceType>(config_.initial_sample_pose);
 }
 
 template <SamplingSpace SamplingSpaceType>
