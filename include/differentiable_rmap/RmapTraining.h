@@ -87,6 +87,9 @@ class RmapTraining: public RmapTrainingBase
   /*! \brief Dimension of SVM input. */
   static constexpr int input_dim_ = inputDim<SamplingSpaceType>();
 
+  //! Whether to use libsvm function for SVM prediction
+  static constexpr bool use_libsvm_prediction_ = false;
+
  public:
   /*! \brief Type of sample vector. */
   using SampleType = Sample<SamplingSpaceType>;
@@ -204,9 +207,6 @@ class RmapTraining: public RmapTrainingBase
   Eigen::VectorXd svm_coeff_vec_;
   //! Support vector matrix
   Eigen::Matrix<double, input_dim_, Eigen::Dynamic> svm_sv_mat_;
-
-  //! Whether to use libsvm function for prediction
-  static constexpr bool use_libsvm_prediction_ = false;
 
   //! Grid map
   std::shared_ptr<grid_map::GridMap> grid_map_;
