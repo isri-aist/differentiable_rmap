@@ -43,6 +43,7 @@ add_message_files(
   FILES
   RmapSample.msg
   RmapSampleSet.msg
+  RmapGridSet.msg
   )
 
 generate_messages(

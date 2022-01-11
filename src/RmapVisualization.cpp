@@ -49,17 +49,42 @@ void RmapVisualization<SamplingSpaceType>::configure(const mc_rtc::Configuration
 template <SamplingSpace SamplingSpaceType>
 void RmapVisualization<SamplingSpaceType>::setup()
 {
+  // Set number of division
+  Eigen::Matrix<int, sample_dim_, 1> divide_nums;
+  if constexpr (SamplingSpaceType == SamplingSpace::R2) {
+      divide_nums.setConstant(config_.pos_divide_num);
+    } else if constexpr (SamplingSpaceType == SamplingSpace::SO2) {
+      divide_nums.setConstant(config_.rot_divide_num);
+    } else if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+      divide_nums.template head<sampleDim<SamplingSpace::R2>()>().setConstant(config_.pos_divide_num);
+      divide_nums.template tail<sampleDim<SamplingSpace::SO2>()>().setConstant(config_.rot_divide_num);
+    } else if constexpr (SamplingSpaceType == SamplingSpace::R3) {
+      divide_nums.setConstant(config_.pos_divide_num);
+    } else if constexpr (SamplingSpaceType == SamplingSpace::SO3) {
+      divide_nums.setConstant(config_.rot_divide_num);
+    } else if constexpr (SamplingSpaceType == SamplingSpace::SE3) {
+      divide_nums.template head<sampleDim<SamplingSpace::R3>()>().setConstant(config_.pos_divide_num);
+      divide_nums.template tail<sampleDim<SamplingSpace::SO3>()>().setConstant(config_.rot_divide_num);
+    }
+
   // Predict on whole grid
   SampleType sample_range = sample_max_ - sample_min_;
-  Eigen::Matrix<int, sample_dim_, 1> divide_nums;
-  divide_nums.setConstant(5);
+  SampleType sample;
+  SampleType divide_ratio;
   Eigen::Matrix<int, sample_dim_, 1> divide_idxs = Eigen::Matrix<int, sample_dim_, 1>::Zero();
   bool break_flag = false;
   while (true) {
+    // Calculate ratio of division
+    for (int i = 0; i < sample_dim_; i++) {
+      if (divide_nums[i] == 1) {
+        divide_ratio[i] = 0.5;
+      } else {
+        divide_ratio[i] = static_cast<double>(divide_idxs[i]) / (divide_nums[i] - 1);
+      }
+    }
+
     // Predict
-    SampleType sample = divide_idxs.template cast<double>().cwiseProduct(
-        (divide_nums.array() - 1).matrix().template cast<double>().cwiseInverse()).cwiseProduct(
-            sample_range) + sample_min_;
+    sample = divide_ratio.cwiseProduct(sample_range) + sample_min_;
     double svm_value = calcSVMValue<SamplingSpaceType>(
         sample,
         svm_mo_->param,
