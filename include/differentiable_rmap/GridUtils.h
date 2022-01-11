@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <functional>
+
 
 namespace DiffRmap
 {
@@ -54,5 +56,39 @@ inline bool updateGridDivideIdxs(
     }
   }
   return false;
+}
+
+/*! \brief Type of function to be called for each grid. */
+template <SamplingSpace SamplingSpaceType>
+using GridFuncType = std::function<void(int, const Sample<SamplingSpaceType>&)>;
+
+/** \brief Loop grid and call function for each grid
+    \tparam SamplingSpaceType sampling space
+    \tparam DivideNumsType type of divide_nums
+    \param divide_nums number of grid division
+    \param sample_min min position of sample
+    \param sample_range position range of sample
+    \param func function to be called for each grid
+*/
+template <SamplingSpace SamplingSpaceType, class DivideNumsType>
+inline void loopGrid(const DivideNumsType& divide_nums,
+                     const Sample<SamplingSpaceType>& sample_min,
+                     const Sample<SamplingSpaceType>& sample_range,
+                     const GridFuncType<SamplingSpaceType>& func)
+{
+  Sample<SamplingSpaceType> divide_ratios;
+  Eigen::Matrix<int, sampleDim<SamplingSpaceType>(), 1> divide_idxs =
+      Eigen::Matrix<int, sampleDim<SamplingSpaceType>(), 1>::Zero();
+  int grid_idx = 0;
+  bool break_flag = false;
+  do {
+    calcGridDivideRatios(divide_ratios, divide_idxs, divide_nums);
+
+    func(grid_idx, divide_ratios.cwiseProduct(sample_range) + sample_min);
+
+    break_flag = updateGridDivideIdxs(divide_idxs, divide_nums);
+
+    grid_idx++;
+  } while (!break_flag);
 }
 }

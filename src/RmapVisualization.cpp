@@ -56,7 +56,6 @@ void RmapVisualization<SamplingSpaceType>::setup(const std::string& grid_bag_pat
 template <SamplingSpace SamplingSpaceType>
 void RmapVisualization<SamplingSpaceType>::runOnce()
 {
-  // Publish
   publishMarkerArray();
 }
 
@@ -148,32 +147,21 @@ void RmapVisualization<SamplingSpaceType>::dumpGridSet(
   }
   grid_set_msg_.values.resize(total_grid_num);
 
-  // Predict on whole grid
-  SampleType sample;
-  SampleType divide_ratios;
-  Eigen::Matrix<int, sample_dim_, 1> divide_idxs = Eigen::Matrix<int, sample_dim_, 1>::Zero();
-  int grid_idx = 0;
-  bool break_flag = false;
-  do {
-    // Calculate ratio of division
-    calcGridDivideRatios(divide_ratios, divide_idxs, divide_nums);
-
-    // Predict
-    sample = divide_ratios.cwiseProduct(sample_range) + sample_min_;
-    double svm_value = calcSVMValue<SamplingSpaceType>(
+  // Set grid value
+  GridFuncType<SamplingSpaceType> set_grid_value_func =
+      [&](int grid_idx, const SampleType& sample) {
+    grid_set_msg_.values[grid_idx] = calcSVMValue<SamplingSpaceType>(
         sample,
         svm_mo_->param,
         svm_mo_,
         svm_coeff_vec_,
         svm_sv_mat_);
-    grid_set_msg_.values[grid_idx] = svm_value;
-
-    // Update divide_idxs
-    break_flag = updateGridDivideIdxs(divide_idxs, divide_nums);
-
-    grid_idx++;
-  } while (!break_flag);
-  assert(grid_idx == grid_set_msg_.values.size());
+  };
+  loopGrid<SamplingSpaceType>(
+      divide_nums,
+      sample_min_,
+      sample_range,
+      set_grid_value_func);
 
   // Dump to ROS bag
   rosbag::Bag bag(grid_bag_path, rosbag::bagmode::Write);
@@ -199,52 +187,42 @@ void RmapVisualization<SamplingSpaceType>::publishMarkerArray() const
   marker_arr_msg.markers.push_back(del_marker);
 
   // Reachable grids marker
-  {
-    SampleType sample_range = sample_max_ - sample_min_;
+  SampleType sample_range = sample_max_ - sample_min_;
 
-    visualization_msgs::Marker grids_marker;
-    grids_marker.header = header_msg;
-    grids_marker.ns = "reachable_grids";
-    grids_marker.id = marker_arr_msg.markers.size();
-    grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
-    grids_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.0, 0.0, 1.0});
-    grids_marker.scale.x = 1.1 * sample_range[0] / grid_set_msg_.divide_nums[0];
-    if constexpr (sample_dim_ > 1) {
-        grids_marker.scale.y = 1.1 * sample_range[1] / grid_set_msg_.divide_nums[1];
-      } else {
-      grids_marker.scale.y = 0.1;
-    }
-    if constexpr (sample_dim_ > 2) {
-        grids_marker.scale.z = 1.1 * sample_range[2] / grid_set_msg_.divide_nums[2];
-      } else {
-      grids_marker.scale.z = 0.1;
-    }
-    grids_marker.pose = OmgCore::toPoseMsg(sva::PTransformd::Identity());
-
-    // Predict on whole grid
-    SampleType sample;
-    SampleType divide_ratios;
-    Eigen::Matrix<int, sample_dim_, 1> divide_idxs = Eigen::Matrix<int, sample_dim_, 1>::Zero();
-    int grid_idx = 0;
-    bool break_flag = false;
-    do {
-      // Calculate ratio of division
-      calcGridDivideRatios(divide_ratios, divide_idxs, grid_set_msg_.divide_nums);
-
-      // Append cube
-      sample = divide_ratios.cwiseProduct(sample_range) + sample_min_;
-      if (grid_set_msg_.values[grid_idx] > config_.svm_thre) {
-        grids_marker.points.push_back(
-            OmgCore::toPointMsg(sampleToCloudPos<SamplingSpaceType>(sample)));
-      }
-
-      // Update divide_idxs
-      break_flag = updateGridDivideIdxs(divide_idxs, grid_set_msg_.divide_nums);
-
-      grid_idx++;
-    } while (!break_flag);
-    marker_arr_msg.markers.push_back(grids_marker);
+  visualization_msgs::Marker grids_marker;
+  grids_marker.header = header_msg;
+  grids_marker.ns = "reachable_grids";
+  grids_marker.id = marker_arr_msg.markers.size();
+  grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
+  grids_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.0, 0.0, 1.0});
+  grids_marker.scale.x = 1.1 * sample_range[0] / grid_set_msg_.divide_nums[0];
+  if constexpr (sample_dim_ > 1) {
+      grids_marker.scale.y = 1.1 * sample_range[1] / grid_set_msg_.divide_nums[1];
+    } else {
+    grids_marker.scale.y = 0.1;
   }
+  if constexpr (sample_dim_ > 2) {
+      grids_marker.scale.z = 1.1 * sample_range[2] / grid_set_msg_.divide_nums[2];
+    } else {
+    grids_marker.scale.z = 0.1;
+  }
+  grids_marker.pose = OmgCore::toPoseMsg(sva::PTransformd::Identity());
+
+  // Append cube points
+  GridFuncType<SamplingSpaceType> append_points_func =
+      [&](int grid_idx, const SampleType& sample) {
+    if (grid_set_msg_.values[grid_idx] > config_.svm_thre) {
+      grids_marker.points.push_back(
+          OmgCore::toPointMsg(sampleToCloudPos<SamplingSpaceType>(sample)));
+    }
+  };
+  loopGrid<SamplingSpaceType>(
+      grid_set_msg_.divide_nums,
+      sample_min_,
+      sample_range,
+      append_points_func);
+
+  marker_arr_msg.markers.push_back(grids_marker);
 
   marker_arr_pub_.publish(marker_arr_msg);
 }
