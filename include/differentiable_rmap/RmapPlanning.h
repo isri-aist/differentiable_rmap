@@ -146,10 +146,10 @@ class RmapPlanning: public RmapPlanningBase
   void predictOnSlicePlane();
 
   /** \brief Publish marker array. */
-  void publishMarkerArray() const;
+  virtual void publishMarkerArray() const;
 
   /** \brief Publish current state. */
-  void publishCurrentState() const;
+  virtual void publishCurrentState() const;
 
   /** \brief Transform topic callback. */
   void transCallback(const geometry_msgs::TransformStamped::ConstPtr& trans_st_msg);

@@ -35,6 +35,8 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
     /*! \brief Load mc_rtc configuration. */
     inline virtual void load(const mc_rtc::Configuration& mc_rtc_config) override
     {
+      RmapSampling<SamplingSpaceType>::Configuration::load(mc_rtc_config);
+
       mc_rtc_config("bbox_sample_num", bbox_sample_num);
       mc_rtc_config("ik_trial_num", ik_trial_num);
       mc_rtc_config("ik_loop_num", ik_loop_num);

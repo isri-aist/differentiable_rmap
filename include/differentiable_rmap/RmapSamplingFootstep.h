@@ -35,6 +35,8 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
     /*! \brief Load mc_rtc configuration. */
     inline virtual void load(const mc_rtc::Configuration& mc_rtc_config) override
     {
+      RmapSamplingIK<SamplingSpaceType>::Configuration::load(mc_rtc_config);
+
       if (mc_rtc_config.has("upper_footstep_pos")) {
         mc_rtc_config("upper_footstep_pos", upper_footstep_pos);
         upper_footstep_pos.z() = mc_rtc::constants::toRad(upper_footstep_pos.z());

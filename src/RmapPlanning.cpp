@@ -23,7 +23,11 @@ RmapPlanning<SamplingSpaceType>::RmapPlanning(const std::string& svm_path,
                                               const std::string& bag_path)
 {
   // Setup ROS
-  trans_sub_ = nh_.subscribe("interactive_marker_transform", 1, &RmapPlanning<SamplingSpaceType>::transCallback, this);
+  trans_sub_ = nh_.subscribe(
+      "interactive_marker_transform",
+      1,
+      &RmapPlanning<SamplingSpaceType>::transCallback,
+      this);
   marker_arr_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("marker_arr", 1, true);
   grid_map_pub_ = nh_.advertise<grid_map_msgs::GridMap>("grid_map", 1, true);
   current_pos_pub_ = nh_.advertise<geometry_msgs::PointStamped>("current_pos", 1, true);
@@ -76,7 +80,7 @@ void RmapPlanning<SamplingSpaceType>::runOnce(bool publish)
   double lambda = qp_coeff_.obj_vec_.squaredNorm() + 1e-3;
   qp_coeff_.obj_mat_.diagonal().setConstant(1.0 + lambda);
   setSVMIneq<SamplingSpaceType>(
-      qp_coeff_.ineq_mat_.block(0, 0, 1, velDim<SamplingSpaceType>()),
+      qp_coeff_.ineq_mat_.block(0, 0, 1, vel_dim_),
       qp_coeff_.ineq_vec_.block(0, 0, 1, 1),
       current_sample_,
       svm_mo_->param,
