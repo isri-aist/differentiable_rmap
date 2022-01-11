@@ -149,11 +149,16 @@ void RmapSampling<SamplingSpaceType>::dumpBag(const std::string& bag_path) const
   sample_set_msg.type = static_cast<size_t>(SamplingSpaceType);
   sample_set_msg.samples.resize(sample_list_.size());
 
+  SampleType sample_min = SampleType::Constant(1e10);
+  SampleType sample_max = SampleType::Constant(-1e10);
+
   // Since libsvm considers the first class to be positive,
   // add the reachable sample from the beginning and the unreachable sample from the end.
   size_t reachable_idx = 0;
   size_t unreachable_idx = 0;
   for (size_t i = 0; i < sample_list_.size(); i++) {
+    const SampleType& sample = sample_list_[i];
+
     // Get msg_idx according to sample reachability
     size_t msg_idx;
     if (reachability_list_[i]) {
@@ -167,9 +172,21 @@ void RmapSampling<SamplingSpaceType>::dumpBag(const std::string& bag_path) const
     // Set sample to message
     sample_set_msg.samples[msg_idx].position.resize(sample_dim_);
     for (int j = 0; j < sample_dim_; j++) {
-      sample_set_msg.samples[msg_idx].position[j] = sample_list_[i][j];
+      sample_set_msg.samples[msg_idx].position[j] = sample[j];
     }
     sample_set_msg.samples[msg_idx].is_reachable = reachability_list_[i];
+
+    // Update min/max samples
+    sample_min = sample_min.cwiseMin(sample);
+    sample_max = sample_max.cwiseMax(sample);
+  }
+
+  // Set min/max samples to message
+  sample_set_msg.min.resize(sample_dim_);
+  sample_set_msg.max.resize(sample_dim_);
+  for (int i = 0; i < sample_dim_; i++) {
+    sample_set_msg.min[i] = sample_min[i];
+    sample_set_msg.max[i] = sample_max[i];
   }
 
   bag.write("/rmap_sample_set", ros::Time::now(), sample_set_msg);

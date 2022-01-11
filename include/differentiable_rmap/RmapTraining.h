@@ -189,6 +189,10 @@ class RmapTraining: public RmapTrainingBase
   //! Reachability list
   std::vector<bool> reachability_list_;
 
+  //! Min/max position of samples
+  SampleType sample_min_;
+  SampleType sample_max_;
+
   //! Whether SVM model is loaded from file
   bool load_svm_;
   //! path of SVM model file

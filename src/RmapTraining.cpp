@@ -242,27 +242,21 @@ void RmapTraining<SamplingSpaceType>::updateSliceOrigin()
 template <SamplingSpace SamplingSpaceType>
 void RmapTraining<SamplingSpaceType>::setupGridMap()
 {
-  // Calculate sample min/max
-  SampleType sample_min = SampleType::Constant(1e10);
-  SampleType sample_max = SampleType::Constant(-1e10);
-  SampleType sample_range;
+  // Calculate min/max position with margin
+  SampleType sample_min_with_margin = sample_min_;
+  SampleType sample_max_with_margin = sample_max_;
+  SampleType sample_range = sample_max_ - sample_min_;
   {
-    for (const SampleType& sample : sample_list_) {
-      sample_min = sample_min.cwiseMin(sample);
-      sample_max = sample_max.cwiseMax(sample);
-    }
-    sample_range = sample_max - sample_min;
-
-    sample_min -= config_.grid_map_margin_ratio * sample_range;
-    sample_max += config_.grid_map_margin_ratio * sample_range;
-    sample_range = sample_max - sample_min;
+    sample_min_with_margin -= config_.grid_map_margin_ratio * sample_range;
+    sample_max_with_margin += config_.grid_map_margin_ratio * sample_range;
+    sample_range = sample_max_with_margin - sample_min_with_margin;
   }
 
   // Create grid map
   {
     grid_map_ = std::make_shared<grid_map::GridMap>(std::vector<std::string>{"svm_value"});
 
-    SampleType sample_center = (sample_min + sample_max) / 2;
+    SampleType sample_center = (sample_min_ + sample_max_) / 2;
     grid_map_->setFrameId("world");
     grid_map_->setGeometry(grid_map::Length(sample_range[0], sample_range[1]),
                            config_.grid_map_resolution,
@@ -294,13 +288,18 @@ void RmapTraining<SamplingSpaceType>::loadBag(const std::string& bag_path)
           "SamplingSpace does not match with message: {} != {}",
           sample_set_msg->type, static_cast<size_t>(SamplingSpaceType));
     }
-    sample_list_.resize(sample_set_msg->samples.size());
-    reachability_list_.resize(sample_set_msg->samples.size());
-    for (size_t i = 0; i < sample_set_msg->samples.size(); i++) {
+    int sample_num = sample_set_msg->samples.size();
+    sample_list_.resize(sample_num);
+    reachability_list_.resize(sample_num);
+    for (size_t i = 0; i < sample_num; i++) {
       for (int j = 0; j < sample_dim_; j++) {
         sample_list_[i][j] = sample_set_msg->samples[i].position[j];
       }
       reachability_list_[i] = sample_set_msg->samples[i].is_reachable;
+    }
+    for (int i = 0; i < sample_dim_; i++) {
+      sample_min_[i] = sample_set_msg->min[i];
+      sample_max_[i] = sample_set_msg->max[i];
     }
 
     cnt++;
