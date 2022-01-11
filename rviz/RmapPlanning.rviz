@@ -57,7 +57,7 @@ Visualization Manager:
       Color: 200; 200; 200
       Color Layer: svm_value
       Color Transformer: IntensityLayer
-      Enabled: false
+      Enabled: true
       Height Layer: svm_value
       Height Transformer: Layer
       History Length: 1
@@ -71,12 +71,13 @@ Visualization Manager:
       Topic: /grid_map
       Unreliable: false
       Use Rainbow: true
-      Value: false
+      Value: true
     - Class: rviz/MarkerArray
       Enabled: true
       Marker Topic: /marker_arr
       Name: MarkerArray
       Namespaces:
+        reachable_grids: true
         xy_plane: false
       Queue Size: 100
       Value: true
@@ -142,7 +143,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 2.747711181640625
+      Distance: 5.170768737792969
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -157,10 +158,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.9653981328010559
+      Pitch: 0.33539822697639465
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 4.483575820922852
+      Yaw: 4.213578224182129
     Saved: ~
 Window Geometry:
   Displays:
