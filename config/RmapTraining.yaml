@@ -2,7 +2,7 @@
 grid_map_margin_ratio: 0.25
 
 # Resolution of grid map [m]
-grid_map_resolution: 0.075
+grid_map_resolution: 0.05
 
 # Height scale of grid map
 grid_map_height_scale: 1.0
