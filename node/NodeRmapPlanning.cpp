@@ -18,9 +18,13 @@ int main(int argc, char **argv)
   std::string svm_path = "/tmp/rmap_svm_model.libsvm";
   pnh.param<std::string>("svm_path", svm_path, svm_path);
 
+  std::string bag_path = "/tmp/rmap_grid_set.bag";
+  pnh.param<std::string>("bag_path", bag_path, bag_path);
+
   auto rmap_planning = createRmapPlanning(
       sampling_space,
-      svm_path);
+      svm_path,
+      bag_path);
 
   if (pnh.hasParam("config_path")) {
     std::string config_path;

@@ -8,6 +8,7 @@
       sampling_space: $(arg sampling_space)
       config_path: $(find differentiable_rmap)/config/RmapPlanning.yaml
       svm_path: /tmp/rmap_svm_model_$(arg sampling_space).libsvm
+      bag_path: /tmp/rmap_grid_set_$(arg sampling_space).bag
     </rosparam>
   </node>
 

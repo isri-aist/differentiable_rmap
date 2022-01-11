@@ -27,7 +27,7 @@ class RmapVisualizationBase
   /** \brief Setup visualization.
       \param grid_bag_path path of ROS bag file of grid set
    */
-  virtual void setup(const std::string& grid_bag_path) = 0;
+  virtual void setup(const std::string& grid_bag_path = "/tmp/rmap_grid_set.bag") = 0;
 
   /** \brief Run visualization once. */
   virtual void runOnce() = 0;
@@ -35,7 +35,7 @@ class RmapVisualizationBase
   /** \brief Setup and run visualization loop.
       \param grid_bag_path path of ROS bag file of grid set
    */
-  virtual void runLoop(const std::string& grid_bag_path) = 0;
+  virtual void runLoop(const std::string& grid_bag_path = "/tmp/rmap_grid_set.bag") = 0;
 };
 
 /** \brief Class to plan in sample space based on differentiable reachability map.
@@ -99,7 +99,7 @@ class RmapVisualization: public RmapVisualizationBase
   /** \brief Setup visualization.
       \param grid_bag_path path of ROS bag file of grid set
    */
-  virtual void setup(const std::string& grid_bag_path) override;
+  virtual void setup(const std::string& grid_bag_path = "/tmp/rmap_grid_set.bag") override;
 
   /** \brief Run visualization once. */
   virtual void runOnce() override;
@@ -107,7 +107,7 @@ class RmapVisualization: public RmapVisualizationBase
   /** \brief Setup and run visualization loop.
       \param grid_bag_path path of ROS bag file of grid set
    */
-  virtual void runLoop(const std::string& grid_bag_path) override;
+  virtual void runLoop(const std::string& grid_bag_path = "/tmp/rmap_grid_set.bag") override;
 
  protected:
   /** \brief Load sample set from ROS bag. */

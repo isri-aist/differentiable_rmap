@@ -18,7 +18,8 @@ using namespace DiffRmap;
 
 
 template <SamplingSpace SamplingSpaceType>
-RmapPlanning<SamplingSpaceType>::RmapPlanning(const std::string& svm_path)
+RmapPlanning<SamplingSpaceType>::RmapPlanning(const std::string& svm_path,
+                                              const std::string& bag_path)
 {
   // Setup ROS
   trans_sub_ = nh_.subscribe("interactive_marker_transform", 1, &RmapPlanning<SamplingSpaceType>::transCallback, this);
@@ -29,6 +30,9 @@ RmapPlanning<SamplingSpaceType>::RmapPlanning(const std::string& svm_path)
 
   // Load SVM model
   loadSVM(svm_path);
+
+  // Load sample set
+  loadGridSet(bag_path);
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -51,9 +55,6 @@ void RmapPlanning<SamplingSpaceType>::setup()
 {
   // Setup grid map
   setupGridMap();
-
-  // Publish (MarkerArray message is fixed)
-  publishMarkerArray();
 
   qp_coeff_.setup(vel_dim_, 0, 1);
   qp_coeff_.x_min_.setConstant(-config_.delta_config_limit);
@@ -88,6 +89,7 @@ void RmapPlanning<SamplingSpaceType>::runOnce()
   integrateVelToSample<SamplingSpaceType>(current_sample_, vel);
 
   // Publish
+  publishMarkerArray();
   publishCurrentState();
 
   // Predict SVM
@@ -111,27 +113,14 @@ void RmapPlanning<SamplingSpaceType>::runLoop()
 template <SamplingSpace SamplingSpaceType>
 void RmapPlanning<SamplingSpaceType>::setupGridMap()
 {
-  // Calculate sample min/max
-  // \todo Load from file
-  SampleType sample_min = SampleType::Constant(-2.0);
-  SampleType sample_max = SampleType::Constant(2.0);
-  SampleType sample_range = sample_max - sample_min;
-  {
-    sample_min -= config_.grid_map_margin_ratio * sample_range;
-    sample_max += config_.grid_map_margin_ratio * sample_range;
-    sample_range = sample_max - sample_min;
-  }
+  grid_map_ = std::make_shared<grid_map::GridMap>(std::vector<std::string>{"svm_value"});
 
-  // Create grid map
-  {
-    grid_map_ = std::make_shared<grid_map::GridMap>(std::vector<std::string>{"svm_value"});
-
-    SampleType sample_center = (sample_min + sample_max) / 2;
-    grid_map_->setFrameId("world");
-    grid_map_->setGeometry(grid_map::Length(sample_range[0], sample_range[1]),
-                           config_.grid_map_resolution,
-                           grid_map::Position(sample_center[0], sample_center[1]));
-  }
+  SampleType sample_center = (sample_min_ + sample_max_) / 2;
+  SampleType sample_range = (1 + config_.grid_map_margin_ratio) * (sample_max_ - sample_min_);
+  grid_map_->setFrameId("world");
+  grid_map_->setGeometry(grid_map::Length(sample_range[0], sample_range[1]),
+                         config_.grid_map_resolution,
+                         grid_map::Position(sample_center[0], sample_center[1]));
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -144,6 +133,25 @@ void RmapPlanning<SamplingSpaceType>::loadSVM(const std::string& svm_path)
   svm_coeff_vec_.resize(num_sv);
   svm_sv_mat_.resize(input_dim_, num_sv);
   setSVMPredictionMat<SamplingSpaceType>(svm_coeff_vec_, svm_sv_mat_, svm_mo_);
+}
+
+template <SamplingSpace SamplingSpaceType>
+void RmapPlanning<SamplingSpaceType>::loadGridSet(const std::string& bag_path)
+{
+  ROS_INFO_STREAM("Load grid set from " << bag_path);
+
+  grid_set_msg_ = loadBag<differentiable_rmap::RmapGridSet>(bag_path);
+
+  if (grid_set_msg_->type != static_cast<size_t>(SamplingSpaceType)) {
+    mc_rtc::log::error_and_throw<std::runtime_error>(
+        "SamplingSpace does not match with message: {} != {}",
+        grid_set_msg_->type, static_cast<size_t>(SamplingSpaceType));
+  }
+
+  for (int i = 0; i < sample_dim_; i++) {
+    sample_min_[i] = grid_set_msg_->min[i];
+    sample_max_[i] = grid_set_msg_->max[i];
+  }
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -261,20 +269,21 @@ void RmapPlanning<SamplingSpaceType>::transCallback(
 
 std::shared_ptr<RmapPlanningBase> DiffRmap::createRmapPlanning(
     SamplingSpace sampling_space,
-    const std::string& svm_path)
+    const std::string& svm_path,
+    const std::string& bag_path)
 {
   if (sampling_space == SamplingSpace::R2) {
-    return std::make_shared<RmapPlanning<SamplingSpace::R2>>(svm_path);
+    return std::make_shared<RmapPlanning<SamplingSpace::R2>>(svm_path, bag_path);
   } else if (sampling_space == SamplingSpace::SO2) {
-    return std::make_shared<RmapPlanning<SamplingSpace::SO2>>(svm_path);
+    return std::make_shared<RmapPlanning<SamplingSpace::SO2>>(svm_path, bag_path);
   } else if (sampling_space == SamplingSpace::SE2) {
-    return std::make_shared<RmapPlanning<SamplingSpace::SE2>>(svm_path);
+    return std::make_shared<RmapPlanning<SamplingSpace::SE2>>(svm_path, bag_path);
   } else if (sampling_space == SamplingSpace::R3) {
-    return std::make_shared<RmapPlanning<SamplingSpace::R3>>(svm_path);
+    return std::make_shared<RmapPlanning<SamplingSpace::R3>>(svm_path, bag_path);
   } else if (sampling_space == SamplingSpace::SO3) {
-    return std::make_shared<RmapPlanning<SamplingSpace::SO3>>(svm_path);
+    return std::make_shared<RmapPlanning<SamplingSpace::SO3>>(svm_path, bag_path);
   } else if (sampling_space == SamplingSpace::SE3) {
-    return std::make_shared<RmapPlanning<SamplingSpace::SE3>>(svm_path);
+    return std::make_shared<RmapPlanning<SamplingSpace::SE3>>(svm_path, bag_path);
   } else {
     mc_rtc::log::error_and_throw<std::runtime_error>(
         "[createRmapPlanning] Unsupported SamplingSpace: {}", std::to_string(sampling_space));

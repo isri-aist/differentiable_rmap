@@ -8,6 +8,7 @@
 #include <geometry_msgs/TransformStamped.h>
 #include <grid_map_ros/grid_map_ros.hpp>
 #include <grid_map_msgs/GridMap.h>
+#include <differentiable_rmap/RmapGridSet.h>
 
 #include <libsvm/svm.h>
 
@@ -101,8 +102,10 @@ class RmapPlanning: public RmapPlanningBase
  public:
   /** \brief Constructor.
       \param svm_path path of SVM model file
+      \param bag_path path of ROS bag file of grid set (empty for no grid set)
    */
-  RmapPlanning(const std::string& svm_path = "/tmp/rmap_svm_model.libsvm");
+  RmapPlanning(const std::string& svm_path = "/tmp/rmap_svm_model.libsvm",
+               const std::string& bag_path = "/tmp/rmap_grid_set.bag");
 
   /** \brief Destructor. */
   ~RmapPlanning();
@@ -125,8 +128,11 @@ class RmapPlanning: public RmapPlanningBase
   /** \brief Setup grid map. */
   void setupGridMap();
 
-  /** \brief Save SVM model. */
+  /** \brief Load SVM model. */
   void loadSVM(const std::string& svm_path);
+
+  /** \brief Load grid set. */
+  void loadGridSet(const std::string& bag_path);
 
   /** \brief Predict SVM on grid map. */
   void predictOnSlicePlane();
@@ -147,18 +153,20 @@ class RmapPlanning: public RmapPlanningBase
   //! Configuration
   Configuration config_;
 
+  //! Min/max position of samples
+  SampleType sample_min_ = SampleType::Constant(-1.0);
+  SampleType sample_max_ = SampleType::Constant(1.0);
+
   //! SVM model
   svm_model* svm_mo_;
 
   //! QP coefficients
   OmgCore::QpCoeff qp_coeff_;
-
   //! QP solver
   std::shared_ptr<OmgCore::QpSolver> qp_solver_;
 
   //! Current sample
   SampleType current_sample_ = poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
-
   //! Target sample
   SampleType target_sample_ = poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
 
@@ -169,6 +177,9 @@ class RmapPlanning: public RmapPlanningBase
 
   //! Grid map
   std::shared_ptr<grid_map::GridMap> grid_map_;
+
+  //! Grid set message
+  differentiable_rmap::RmapGridSet::ConstPtr grid_set_msg_;
 
   //! ROS related members
   ros::NodeHandle nh_;
@@ -183,8 +194,10 @@ class RmapPlanning: public RmapPlanningBase
 /** \brief Create RmapPlanning instance.
     \param sampling_space sampling space
     \param svm_path path of SVM model file
+    \param bag_path path of ROS bag file of grid set (empty for no grid set)
 */
 std::shared_ptr<RmapPlanningBase> createRmapPlanning(
     SamplingSpace sampling_space,
-    const std::string& svm_path = "/tmp/rmap_svm_model.libsvm");
+    const std::string& svm_path = "/tmp/rmap_svm_model.libsvm",
+    const std::string& bag_path = "/tmp/rmap_grid_set.bag");
 }
