@@ -12,6 +12,7 @@
 
 #include <differentiable_rmap/RmapPlanning.h>
 #include <differentiable_rmap/SVMUtils.h>
+#include <differentiable_rmap/GridUtils.h>
 #include <differentiable_rmap/libsvm_hotfix.h>
 
 using namespace DiffRmap;
@@ -32,7 +33,9 @@ RmapPlanning<SamplingSpaceType>::RmapPlanning(const std::string& svm_path,
   loadSVM(svm_path);
 
   // Load sample set
-  loadGridSet(bag_path);
+  if (!bag_path.empty()) {
+    loadGridSet(bag_path);
+  }
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -66,7 +69,7 @@ void RmapPlanning<SamplingSpaceType>::setup()
 }
 
 template <SamplingSpace SamplingSpaceType>
-void RmapPlanning<SamplingSpaceType>::runOnce()
+void RmapPlanning<SamplingSpaceType>::runOnce(bool publish)
 {
   // Set QP coefficients
   qp_coeff_.obj_vec_ = sampleError<SamplingSpaceType>(target_sample_, current_sample_);
@@ -88,12 +91,16 @@ void RmapPlanning<SamplingSpaceType>::runOnce()
   // Integrate
   integrateVelToSample<SamplingSpaceType>(current_sample_, vel);
 
-  // Publish
-  publishMarkerArray();
-  publishCurrentState();
+  if (publish) {
+    // Publish
+    publishMarkerArray();
+    publishCurrentState();
 
-  // Predict SVM
-  predictOnSlicePlane();
+    // Predict SVM
+    if (config_.grid_map_prediction) {
+      predictOnSlicePlane();
+    }
+  }
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -101,12 +108,14 @@ void RmapPlanning<SamplingSpaceType>::runLoop()
 {
   setup();
 
-  ros::Rate rate(100);
+  ros::Rate rate(2000);
+  int loop_idx = 0;
   while (ros::ok()) {
-    runOnce();
+    runOnce(loop_idx % 20 == 0);
 
     rate.sleep();
     ros::spinOnce();
+    loop_idx++;
   }
 }
 
@@ -234,6 +243,31 @@ void RmapPlanning<SamplingSpaceType>::publishMarkerArray() const
   xy_plane_marker.pose = OmgCore::toPoseMsg(
       sva::PTransformd(Eigen::Vector3d(0, 0, config_.svm_thre - 0.5 * plane_thickness)));
   marker_arr_msg.markers.push_back(xy_plane_marker);
+
+  // Reachable grids marker
+  if (grid_set_msg_) {
+    visualization_msgs::Marker grids_marker;
+    SampleType sample_range = sample_max_ - sample_min_;
+    grids_marker.header = header_msg;
+    grids_marker.ns = "reachable_grids";
+    grids_marker.id = marker_arr_msg.markers.size();
+    grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
+    grids_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.0, 0.0, 0.5});
+    grids_marker.scale = OmgCore::toVector3Msg(
+        calcGridCubeScale<SamplingSpaceType>(grid_set_msg_->divide_nums, sample_range));
+    grids_marker.pose = OmgCore::toPoseMsg(sva::PTransformd::Identity());
+    loopGrid<SamplingSpaceType>(
+        grid_set_msg_->divide_nums,
+        sample_min_,
+        sample_range,
+        [&](int grid_idx, const SampleType& sample) {
+          if (grid_set_msg_->values[grid_idx] > config_.svm_thre) {
+            grids_marker.points.push_back(
+                OmgCore::toPointMsg(sampleToCloudPos<SamplingSpaceType>(sample)));
+          }
+        });
+    marker_arr_msg.markers.push_back(grids_marker);
+  }
 
   marker_arr_pub_.publish(marker_arr_msg);
 }

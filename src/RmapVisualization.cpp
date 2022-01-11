@@ -148,20 +148,18 @@ void RmapVisualization<SamplingSpaceType>::dumpGridSet(
   grid_set_msg_.values.resize(total_grid_num);
 
   // Set grid value
-  GridFuncType<SamplingSpaceType> set_grid_value_func =
-      [&](int grid_idx, const SampleType& sample) {
-    grid_set_msg_.values[grid_idx] = calcSVMValue<SamplingSpaceType>(
-        sample,
-        svm_mo_->param,
-        svm_mo_,
-        svm_coeff_vec_,
-        svm_sv_mat_);
-  };
   loopGrid<SamplingSpaceType>(
       divide_nums,
       sample_min_,
       sample_range,
-      set_grid_value_func);
+      [&](int grid_idx, const SampleType& sample) {
+        grid_set_msg_.values[grid_idx] = calcSVMValue<SamplingSpaceType>(
+            sample,
+            svm_mo_->param,
+            svm_mo_,
+            svm_coeff_vec_,
+            svm_sv_mat_);
+      });
 
   // Dump to ROS bag
   rosbag::Bag bag(grid_bag_path, rosbag::bagmode::Write);
@@ -187,41 +185,26 @@ void RmapVisualization<SamplingSpaceType>::publishMarkerArray() const
   marker_arr_msg.markers.push_back(del_marker);
 
   // Reachable grids marker
-  SampleType sample_range = sample_max_ - sample_min_;
-
   visualization_msgs::Marker grids_marker;
+  SampleType sample_range = sample_max_ - sample_min_;
   grids_marker.header = header_msg;
   grids_marker.ns = "reachable_grids";
   grids_marker.id = marker_arr_msg.markers.size();
   grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
   grids_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.0, 0.0, 1.0});
-  grids_marker.scale.x = 1.1 * sample_range[0] / grid_set_msg_.divide_nums[0];
-  if constexpr (sample_dim_ > 1) {
-      grids_marker.scale.y = 1.1 * sample_range[1] / grid_set_msg_.divide_nums[1];
-    } else {
-    grids_marker.scale.y = 0.1;
-  }
-  if constexpr (sample_dim_ > 2) {
-      grids_marker.scale.z = 1.1 * sample_range[2] / grid_set_msg_.divide_nums[2];
-    } else {
-    grids_marker.scale.z = 0.1;
-  }
+  grids_marker.scale = OmgCore::toVector3Msg(
+      calcGridCubeScale<SamplingSpaceType>(grid_set_msg_.divide_nums, sample_range));
   grids_marker.pose = OmgCore::toPoseMsg(sva::PTransformd::Identity());
-
-  // Append cube points
-  GridFuncType<SamplingSpaceType> append_points_func =
-      [&](int grid_idx, const SampleType& sample) {
-    if (grid_set_msg_.values[grid_idx] > config_.svm_thre) {
-      grids_marker.points.push_back(
-          OmgCore::toPointMsg(sampleToCloudPos<SamplingSpaceType>(sample)));
-    }
-  };
   loopGrid<SamplingSpaceType>(
       grid_set_msg_.divide_nums,
       sample_min_,
       sample_range,
-      append_points_func);
-
+      [&](int grid_idx, const SampleType& sample) {
+        if (grid_set_msg_.values[grid_idx] > config_.svm_thre) {
+          grids_marker.points.push_back(
+              OmgCore::toPointMsg(sampleToCloudPos<SamplingSpaceType>(sample)));
+        }
+      });
   marker_arr_msg.markers.push_back(grids_marker);
 
   marker_arr_pub_.publish(marker_arr_msg);

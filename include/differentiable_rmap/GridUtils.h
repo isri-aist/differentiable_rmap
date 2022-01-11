@@ -58,6 +58,31 @@ inline bool updateGridDivideIdxs(
   return false;
 }
 
+/** \brief Calculate cube scale for grid
+    \tparam SamplingSpaceType sampling space
+    \tparam DivideNumsType type of divide_nums
+    \param divide_nums number of grid division
+    \param sample_range position range of sample
+    \param margin rate of padding margin
+    \param default_scale default cube scale
+    \return cube scale
+*/
+template <SamplingSpace SamplingSpaceType, class DivideNumsType>
+inline Eigen::Vector3d calcGridCubeScale(
+    const DivideNumsType& divide_nums,
+    const Sample<SamplingSpaceType>& sample_range,
+    double margin = 0.1,
+    const Eigen::Vector3d& default_scale = Eigen::Vector3d::Constant(0.01))
+{
+  Eigen::Vector3d scale = default_scale;
+  for (int i = 0; i < 3; i++) {
+    if (sampleDim<SamplingSpaceType>() > i) {
+      scale[i] = (1 + margin) * sample_range[i] / divide_nums[i];
+    }
+  }
+  return scale;
+}
+
 /*! \brief Type of function to be called for each grid. */
 template <SamplingSpace SamplingSpaceType>
 using GridFuncType = std::function<void(int, const Sample<SamplingSpaceType>&)>;

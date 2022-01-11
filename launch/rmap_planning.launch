@@ -8,7 +8,13 @@
       sampling_space: $(arg sampling_space)
       config_path: $(find differentiable_rmap)/config/RmapPlanning.yaml
       svm_path: /tmp/rmap_svm_model_$(arg sampling_space).libsvm
+    </rosparam>
+
+    <rosparam subst_value="true" unless="$(eval arg('sampling_space') == 'SE3')">
       bag_path: /tmp/rmap_grid_set_$(arg sampling_space).bag
+    </rosparam>
+    <rosparam subst_value="true" if="$(eval arg('sampling_space') == 'SE3')">
+      bag_path: ""
     </rosparam>
   </node>
 
@@ -17,9 +23,6 @@
     <rosparam if="$(eval arg('sampling_space') == 'R2')">
       interactive_markers:
         - name: target
-          initial_pose:
-            pos: [0.0, 0.0, 99.0]
-            rot: [1.0, 0.0, 0.0, 0.0]
           controls: [tx, ty]
           markers:
             - type: 2 # SPHERE
@@ -30,9 +33,6 @@
     <rosparam if="$(eval arg('sampling_space') == 'SE2')">
       interactive_markers:
         - name: target
-          initial_pose:
-            pos: [0.0, 0.0, 99.0]
-            rot: [1.0, 0.0, 0.0, 0.0]
           controls: [tx, ty, rz]
           markers:
             - type: 2 # SPHERE
@@ -46,9 +46,6 @@
     <rosparam if="$(eval arg('sampling_space') == 'R3')">
       interactive_markers:
         - name: target
-          initial_pose:
-            pos: [0.0, 0.0, 0.0]
-            rot: [1.0, 0.0, 0.0, 0.0]
           controls: [tx, ty, tz]
           markers:
             - type: 2 # SPHERE
@@ -59,9 +56,6 @@
     <rosparam if="$(eval arg('sampling_space') == 'SE3')">
       interactive_markers:
         - name: target
-          initial_pose:
-            pos: [0.0, 0.0, 0.0]
-            rot: [1.0, 0.0, 0.0, 0.0]
           controls: [tx, ty, tz, rx, ry, rz]
           markers:
             - type: 2 # SPHERE
@@ -70,8 +64,6 @@
             - type: 0 # ARROW
               scale: [0.15, 0.05, 0.05]
               color: [1.0, 0.0, 0.0, 0.5]
-              pose:
-                rot: [1.0, 0.0, 0.0, 0.0]
             - type: 0 # ARROW
               scale: [0.15, 0.05, 0.05]
               color: [0.0, 1.0, 0.0, 0.5]

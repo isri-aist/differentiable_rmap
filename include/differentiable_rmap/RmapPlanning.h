@@ -32,8 +32,10 @@ class RmapPlanningBase
   /** \brief Setup planning. */
   virtual void setup() = 0;
 
-  /** \brief Run planning once. */
-  virtual void runOnce() = 0;
+  /** \brief Run planning once.
+      \param publish whether to publish message
+   */
+  virtual void runOnce(bool publish) = 0;
 
   /** \brief Setup and run planning loop. */
   virtual void runLoop() = 0;
@@ -58,8 +60,11 @@ class RmapPlanning: public RmapPlanningBase
     //! Initial sample pose
     sva::PTransformd initial_sample_pose = sva::PTransformd::Identity();
 
+    //! Whether to predict on grid map
+    bool grid_map_prediction = true;
+
     //! Margin ratio of grid map
-    double grid_map_margin_ratio = 0.5;
+    double grid_map_margin_ratio = 0.0;
 
     //! Resolution of grid map [m]
     double grid_map_resolution = 0.02;
@@ -73,6 +78,7 @@ class RmapPlanning: public RmapPlanningBase
       mc_rtc_config("svm_thre", svm_thre);
       mc_rtc_config("delta_config_limit", delta_config_limit);
       mc_rtc_config("initial_sample_pose", initial_sample_pose);
+      mc_rtc_config("grid_map_prediction", grid_map_prediction);
       mc_rtc_config("grid_map_margin_ratio", grid_map_margin_ratio);
       mc_rtc_config("grid_map_resolution", grid_map_resolution);
       mc_rtc_config("grid_map_height_scale", grid_map_height_scale);
@@ -118,8 +124,10 @@ class RmapPlanning: public RmapPlanningBase
   /** \brief Setup planning. */
   virtual void setup() override;
 
-  /** \brief Run planning once. */
-  virtual void runOnce() override;
+  /** \brief Run planning once.
+      \param publish whether to publish message
+   */
+  virtual void runOnce(bool publish) override;
 
   /** \brief Setup and run planning loop. */
   virtual void runLoop() override;
