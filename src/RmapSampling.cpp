@@ -143,8 +143,6 @@ void RmapSampling<SamplingSpaceType>::publish()
 template <SamplingSpace SamplingSpaceType>
 void RmapSampling<SamplingSpaceType>::dumpSampleSet(const std::string& bag_path) const
 {
-  rosbag::Bag bag(bag_path, rosbag::bagmode::Write);
-
   differentiable_rmap::RmapSampleSet sample_set_msg;
   sample_set_msg.type = static_cast<size_t>(SamplingSpaceType);
   sample_set_msg.samples.resize(sample_list_.size());
@@ -189,6 +187,8 @@ void RmapSampling<SamplingSpaceType>::dumpSampleSet(const std::string& bag_path)
     sample_set_msg.max[i] = sample_max[i];
   }
 
+  // Dump to ROS bag
+  rosbag::Bag bag(bag_path, rosbag::bagmode::Write);
   bag.write("/rmap_sample_set", ros::Time::now(), sample_set_msg);
   ROS_INFO_STREAM("Dump sample set to " << bag_path);
 }

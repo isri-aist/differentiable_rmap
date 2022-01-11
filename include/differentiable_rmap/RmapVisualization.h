@@ -5,6 +5,7 @@
 #include <mc_rtc/Configuration.h>
 
 #include <ros/ros.h>
+#include <differentiable_rmap/RmapGridSet.h>
 
 #include <libsvm/svm.h>
 
@@ -23,14 +24,18 @@ class RmapVisualizationBase
    */
   virtual void configure(const mc_rtc::Configuration& mc_rtc_config) = 0;
 
-  /** \brief Setup visualization. */
-  virtual void setup() = 0;
+  /** \brief Setup visualization.
+      \param grid_bag_path path of ROS bag file of grid set
+   */
+  virtual void setup(const std::string& grid_bag_path) = 0;
 
   /** \brief Run visualization once. */
   virtual void runOnce() = 0;
 
-  /** \brief Setup and run visualization loop. */
-  virtual void runLoop() = 0;
+  /** \brief Setup and run visualization loop.
+      \param grid_bag_path path of ROS bag file of grid set
+   */
+  virtual void runLoop(const std::string& grid_bag_path) = 0;
 };
 
 /** \brief Class to plan in sample space based on differentiable reachability map.
@@ -77,10 +82,10 @@ class RmapVisualization: public RmapVisualizationBase
 
  public:
   /** \brief Constructor.
-      \param bag_path path of ROS bag file
+      \param sample_bag_path path of ROS bag file of sample set
       \param svm_path path of SVM model file
    */
-  RmapVisualization(const std::string& bag_path = "/tmp/rmap_sample_set.bag",
+  RmapVisualization(const std::string& sample_bag_path = "/tmp/rmap_sample_set.bag",
                     const std::string& svm_path = "/tmp/rmap_svm_model.libsvm");
 
   /** \brief Destructor. */
@@ -91,21 +96,28 @@ class RmapVisualization: public RmapVisualizationBase
    */
   virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
 
-  /** \brief Setup visualization. */
-  virtual void setup() override;
+  /** \brief Setup visualization.
+      \param grid_bag_path path of ROS bag file of grid set
+   */
+  virtual void setup(const std::string& grid_bag_path) override;
 
   /** \brief Run visualization once. */
   virtual void runOnce() override;
 
-  /** \brief Setup and run visualization loop. */
-  virtual void runLoop() override;
+  /** \brief Setup and run visualization loop.
+      \param grid_bag_path path of ROS bag file of grid set
+   */
+  virtual void runLoop(const std::string& grid_bag_path) override;
 
  protected:
   /** \brief Load sample set from ROS bag. */
-  void loadSampleSet(const std::string& bag_path);
+  void loadSampleSet(const std::string& sample_bag_path);
 
   /** \brief Save SVM model. */
   void loadSVM(const std::string& svm_path);
+
+  /** \brief Dump generated grid set to ROS bag. */
+  void dumpGridSet(const std::string& grid_bag_path);
 
   /** \brief Publish marker array. */
   void publishMarkerArray() const;
@@ -129,6 +141,9 @@ class RmapVisualization: public RmapVisualizationBase
   //! Support vector matrix
   Eigen::Matrix<double, input_dim_, Eigen::Dynamic> svm_sv_mat_;
 
+  //! Grid set message
+  differentiable_rmap::RmapGridSet grid_set_msg_;
+
   //! ROS related members
   ros::NodeHandle nh_;
 
@@ -137,10 +152,11 @@ class RmapVisualization: public RmapVisualizationBase
 
 /** \brief Create RmapVisualization instance.
     \param sampling_space sampling space
+    \param sample_bag_path path of ROS bag file of sample set
     \param svm_path path of SVM model file
 */
 std::shared_ptr<RmapVisualizationBase> createRmapVisualization(
     SamplingSpace sampling_space,
-    const std::string& bag_path = "/tmp/rmap_sample_set.bag",
+    const std::string& sample_bag_path = "/tmp/rmap_sample_set.bag",
     const std::string& svm_path = "/tmp/rmap_svm_model.libsvm");
 }

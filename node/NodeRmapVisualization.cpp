@@ -15,15 +15,15 @@ int main(int argc, char **argv)
   pnh.param<std::string>("sampling_space", sampling_space_str, sampling_space_str);
   SamplingSpace sampling_space = strToSamplingSpace(sampling_space_str);
 
-  std::string bag_path = "/tmp/rmap_sample_set.bag";
-  pnh.param<std::string>("bag_path", bag_path, bag_path);
+  std::string sample_bag_path = "/tmp/rmap_sample_set.bag";
+  pnh.param<std::string>("sample_bag_path", sample_bag_path, sample_bag_path);
 
   std::string svm_path = "/tmp/rmap_svm_model.libsvm";
   pnh.param<std::string>("svm_path", svm_path, svm_path);
 
   auto rmap_visualization = createRmapVisualization(
       sampling_space,
-      bag_path,
+      sample_bag_path,
       svm_path);
 
   if (pnh.hasParam("config_path")) {
@@ -32,7 +32,10 @@ int main(int argc, char **argv)
     rmap_visualization->configure(mc_rtc::Configuration(config_path));
   }
 
-  rmap_visualization->runLoop();
+  std::string grid_bag_path = "/tmp/rmap_grid_set.bag";
+  pnh.param<std::string>("grid_bag_path", grid_bag_path, grid_bag_path);
+
+  rmap_visualization->runLoop(grid_bag_path);
 
   bool keep_alive = true;
   pnh.param<bool>("keep_alive", keep_alive, keep_alive);
