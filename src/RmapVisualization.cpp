@@ -11,6 +11,7 @@
 
 #include <differentiable_rmap/RmapVisualization.h>
 #include <differentiable_rmap/SVMUtils.h>
+#include <differentiable_rmap/GridUtils.h>
 #include <differentiable_rmap/libsvm_hotfix.h>
 
 using namespace DiffRmap;
@@ -112,23 +113,26 @@ template <SamplingSpace SamplingSpaceType>
 void RmapVisualization<SamplingSpaceType>::dumpGridSet(
     const std::string& grid_bag_path)
 {
+  SampleType sample_range = sample_max_ - sample_min_;
+
   // Set number of division
   Eigen::Matrix<int, sample_dim_, 1> divide_nums;
-  if constexpr (SamplingSpaceType == SamplingSpace::R2) {
-      divide_nums.setConstant(config_.pos_divide_num);
-    } else if constexpr (SamplingSpaceType == SamplingSpace::SO2) {
-      divide_nums.setConstant(config_.rot_divide_num);
+  SampleType resolution;
+  if constexpr (SamplingSpaceType == SamplingSpace::R2 ||
+                SamplingSpaceType == SamplingSpace::R3) {
+      resolution.setConstant(config_.pos_resolution);
+    } else if constexpr (SamplingSpaceType == SamplingSpace::SO2 ||
+                         SamplingSpaceType == SamplingSpace::SO3) {
+      resolution.setConstant(config_.rot_resolution);
     } else if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
-      divide_nums.template head<sampleDim<SamplingSpace::R2>()>().setConstant(config_.pos_divide_num);
-      divide_nums.template tail<sampleDim<SamplingSpace::SO2>()>().setConstant(config_.rot_divide_num);
-    } else if constexpr (SamplingSpaceType == SamplingSpace::R3) {
-      divide_nums.setConstant(config_.pos_divide_num);
-    } else if constexpr (SamplingSpaceType == SamplingSpace::SO3) {
-      divide_nums.setConstant(config_.rot_divide_num);
+      resolution <<
+          config_.pos_resolution, config_.pos_resolution, config_.rot_resolution;
     } else if constexpr (SamplingSpaceType == SamplingSpace::SE3) {
-      divide_nums.template head<sampleDim<SamplingSpace::R3>()>().setConstant(config_.pos_divide_num);
-      divide_nums.template tail<sampleDim<SamplingSpace::SO3>()>().setConstant(config_.rot_divide_num);
+      resolution <<
+          config_.pos_resolution, config_.pos_resolution, config_.pos_resolution,
+          config_.rot_resolution, config_.rot_resolution, config_.rot_resolution;
     }
+  divide_nums = (sample_range.array() / resolution.array()).ceil().template cast<int>().max(1);
 
   // Set grid set message
   grid_set_msg_.type = static_cast<size_t>(SamplingSpaceType);
@@ -145,24 +149,17 @@ void RmapVisualization<SamplingSpaceType>::dumpGridSet(
   grid_set_msg_.values.resize(total_grid_num);
 
   // Predict on whole grid
-  SampleType sample_range = sample_max_ - sample_min_;
   SampleType sample;
-  SampleType divide_ratio;
+  SampleType divide_ratios;
   Eigen::Matrix<int, sample_dim_, 1> divide_idxs = Eigen::Matrix<int, sample_dim_, 1>::Zero();
   int grid_idx = 0;
   bool break_flag = false;
   do {
     // Calculate ratio of division
-    for (int i = 0; i < sample_dim_; i++) {
-      if (divide_nums[i] == 1) {
-        divide_ratio[i] = 0.5;
-      } else {
-        divide_ratio[i] = static_cast<double>(divide_idxs[i]) / (divide_nums[i] - 1);
-      }
-    }
+    calcGridDivideRatios(divide_ratios, divide_idxs, divide_nums);
 
     // Predict
-    sample = divide_ratio.cwiseProduct(sample_range) + sample_min_;
+    sample = divide_ratios.cwiseProduct(sample_range) + sample_min_;
     double svm_value = calcSVMValue<SamplingSpaceType>(
         sample,
         svm_mo_->param,
@@ -172,20 +169,7 @@ void RmapVisualization<SamplingSpaceType>::dumpGridSet(
     grid_set_msg_.values[grid_idx] = svm_value;
 
     // Update divide_idxs
-    for (size_t i = 0; i < sample_dim_; i++) {
-      divide_idxs[i]++;
-      if (divide_idxs[i] == divide_nums[i]) {
-        // If there is a carry, the current digit value is set to zero
-        divide_idxs[i] = 0;
-        // If there is a carry at the top, exit the outer loop
-        if (i == sample_dim_ - 1) {
-          break_flag = true;
-        }
-      } else {
-        // If there is no carry, it will end
-        break;
-      }
-    }
+    break_flag = updateGridDivideIdxs(divide_idxs, divide_nums);
 
     grid_idx++;
   } while (!break_flag);
@@ -214,20 +198,53 @@ void RmapVisualization<SamplingSpaceType>::publishMarkerArray() const
   del_marker.id = marker_arr_msg.markers.size();
   marker_arr_msg.markers.push_back(del_marker);
 
-  // XY plane marker
-  visualization_msgs::Marker xy_plane_marker;
-  double plane_thickness = 0.01;
-  xy_plane_marker.header = header_msg;
-  xy_plane_marker.ns = "xy_plane";
-  xy_plane_marker.id = marker_arr_msg.markers.size();
-  xy_plane_marker.type = visualization_msgs::Marker::CUBE;
-  xy_plane_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.8, 0.8, 1.0});
-  xy_plane_marker.scale.x = 100.0;
-  xy_plane_marker.scale.y = 100.0;
-  xy_plane_marker.scale.z = plane_thickness;
-  xy_plane_marker.pose = OmgCore::toPoseMsg(
-      sva::PTransformd(Eigen::Vector3d(0, 0, config_.svm_thre - 0.5 * plane_thickness)));
-  marker_arr_msg.markers.push_back(xy_plane_marker);
+  // Reachable grids marker
+  {
+    SampleType sample_range = sample_max_ - sample_min_;
+
+    visualization_msgs::Marker grids_marker;
+    grids_marker.header = header_msg;
+    grids_marker.ns = "reachable_grids";
+    grids_marker.id = marker_arr_msg.markers.size();
+    grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
+    grids_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.0, 0.0, 1.0});
+    grids_marker.scale.x = 1.1 * sample_range[0] / grid_set_msg_.divide_nums[0];
+    if constexpr (sample_dim_ > 1) {
+        grids_marker.scale.y = 1.1 * sample_range[1] / grid_set_msg_.divide_nums[1];
+      } else {
+      grids_marker.scale.y = 0.1;
+    }
+    if constexpr (sample_dim_ > 2) {
+        grids_marker.scale.z = 1.1 * sample_range[2] / grid_set_msg_.divide_nums[2];
+      } else {
+      grids_marker.scale.z = 0.1;
+    }
+    grids_marker.pose = OmgCore::toPoseMsg(sva::PTransformd::Identity());
+
+    // Predict on whole grid
+    SampleType sample;
+    SampleType divide_ratios;
+    Eigen::Matrix<int, sample_dim_, 1> divide_idxs = Eigen::Matrix<int, sample_dim_, 1>::Zero();
+    int grid_idx = 0;
+    bool break_flag = false;
+    do {
+      // Calculate ratio of division
+      calcGridDivideRatios(divide_ratios, divide_idxs, grid_set_msg_.divide_nums);
+
+      // Append cube
+      sample = divide_ratios.cwiseProduct(sample_range) + sample_min_;
+      if (grid_set_msg_.values[grid_idx] > config_.svm_thre) {
+        grids_marker.points.push_back(
+            OmgCore::toPointMsg(sampleToCloudPos<SamplingSpaceType>(sample)));
+      }
+
+      // Update divide_idxs
+      break_flag = updateGridDivideIdxs(divide_idxs, grid_set_msg_.divide_nums);
+
+      grid_idx++;
+    } while (!break_flag);
+    marker_arr_msg.markers.push_back(grids_marker);
+  }
 
   marker_arr_pub_.publish(marker_arr_msg);
 }

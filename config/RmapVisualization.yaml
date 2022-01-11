@@ -1,8 +1,8 @@
 # Height of xy plane marker
 svm_thre: -0.1
 
-# Number of division for position
-pos_divide_num: 3
+# Grid resolution for position [m]
+pos_resolution: 0.1
 
-# Number of division for rotation
-rot_divide_num: 1
+# Grid resolution for rotation [rad]
+rot_resolution: 10.0

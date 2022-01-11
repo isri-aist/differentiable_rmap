@@ -51,18 +51,18 @@ class RmapVisualization: public RmapVisualizationBase
     //! Threshold of SVM predict value to be determined as reachable
     double svm_thre = 0.0;
 
-    //! Number of division for position
-    int pos_divide_num = 3;
+    //! Grid resolution for position [m]
+    double pos_resolution = 0.1;
 
-    //! Number of division for rotation
-    int rot_divide_num = 3;
+    //! Grid resolution for rotation [rad]
+    double rot_resolution = 0.1;
 
     /*! \brief Load mc_rtc configuration. */
     inline void load(const mc_rtc::Configuration& mc_rtc_config)
     {
       mc_rtc_config("svm_thre", svm_thre);
-      mc_rtc_config("pos_divide_num", pos_divide_num);
-      mc_rtc_config("rot_divide_num", rot_divide_num);
+      mc_rtc_config("pos_resolution", pos_resolution);
+      mc_rtc_config("rot_resolution", rot_resolution);
     }
   };
 
