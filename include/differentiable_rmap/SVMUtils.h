@@ -9,6 +9,18 @@
 
 namespace DiffRmap
 {
+/** \brief Set SVM matrix for prediction.
+    \tparam SamplingSpaceType sampling space
+    \param[out] svm_coeff_vec support vector coefficients
+    \param[out] svm_sv_mat support vector matrix
+    \param[in] svm_mo SVM model
+*/
+template <SamplingSpace SamplingSpaceType>
+void setSVMPredictionMat(
+    Eigen::Ref<Eigen::VectorXd> svm_coeff_vec,
+    Eigen::Ref<Eigen::Matrix<double, inputDim<SamplingSpaceType>(), Eigen::Dynamic>> svm_sv_mat,
+    svm_model* svm_mo);
+
 /** \brief Set SVM input to node (including index).
     \tparam SamplingSpaceType sampling space
     \param[out] input_node SVM input node

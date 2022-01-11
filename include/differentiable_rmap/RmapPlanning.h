@@ -128,9 +128,6 @@ class RmapPlanning: public RmapPlanningBase
   /** \brief Save SVM model. */
   void loadSVM(const std::string& svm_path);
 
-  /** \brief Set SVM matrix for prediction. */
-  void setSVMPredictionMat();
-
   /** \brief Predict SVM on grid map. */
   void predictOnSlicePlane();
 

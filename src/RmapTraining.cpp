@@ -340,7 +340,10 @@ void RmapTraining<SamplingSpaceType>::loadSVM()
   svm_mo_ = svm_load_model(svm_path_.c_str());
 
   if constexpr (!use_libsvm_prediction_) {
-      setSVMPredictionMat();
+      int num_sv = svm_mo_->l;
+      svm_coeff_vec_.resize(num_sv);
+      svm_sv_mat_.resize(input_dim_, num_sv);
+      setSVMPredictionMat<SamplingSpaceType>(svm_coeff_vec_, svm_sv_mat_, svm_mo_);
     }
 
   train_updated_ = true;
@@ -368,7 +371,10 @@ void RmapTraining<SamplingSpaceType>::trainSVM()
     ROS_INFO_STREAM("SVM train duration: " << duration << " [ms]");
 
     if constexpr (!use_libsvm_prediction_) {
-        setSVMPredictionMat();
+        int num_sv = svm_mo_->l;
+        svm_coeff_vec_.resize(num_sv);
+        svm_sv_mat_.resize(input_dim_, num_sv);
+        setSVMPredictionMat<SamplingSpaceType>(svm_coeff_vec_, svm_sv_mat_, svm_mo_);
       }
   }
 
@@ -386,18 +392,6 @@ void RmapTraining<SamplingSpaceType>::trainSVM()
   }
 
   train_updated_ = true;
-}
-
-template <SamplingSpace SamplingSpaceType>
-void RmapTraining<SamplingSpaceType>::setSVMPredictionMat()
-{
-  int num_sv = svm_mo_->l;
-  svm_coeff_vec_.resize(num_sv);
-  svm_sv_mat_.resize(input_dim_, num_sv);
-  for (int i = 0; i < num_sv; i++) {
-    svm_coeff_vec_[i] = svm_mo_->sv_coef[0][i];
-    svm_sv_mat_.col(i) = svmNodeToEigenVec<SamplingSpaceType>(svm_mo_->SV[i]);
-  }
 }
 
 template <SamplingSpace SamplingSpaceType>

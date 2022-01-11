@@ -164,9 +164,6 @@ class RmapTraining: public RmapTrainingBase
   /** \brief Train SVM. */
   void trainSVM();
 
-  /** \brief Set SVM matrix for prediction. */
-  void setSVMPredictionMat();
-
   /** \brief Predict SVM on grid map. */
   void predictOnSlicePlane();
 

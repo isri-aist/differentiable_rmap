@@ -4,6 +4,19 @@
 namespace DiffRmap
 {
 template <SamplingSpace SamplingSpaceType>
+void setSVMPredictionMat(
+    Eigen::Ref<Eigen::VectorXd> svm_coeff_vec,
+    Eigen::Ref<Eigen::Matrix<double, inputDim<SamplingSpaceType>(), Eigen::Dynamic>> svm_sv_mat,
+    svm_model* svm_mo)
+{
+  int num_sv = svm_mo->l;
+  for (int i = 0; i < num_sv; i++) {
+    svm_coeff_vec[i] = svm_mo->sv_coef[0][i];
+    svm_sv_mat.col(i) = svmNodeToEigenVec<SamplingSpaceType>(svm_mo->SV[i]);
+  }
+}
+
+template <SamplingSpace SamplingSpaceType>
 void setInputNode(
     svm_node* input_node,
     const Input<SamplingSpaceType>& input)
