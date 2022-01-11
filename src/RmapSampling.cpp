@@ -81,7 +81,7 @@ void RmapSampling<SamplingSpaceType>::run(
   }
 
   // Dump sample set
-  dumpBag(bag_path);
+  dumpSampleSet(bag_path);
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -141,7 +141,7 @@ void RmapSampling<SamplingSpaceType>::publish()
 }
 
 template <SamplingSpace SamplingSpaceType>
-void RmapSampling<SamplingSpaceType>::dumpBag(const std::string& bag_path) const
+void RmapSampling<SamplingSpaceType>::dumpSampleSet(const std::string& bag_path) const
 {
   rosbag::Bag bag(bag_path, rosbag::bagmode::Write);
 

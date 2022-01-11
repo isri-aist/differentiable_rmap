@@ -107,7 +107,7 @@ class RmapSampling: public RmapSamplingBase
   virtual void publish();
 
   /** \brief Dump generated sample set to ROS bag. */
-  void dumpBag(const std::string& bag_path) const;
+  void dumpSampleSet(const std::string& bag_path) const;
 
  protected:
   //! mc_rtc Configuration
