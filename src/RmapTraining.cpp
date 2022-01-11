@@ -4,8 +4,6 @@
 
 #include <mc_rtc/constants.h>
 
-#include <rosbag/bag.h>
-#include <rosbag/view.h>
 #include <sensor_msgs/PointCloud.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <differentiable_rmap/RmapSampleSet.h>
@@ -36,10 +34,10 @@ RmapTraining<SamplingSpaceType>::RmapTraining(const std::string& bag_path,
   grid_map_pub_ = nh_.advertise<grid_map_msgs::GridMap>("grid_map", 1, true);
 
   // Load ROS bag
-  loadBag(bag_path);
+  loadSampleSet(bag_path);
 
   // Setup SVM parameter
-  // This must be called after loadBag() because this depends on reachability list
+  // This must be called after loadSampleSet() because this depends on reachability list
   if (!load_svm_) {
     setupSVMParam();
   }
@@ -265,29 +263,21 @@ void RmapTraining<SamplingSpaceType>::setupGridMap()
 }
 
 template <SamplingSpace SamplingSpaceType>
-void RmapTraining<SamplingSpaceType>::loadBag(const std::string& bag_path)
+void RmapTraining<SamplingSpaceType>::loadSampleSet(const std::string& bag_path)
 {
   // Load ROS bag
-  ROS_INFO_STREAM("Load sample set from " << bag_path);
-  rosbag::Bag bag(bag_path, rosbag::bagmode::Read);
-  int cnt = 0;
-  for (rosbag::MessageInstance const m :
-           rosbag::View(bag, rosbag::TopicQuery(std::vector<std::string>{"/rmap_sample_set"}))) {
-    if (cnt >= 1) {
-      ROS_WARN("Multiple messages are stored in bag file. load only first one.");
-      break;
-    }
+  {
+    ROS_INFO_STREAM("Load sample set from " << bag_path);
 
     differentiable_rmap::RmapSampleSet::ConstPtr sample_set_msg =
-        m.instantiate<differentiable_rmap::RmapSampleSet>();
-    if (sample_set_msg == nullptr) {
-      mc_rtc::log::error_and_throw<std::runtime_error>("Failed to load sample set message from rosbag.");
-    }
+        loadBag<differentiable_rmap::RmapSampleSet>(bag_path);
+
     if (sample_set_msg->type != static_cast<size_t>(SamplingSpaceType)) {
       mc_rtc::log::error_and_throw<std::runtime_error>(
           "SamplingSpace does not match with message: {} != {}",
           sample_set_msg->type, static_cast<size_t>(SamplingSpaceType));
     }
+
     int sample_num = sample_set_msg->samples.size();
     sample_list_.resize(sample_num);
     reachability_list_.resize(sample_num);
@@ -301,11 +291,6 @@ void RmapTraining<SamplingSpaceType>::loadBag(const std::string& bag_path)
       sample_min_[i] = sample_set_msg->min[i];
       sample_max_[i] = sample_set_msg->max[i];
     }
-
-    cnt++;
-  }
-  if (cnt == 0) {
-    mc_rtc::log::error_and_throw<std::runtime_error>("Sample set message not found.");
   }
 
   // Publish cloud

@@ -2,11 +2,42 @@
 
 #pragma once
 
+#include <rosbag/bag.h>
+#include <rosbag/view.h>
+
 #include <differentiable_rmap/SamplingUtils.h>
 
 
 namespace DiffRmap
 {
+/*! \brief Load message from rosbag.
+ *  \tparam MsgType message type
+ *  \param bag_path path of bag file
+ */
+template<class MsgType>
+inline typename MsgType::ConstPtr loadBag(const std::string& bag_path)
+{
+  // find message
+  rosbag::Bag bag(bag_path, rosbag::bagmode::Read);
+  typename MsgType::ConstPtr msg_ptr = nullptr;
+  int msg_count = 0;
+  for (const auto& msg : rosbag::View(bag)) {
+    if (msg.isType<MsgType>()) {
+      msg_ptr = msg.instantiate<MsgType>();
+      msg_count++;
+    }
+  }
+
+  // check if message is loaded
+  if (msg_count == 0) {
+    mc_rtc::log::error_and_throw<std::runtime_error>("[loadBag] Failed to load sample set message from rosbag.");
+  } else if (msg_count > 1) {
+    ROS_WARN("[loadBag] Multiple messages are stored in bag file. load only last one.");
+  }
+
+  return msg_ptr;
+}
+
 /** \brief Variable manager based on ROS subscription
     \tparam MsgType ROS message type
     \tparam ValueType value type of managed variable

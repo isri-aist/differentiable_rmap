@@ -156,7 +156,7 @@ class RmapTraining: public RmapTrainingBase
   void setupGridMap();
 
   /** \brief Load sample set from ROS bag. */
-  void loadBag(const std::string& bag_path);
+  void loadSampleSet(const std::string& bag_path);
 
   /** \brief Save SVM model. */
   void loadSVM();
