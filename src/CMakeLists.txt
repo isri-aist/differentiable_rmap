@@ -6,6 +6,7 @@ add_library(DiffRmap
   RmapTraining.cpp
   RmapVisualization.cpp
   RmapPlanning.cpp
+  RmapPlanningFootstep.cpp
   )
 target_link_libraries(DiffRmap PUBLIC
   SpaceVecAlg::SpaceVecAlg

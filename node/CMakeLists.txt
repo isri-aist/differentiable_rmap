@@ -1,24 +1,13 @@
-add_executable(NodeRmapSampling
-  NodeRmapSampling.cpp)
-target_link_libraries(NodeRmapSampling PRIVATE
-  DiffRmap)
+set(differentiable_rmap_node_list
+  NodeRmapSampling
+  NodeRmapSamplingFootstep
+  NodeRmapTraining
+  NodeRmapVisualization
+  NodeRmapPlanning
+  NodeRmapPlanningFootstep
+  )
 
-add_executable(NodeRmapSamplingFootstep
-  NodeRmapSamplingFootstep.cpp)
-target_link_libraries(NodeRmapSamplingFootstep PRIVATE
-  DiffRmap)
-
-add_executable(NodeRmapTraining
-  NodeRmapTraining.cpp)
-target_link_libraries(NodeRmapTraining PRIVATE
-  DiffRmap)
-
-add_executable(NodeRmapVisualization
-  NodeRmapVisualization.cpp)
-target_link_libraries(NodeRmapVisualization PRIVATE
-  DiffRmap)
-
-add_executable(NodeRmapPlanning
-  NodeRmapPlanning.cpp)
-target_link_libraries(NodeRmapPlanning PRIVATE
-  DiffRmap)
+foreach(NAME IN LISTS differentiable_rmap_node_list)
+  add_executable(${NAME} ${NAME}.cpp)
+  target_link_libraries(${NAME} PRIVATE DiffRmap)
+endforeach()

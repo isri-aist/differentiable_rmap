@@ -1,0 +1,15 @@
+# Number of footsteps
+footstep_num: 3
+
+# Height of xy plane marker
+svm_thre: -0.1
+
+# Limit of configuration update in one step [m], [rad]
+delta_config_limit: 0.05
+
+# Initial sample pose
+initial_sample_pose:
+  translation: [0.0, 0.3, 0.0]
+
+# Whether to predict on grid map
+grid_map_prediction: false
