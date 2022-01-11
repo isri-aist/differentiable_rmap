@@ -202,7 +202,7 @@ class RmapTraining: public RmapTrainingBase
   //! SVM parameter
   svm_parameter svm_param_;
   //! SVM model
-  svm_model *svm_mo_;
+  svm_model* svm_mo_;
 
   //! Support vector coefficients
   Eigen::VectorXd svm_coeff_vec_;
