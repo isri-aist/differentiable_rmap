@@ -176,27 +176,4 @@ inline InputToVelMat<SamplingSpace::SE3> inputToVelMat<SamplingSpace::SE3>(
       inputToVelMat<SamplingSpace::SO3>(sample.tail<sampleDim<SamplingSpace::SO3>()>());
   return mat;
 }
-
-template <SamplingSpace SamplingSpaceType>
-void setSVMIneq(Eigen::Ref<Eigen::MatrixXd> ineq_mat,
-                Eigen::Ref<Eigen::MatrixXd> ineq_vec,
-                const Sample<SamplingSpaceType>& sample,
-                const svm_parameter& svm_param,
-                svm_model *svm_mo,
-                const Eigen::VectorXd& svm_coeff_vec,
-                const Eigen::Matrix<double, inputDim<SamplingSpaceType>(), Eigen::Dynamic>& svm_sv_mat,
-                double svm_thre)
-{
-  // There is a problem with receiving a fixed size block matrix with Ref, so we receive a dynamic size matrix.
-  // See https://stackoverflow.com/a/54966664
-  assert(ineq_mat.rows() == 1);
-  assert(ineq_mat.cols() == velDim<SamplingSpaceType>());
-  assert(ineq_vec.rows() == 1);
-  assert(ineq_vec.cols() == 1);
-
-  // input_mat is row vector
-  ineq_mat = -1 * calcSVMGrad<SamplingSpaceType>(sample, svm_param, svm_mo, svm_coeff_vec, svm_sv_mat).transpose();
-  // input_vec is 1 x 1 matrix
-  ineq_vec << calcSVMValue<SamplingSpaceType>(sample, svm_param, svm_mo, svm_coeff_vec, svm_sv_mat) - svm_thre;
-}
 }

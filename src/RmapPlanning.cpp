@@ -79,15 +79,10 @@ void RmapPlanning<SamplingSpaceType>::runOnce(bool publish)
   qp_coeff_.obj_vec_ = sampleError<SamplingSpaceType>(target_sample_, current_sample_);
   double lambda = qp_coeff_.obj_vec_.squaredNorm() + 1e-3;
   qp_coeff_.obj_mat_.diagonal().setConstant(1.0 + lambda);
-  setSVMIneq<SamplingSpaceType>(
-      qp_coeff_.ineq_mat_.block(0, 0, 1, vel_dim_),
-      qp_coeff_.ineq_vec_.block(0, 0, 1, 1),
-      current_sample_,
-      svm_mo_->param,
-      svm_mo_,
-      svm_coeff_vec_,
-      svm_sv_mat_,
-      config_.svm_thre);
+  qp_coeff_.ineq_mat_ = -1 * calcSVMGrad<SamplingSpaceType>(
+      current_sample_, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_).transpose();
+  qp_coeff_.ineq_vec_ << calcSVMValue<SamplingSpaceType>(
+      current_sample_, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_) - config_.svm_thre;
 
   // Solve QP
   const VelType& vel = qp_solver_->solve(qp_coeff_);
