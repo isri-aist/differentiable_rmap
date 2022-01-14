@@ -20,12 +20,16 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
     //! Number of footsteps
     int footstep_num = 3;
 
+    //! Adjacent regularization weight
+    double adjacent_reg_weight = 1e-3;
+
     /*! \brief Load mc_rtc configuration. */
     inline void load(const mc_rtc::Configuration& mc_rtc_config)
     {
       RmapPlanning<SamplingSpaceType>::Configuration::load(mc_rtc_config);
 
       mc_rtc_config("footstep_num", footstep_num);
+      mc_rtc_config("adjacent_reg_weight", adjacent_reg_weight);
     }
   };
 
@@ -89,6 +93,12 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
 
   //! ROS related members
   ros::Publisher current_pose_arr_pub_;
+
+  //! Adjacent regularization matrix
+  Eigen::MatrixXd adjacent_reg_mat_;
+
+  //! Sample corresponding to identity pose
+  const SampleType identity_sample_ = poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
 
  protected:
   // See https://stackoverflow.com/a/6592617

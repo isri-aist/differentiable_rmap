@@ -94,7 +94,7 @@ using InputToVelMat = Eigen::Matrix<double, velDim<SamplingSpaceType>(), inputDi
 template <SamplingSpace SamplingSpaceType>
 InputToVelMat<SamplingSpaceType> inputToVelMat(const Sample<SamplingSpaceType>& sample);
 
-/** \brief Get relative sample between two samples.
+/** \brief Get relative sample between two samples which is represented in predecessor frame.
     \tparam SamplingSpaceType sampling space
     \param pre_sample predecessor sample
     \param suc_sample successor sample

@@ -1,6 +1,9 @@
 # Number of footsteps
 footstep_num: 3
 
+# Adjacent regularization weight
+adjacent_reg_weight: 1e-3
+
 # Height of xy plane marker
 svm_thre: -0.1
 

@@ -430,7 +430,7 @@ inline Vel<SamplingSpace::SO2> sampleError<SamplingSpace::SO2>(
 {
   Vel<SamplingSpace::SO2> error = suc_sample - pre_sample;
   // Range within [-pi, pi]
-  error.x() = std::atan2(std::sin(error.x()), std::cos(error.x()));
+  error << std::atan2(std::sin(error.x()), std::cos(error.x()));
   return error;
 }
 
