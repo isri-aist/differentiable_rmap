@@ -115,7 +115,7 @@ void RmapVisualization<SamplingSpaceType>::dumpGridSet(
   SampleType sample_range = sample_max_ - sample_min_;
 
   // Set number of division
-  Eigen::Matrix<int, sample_dim_, 1> divide_nums;
+  GridIdxsType<SamplingSpaceType> divide_nums;
   SampleType resolution;
   if constexpr (SamplingSpaceType == SamplingSpace::R2 ||
                 SamplingSpaceType == SamplingSpace::R3) {
@@ -143,7 +143,7 @@ void RmapVisualization<SamplingSpaceType>::dumpGridSet(
     grid_set_msg_.divide_nums[i] = divide_nums[i];
     grid_set_msg_.min[i] = sample_min_[i];
     grid_set_msg_.max[i] = sample_max_[i];
-    total_grid_num *= divide_nums[i];
+    total_grid_num *= (divide_nums[i] + 1);
   }
   grid_set_msg_.values.resize(total_grid_num);
 

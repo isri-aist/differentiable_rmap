@@ -1,5 +1,6 @@
 /* Author: Masaki Murooka */
 
+#include <numeric>
 #include <chrono>
 
 #include <mc_rtc/constants.h>
@@ -136,6 +137,15 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishMarkerArray() const
     grids_marker.scale = OmgCore::toVector3Msg(
         calcGridCubeScale<SamplingSpaceType>(grid_set_msg_->divide_nums, sample_range));
     grids_marker.pose = OmgCore::toPoseMsg(sva::PTransformd::Identity());
+    // SampleType slice_sample = relSample<SamplingSpaceType>(current_sample_seq_[0], current_sample_seq_[1]);
+    SampleType slice_sample = current_sample_seq_[0];
+    GridIdxsType<SamplingSpaceType> slice_divide_idxs;
+    gridDivideRatiosToIdxs(
+        slice_divide_idxs,
+        (slice_sample - sample_min_).array() / sample_range.array(),
+        grid_set_msg_->divide_nums);
+    std::vector<int> slice_update_dims(std::min(2, sample_dim_));
+    std::iota(slice_update_dims.begin(), slice_update_dims.end(), 0);
     loopGrid<SamplingSpaceType>(
         grid_set_msg_->divide_nums,
         sample_min_,
@@ -145,7 +155,9 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishMarkerArray() const
             grids_marker.points.push_back(
                 OmgCore::toPointMsg(sampleToCloudPos<SamplingSpaceType>(sample)));
           }
-        });
+        },
+        slice_update_dims,
+        slice_divide_idxs);
     marker_arr_msg.markers.push_back(grids_marker);
   }
 
