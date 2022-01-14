@@ -79,8 +79,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
         (i == 0) ? poseToSample<SamplingSpaceType>(sva::PTransformd::Identity()) : current_sample_seq_[i - 1];
     const SampleType& suc_sample = current_sample_seq_[i];
     SampleType rel_sample = relSample<SamplingSpaceType>(pre_sample, suc_sample);
-    const VelType& svm_grad =
-        calcSVMGrad<SamplingSpaceType>(
+    const VelType& svm_grad = calcSVMGrad<SamplingSpaceType>(
             rel_sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_);
     qp_coeff_.ineq_mat_.template block<1, vel_dim_>(i, i * vel_dim_) =
         -1 * svm_grad.transpose() * relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, true);

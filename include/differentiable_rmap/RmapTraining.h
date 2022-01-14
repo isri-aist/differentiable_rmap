@@ -127,7 +127,7 @@ class RmapTraining: public RmapTrainingBase
   /** \brief Test SVM value calculation.
       \param[out] svm_value_libsvm SVM value calculated by libsvm
       \param[out] svm_value_eigen  SVM value calculated by Eigen
-      \param[in] sample
+      \param[in] sample sample
    */
   void testCalcSVMValue(double& svm_value_libsvm,
                         double& svm_value_eigen,
@@ -136,7 +136,7 @@ class RmapTraining: public RmapTrainingBase
   /** \brief Test SVM grad calculation.
       \param[out] svm_grad_analytical SVM grad calculated analytically
       \param[out] svm_grad_numerical  SVM grad calculated numerically
-      \param[in] sample
+      \param[in] sample sample
    */
   void testCalcSVMGrad(Eigen::Ref<Vel<SamplingSpaceType>> svm_grad_analytical,
                        Eigen::Ref<Vel<SamplingSpaceType>> svm_grad_numerical,
