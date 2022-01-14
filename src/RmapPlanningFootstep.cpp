@@ -127,38 +127,43 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishMarkerArray() const
 
   // Reachable grids marker
   if (grid_set_msg_) {
-    visualization_msgs::Marker grids_marker;
     SampleType sample_range = sample_max_ - sample_min_;
+    visualization_msgs::Marker grids_marker;
     grids_marker.header = header_msg;
-    grids_marker.ns = "reachable_grids";
-    grids_marker.id = marker_arr_msg.markers.size();
     grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
     grids_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.0, 0.0, 0.5});
     grids_marker.scale = OmgCore::toVector3Msg(
         calcGridCubeScale<SamplingSpaceType>(grid_set_msg_->divide_nums, sample_range));
-    grids_marker.pose = OmgCore::toPoseMsg(sva::PTransformd::Identity());
-    // SampleType slice_sample = relSample<SamplingSpaceType>(current_sample_seq_[0], current_sample_seq_[1]);
-    SampleType slice_sample = current_sample_seq_[0];
-    GridIdxsType<SamplingSpaceType> slice_divide_idxs;
-    gridDivideRatiosToIdxs(
-        slice_divide_idxs,
-        (slice_sample - sample_min_).array() / sample_range.array(),
-        grid_set_msg_->divide_nums);
-    std::vector<int> slice_update_dims(std::min(2, sample_dim_));
-    std::iota(slice_update_dims.begin(), slice_update_dims.end(), 0);
-    loopGrid<SamplingSpaceType>(
-        grid_set_msg_->divide_nums,
-        sample_min_,
-        sample_range,
-        [&](int grid_idx, const SampleType& sample) {
-          if (grid_set_msg_->values[grid_idx] > config_.svm_thre) {
-            grids_marker.points.push_back(
-                OmgCore::toPointMsg(sampleToCloudPos<SamplingSpaceType>(sample)));
-          }
-        },
-        slice_update_dims,
-        slice_divide_idxs);
-    marker_arr_msg.markers.push_back(grids_marker);
+
+    for (int i = 0; i < config_.footstep_num; i++) {
+      grids_marker.ns = "reachable_grids_" + std::to_string(i);
+      grids_marker.id = marker_arr_msg.markers.size();
+      grids_marker.pose = OmgCore::toPoseMsg(
+          i == 0 ? sva::PTransformd::Identity() : sampleToPose<SamplingSpaceType>(current_sample_seq_[i - 1]));
+      SampleType slice_sample =
+          i == 0 ? current_sample_seq_[i] : relSample<SamplingSpaceType>(current_sample_seq_[i - 1], current_sample_seq_[i]);
+      GridIdxsType<SamplingSpaceType> slice_divide_idxs;
+      gridDivideRatiosToIdxs(
+          slice_divide_idxs,
+          (slice_sample - sample_min_).array() / sample_range.array(),
+          grid_set_msg_->divide_nums);
+      std::vector<int> slice_update_dims(std::min(2, sample_dim_));
+      std::iota(slice_update_dims.begin(), slice_update_dims.end(), 0);
+      grids_marker.points.clear();
+      loopGrid<SamplingSpaceType>(
+          grid_set_msg_->divide_nums,
+          sample_min_,
+          sample_range,
+          [&](int grid_idx, const SampleType& sample) {
+            if (grid_set_msg_->values[grid_idx] > config_.svm_thre) {
+              grids_marker.points.push_back(
+                  OmgCore::toPointMsg(sampleToCloudPos<SamplingSpaceType>(sample)));
+            }
+          },
+          slice_update_dims,
+          slice_divide_idxs);
+      marker_arr_msg.markers.push_back(grids_marker);
+    }
   }
 
   marker_arr_pub_.publish(marker_arr_msg);

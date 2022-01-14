@@ -2,10 +2,10 @@
 publish_loop_interval: 10
 
 # Number of IK loop
-ik_loop_num: 50
+ik_loop_num: 100
 
 # Threshold of IK [m], [rad]
-ik_error_thre: 2e-3
+ik_error_thre: 5e-3
 
 # Upper limit of footstep sampling position [m], [deg]
 upper_footstep_pos: [0.5, 0.6, 60]

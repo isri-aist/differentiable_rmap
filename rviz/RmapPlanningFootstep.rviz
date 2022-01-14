@@ -77,7 +77,9 @@ Visualization Manager:
       Marker Topic: /marker_arr
       Name: MarkerArray
       Namespaces:
-        reachable_grids: true
+        reachable_grids_0: true
+        reachable_grids_1: true
+        reachable_grids_2: true
       Queue Size: 100
       Value: true
     - Class: rviz/InteractiveMarkers
@@ -132,26 +134,21 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Class: rviz/Orbit
-      Distance: 3.9608449935913086
+      Angle: -1.5700000524520874
+      Class: rviz/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
-      Focal Point:
-        X: 0
-        Y: 0
-        Z: 0
-      Focal Shape Fixed Size: false
-      Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.5697963237762451
+      Scale: 327.1220397949219
       Target Frame: <Fixed Frame>
-      Value: Orbit (rviz)
-      Yaw: 4.283579349517822
+      Value: TopDownOrtho (rviz)
+      X: -0.0847526490688324
+      Y: 0.20456627011299133
     Saved: ~
 Window Geometry:
   Displays:
