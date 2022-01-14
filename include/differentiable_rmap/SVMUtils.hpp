@@ -221,7 +221,11 @@ VelToVelMat<SamplingSpaceType> relVelToVelMat(const Sample<SamplingSpaceType>& p
       mc_rtc::log::error_and_throw<std::runtime_error>(
           "[relVelToVelMat] Need to specialize for SamplingSpace {}", std::to_string(SamplingSpaceType));
     }
-  return VelToVelMat<SamplingSpaceType>::Identity();
+  if (wrt_suc) {
+    return VelToVelMat<SamplingSpaceType>::Identity();
+  } else {
+    return -1 * VelToVelMat<SamplingSpaceType>::Identity();
+  }
 }
 
 template <>

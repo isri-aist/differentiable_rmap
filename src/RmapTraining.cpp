@@ -600,6 +600,58 @@ void RmapTraining<SamplingSpaceType>::testCalcSVMGrad(
   }
 }
 
+template <SamplingSpace SamplingSpaceType>
+void RmapTraining<SamplingSpaceType>::testCalcSVMGradRel(
+    Eigen::Ref<Vel<SamplingSpaceType>> pre_grad_analytical,
+    Eigen::Ref<Vel<SamplingSpaceType>> suc_grad_analytical,
+    Eigen::Ref<Vel<SamplingSpaceType>> pre_grad_numerical,
+    Eigen::Ref<Vel<SamplingSpaceType>> suc_grad_numerical,
+    const SampleType& pre_sample,
+    const SampleType& suc_sample) const
+{
+  SampleType rel_sample = relSample<SamplingSpaceType>(pre_sample, suc_sample);
+  const VelType& svm_grad = calcSVMGrad<SamplingSpaceType>(
+      rel_sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_);
+
+  pre_grad_analytical = relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, false).transpose() * svm_grad;
+  suc_grad_analytical = relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, true).transpose() * svm_grad;
+
+  double eps = 1e-6;
+  for (bool wrt_suc : {false, true}) {
+    for (int i = 0; i < velDim<SamplingSpaceType>(); i++) {
+      Vel<SamplingSpaceType> vel = eps * Vel<SamplingSpaceType>::Unit(i);
+      Sample<SamplingSpaceType> sample_plus = wrt_suc ? suc_sample : pre_sample;
+      integrateVelToSample<SamplingSpaceType>(sample_plus, vel);
+      Sample<SamplingSpaceType> sample_minus = wrt_suc ? suc_sample : pre_sample;
+      integrateVelToSample<SamplingSpaceType>(sample_minus, -vel);
+
+      SampleType rel_sample_plus;
+      SampleType rel_sample_minus;
+      if (wrt_suc) {
+        rel_sample_plus = relSample<SamplingSpaceType>(pre_sample, sample_plus);
+        rel_sample_minus = relSample<SamplingSpaceType>(pre_sample, sample_minus);
+      } else {
+        rel_sample_plus = relSample<SamplingSpaceType>(sample_plus, suc_sample);
+        rel_sample_minus = relSample<SamplingSpaceType>(sample_minus, suc_sample);
+      }
+
+      double numerical_value =
+          (
+              calcSVMValue<SamplingSpaceType>(
+                  rel_sample_plus, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_)
+              -
+              calcSVMValue<SamplingSpaceType>(
+                  rel_sample_minus, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_)
+           ) / (2 * eps);
+      if (wrt_suc) {
+        suc_grad_numerical[i] = numerical_value;
+      } else {
+        pre_grad_numerical[i] = numerical_value;
+      }
+    }
+  }
+}
+
 std::shared_ptr<RmapTrainingBase> DiffRmap::createRmapTraining(
     SamplingSpace sampling_space,
     const std::string& bag_path,

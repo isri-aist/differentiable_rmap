@@ -105,6 +105,50 @@ BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradR3IK) { testCalcSVMGrad<SamplingSpac
 BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradSE3IK) { testCalcSVMGrad<SamplingSpace::SE3>("rmap_sample_set_SE3_test_ik.bag"); }
 
 template <SamplingSpace SamplingSpaceType>
+void testCalcSVMGradRel(const std::string& bag_path)
+{
+  int argc = 0;
+  char** argv = nullptr;
+  ros::init(
+      argc,
+      argv,
+      "test_calc_svm_grad_rel_" + bag_path.substr(0, bag_path.size() - std::string(".bag").size()));
+
+  auto rmap_sampling = setupSVM<SamplingSpaceType>(bag_path);
+
+  int test_num = 1000;
+  for (int i = 0; i < test_num; i++) {
+    Vel<SamplingSpaceType> pre_grad_analytical;
+    Vel<SamplingSpaceType> suc_grad_analytical;
+    Vel<SamplingSpaceType> pre_grad_numerical;
+    Vel<SamplingSpaceType> suc_grad_numerical;
+    rmap_sampling->testCalcSVMGradRel(
+        pre_grad_analytical,
+        suc_grad_analytical,
+        pre_grad_numerical,
+        suc_grad_numerical,
+        poseToSample<SamplingSpaceType>(getRandomPose<SamplingSpaceType>()),
+        poseToSample<SamplingSpaceType>(getRandomPose<SamplingSpaceType>()));
+
+    // std::cout << "[testCalcSVMGradRel]" << std::endl;
+    // std::cout << "  pre_grad_analytical: " << pre_grad_analytical.transpose() << std::endl;
+    // std::cout << "  pre_grad_numerical: " << pre_grad_numerical.transpose() << std::endl;
+    // std::cout << "  pre_error: " << (pre_grad_analytical - pre_grad_numerical).norm() << std::endl;
+    // std::cout << "  suc_grad_analytical: " << suc_grad_analytical.transpose() << std::endl;
+    // std::cout << "  suc_grad_numerical: " << suc_grad_numerical.transpose() << std::endl;
+    // std::cout << "  suc_error: " << (suc_grad_analytical - suc_grad_numerical).norm() << std::endl;
+
+    BOOST_CHECK((pre_grad_analytical - pre_grad_numerical).norm() < 1e-3);
+    BOOST_CHECK((suc_grad_analytical - suc_grad_numerical).norm() < 1e-3);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradRelR2) { testCalcSVMGradRel<SamplingSpace::R2>("rmap_sample_set_R2_test.bag"); }
+BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradRelSE2) { testCalcSVMGradRel<SamplingSpace::SE2>("rmap_sample_set_SE2_test.bag"); }
+BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradRelR3) { testCalcSVMGradRel<SamplingSpace::R3>("rmap_sample_set_R3_test.bag"); }
+// BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradRelSE3) { testCalcSVMGradRel<SamplingSpace::SE3>("rmap_sample_set_SE3_test.bag"); }
+
+template <SamplingSpace SamplingSpaceType>
 void testInputToVelMat()
 {
   int test_num = 1000;

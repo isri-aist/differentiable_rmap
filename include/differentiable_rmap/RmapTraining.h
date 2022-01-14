@@ -87,6 +87,9 @@ class RmapTraining: public RmapTrainingBase
   /*! \brief Dimension of SVM input. */
   static constexpr int input_dim_ = inputDim<SamplingSpaceType>();
 
+  /*! \brief Dimension of velocity. */
+  static constexpr int vel_dim_ = velDim<SamplingSpaceType>();
+
   //! Whether to use libsvm function for SVM prediction
   static constexpr bool use_libsvm_prediction_ = false;
 
@@ -96,6 +99,9 @@ class RmapTraining: public RmapTrainingBase
 
   /*! \brief Type of input vector. */
   using InputType = Input<SamplingSpaceType>;
+
+  /*! \brief Type of velocity vector. */
+  using VelType = Vel<SamplingSpaceType>;
 
  public:
   /** \brief Constructor.
@@ -141,6 +147,21 @@ class RmapTraining: public RmapTrainingBase
   void testCalcSVMGrad(Eigen::Ref<Vel<SamplingSpaceType>> svm_grad_analytical,
                        Eigen::Ref<Vel<SamplingSpaceType>> svm_grad_numerical,
                        const SampleType& sample) const;
+
+  /** \brief Test SVM grad calculation for relative sample.
+      \param[out] pre_grad_analytical analytical gradient w.r.t. predecessor sample
+      \param[out] suc_grad_analytical analytical gradient w.r.t. successor sample
+      \param[out] pre_grad_numerical numerical gradient w.r.t. predecessor sample
+      \param[out] suc_grad_numerical numerical gradient w.r.t. successor sample
+      \param[in] pre_sample predecessor sample
+      \param[in] suc_sample successor sample
+  */
+  void testCalcSVMGradRel(Eigen::Ref<Vel<SamplingSpaceType>> pre_grad_analytical,
+                          Eigen::Ref<Vel<SamplingSpaceType>> suc_grad_analytical,
+                          Eigen::Ref<Vel<SamplingSpaceType>> pre_grad_numerical,
+                          Eigen::Ref<Vel<SamplingSpaceType>> suc_grad_numerical,
+                          const SampleType& pre_sample,
+                          const SampleType& suc_sample) const;
 
  protected:
   /** \brief Setup SVM parameter. */
