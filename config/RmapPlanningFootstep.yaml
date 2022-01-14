@@ -1,8 +1,12 @@
 # Number of footsteps
-footstep_num: 3
+footstep_num: 16
 
 # Adjacent regularization weight
 adjacent_reg_weight: 1e-3
+
+# Whether to switch left and right alternately (supported only in SE2)
+# Suppose that the SVM model represents a reachable map from the right foot to the left foot.
+alternate_lr: true
 
 # Height of xy plane marker
 svm_thre: -0.1

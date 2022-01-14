@@ -23,6 +23,10 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
     //! Adjacent regularization weight
     double adjacent_reg_weight = 1e-3;
 
+    //! Whether to switch left and right alternately (supported only in SE2)
+    //! Suppose that the SVM model represents a reachable map from the right foot to the left foot.
+    bool alternate_lr = true;
+
     /*! \brief Load mc_rtc configuration. */
     inline void load(const mc_rtc::Configuration& mc_rtc_config)
     {
@@ -30,6 +34,7 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
 
       mc_rtc_config("footstep_num", footstep_num);
       mc_rtc_config("adjacent_reg_weight", adjacent_reg_weight);
+      mc_rtc_config("alternate_lr", alternate_lr);
     }
   };
 

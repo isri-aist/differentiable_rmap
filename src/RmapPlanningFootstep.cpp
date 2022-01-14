@@ -57,10 +57,23 @@ void RmapPlanningFootstep<SamplingSpaceType>::setup()
 
   // Setup current sample sequence
   current_sample_seq_.resize(config_.footstep_num);
-  sva::PTransformd initial_sample_pose = sva::PTransformd::Identity();
+  sva::PTransformd accum_initial_sample_pose = sva::PTransformd::Identity();
   for (int i = 0; i < config_.footstep_num; i++) {
-    initial_sample_pose = config_.initial_sample_pose * initial_sample_pose;
-    current_sample_seq_[i] = poseToSample<SamplingSpaceType>(initial_sample_pose);
+    if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+        sva::PTransformd initial_sample_pose = config_.initial_sample_pose;
+        if (config_.alternate_lr && (i % 2 == 1)) {
+          initial_sample_pose.translation().y() *= -1;
+          Eigen::Vector3d euler_angles = initial_sample_pose.rotation().transpose().eulerAngles(2, 1, 0);
+          initial_sample_pose.rotation() = (Eigen::AngleAxisd(-1 * euler_angles[0], Eigen::Vector3d::UnitZ())
+                                            * Eigen::AngleAxisd(euler_angles[1], Eigen::Vector3d::UnitY())
+                                            * Eigen::AngleAxisd(euler_angles[2], Eigen::Vector3d::UnitX())
+                                            ).toRotationMatrix().transpose();
+        }
+        accum_initial_sample_pose = initial_sample_pose * accum_initial_sample_pose;
+      } else {
+      accum_initial_sample_pose = config_.initial_sample_pose * accum_initial_sample_pose;
+    }
+    current_sample_seq_[i] = poseToSample<SamplingSpaceType>(accum_initial_sample_pose);
   }
 
   // Setup adjacent regularization
@@ -106,15 +119,30 @@ void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
         (i == 0) ? poseToSample<SamplingSpaceType>(sva::PTransformd::Identity()) : current_sample_seq_[i - 1];
     const SampleType& suc_sample = current_sample_seq_[i];
     SampleType rel_sample = relSample<SamplingSpaceType>(pre_sample, suc_sample);
+    if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+        if (config_.alternate_lr && (i % 2 == 1)) {
+          rel_sample.template tail<2>() *= -1;
+        }
+      }
     const VelType& svm_grad = calcSVMGrad<SamplingSpaceType>(
             rel_sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_);
-    qp_coeff_.ineq_mat_.template block<1, vel_dim_>(i, i * vel_dim_) =
-        -1 * svm_grad.transpose() * relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, true);
+    VelToVelMat<SamplingSpaceType> rel_vel_mat_suc = relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, true);
+    if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+        if (config_.alternate_lr && (i % 2 == 1)) {
+          rel_vel_mat_suc.template bottomRows<2>() *= -1;
+        }
+      }
+    qp_coeff_.ineq_mat_.template block<1, vel_dim_>(i, i * vel_dim_) = -1 * svm_grad.transpose() * rel_vel_mat_suc;
     qp_coeff_.ineq_vec_.template segment<1>(i) << calcSVMValue<SamplingSpaceType>(
         rel_sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_) - config_.svm_thre;
     if (i > 0) {
-      qp_coeff_.ineq_mat_.template block<1, vel_dim_>(i, (i - 1) * vel_dim_) =
-          -1 * svm_grad.transpose() * relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, false);
+      VelToVelMat<SamplingSpaceType> rel_vel_mat_pre = relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, false);
+      if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+          if (config_.alternate_lr && (i % 2 == 1)) {
+            rel_vel_mat_pre.template bottomRows<2>() *= -1;
+          }
+        }
+      qp_coeff_.ineq_mat_.template block<1, vel_dim_>(i, (i - 1) * vel_dim_) = -1 * svm_grad.transpose() * rel_vel_mat_pre;
     }
   }
 
@@ -165,10 +193,20 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishMarkerArray() const
     for (int i = 0; i < config_.footstep_num; i++) {
       grids_marker.ns = "reachable_grids_" + std::to_string(i);
       grids_marker.id = marker_arr_msg.markers.size();
+      if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+          grids_marker.color = OmgCore::toColorRGBAMsg(
+              (config_.alternate_lr && (i % 2 == 1)) ?
+              std::vector<double>{0.0, 0.8, 0.0, 0.5} : std::vector<double>{0.8, 0.0, 0.0, 0.5});
+        }
       grids_marker.pose = OmgCore::toPoseMsg(
           i == 0 ? sva::PTransformd::Identity() : sampleToPose<SamplingSpaceType>(current_sample_seq_[i - 1]));
       SampleType slice_sample =
           i == 0 ? current_sample_seq_[i] : relSample<SamplingSpaceType>(current_sample_seq_[i - 1], current_sample_seq_[i]);
+      if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+          if (config_.alternate_lr && (i % 2 == 1)) {
+            slice_sample.template tail<2>() *= -1;
+          }
+        }
       GridIdxsType<SamplingSpaceType> slice_divide_idxs;
       gridDivideRatiosToIdxs(
           slice_divide_idxs,
@@ -185,6 +223,11 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishMarkerArray() const
             if (grid_set_msg_->values[grid_idx] > config_.svm_thre) {
               Eigen::Vector3d pos = sampleToCloudPos<SamplingSpaceType>(sample);
               pos.z() = 0;
+              if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+                  if (config_.alternate_lr && (i % 2 == 1)) {
+                    pos.y() *= -1;
+                  }
+                }
               grids_marker.points.push_back(OmgCore::toPointMsg(pos));
             }
           },
