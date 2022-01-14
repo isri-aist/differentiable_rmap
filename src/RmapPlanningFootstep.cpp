@@ -29,7 +29,7 @@ RmapPlanningFootstep<SamplingSpaceType>::RmapPlanningFootstep(
       "current_pose_arr", 1, true);
   current_poly_arr_pub_ = nh_.template advertise<jsk_recognition_msgs::PolygonArray>(
       "current_poly_arr", 1, true);
-  if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+  if constexpr (isAlternateSupported()) {
       current_left_poly_arr_pub_ = nh_.template advertise<jsk_recognition_msgs::PolygonArray>(
           "current_left_poly_arr", 1, true);
       current_right_poly_arr_pub_ = nh_.template advertise<jsk_recognition_msgs::PolygonArray>(
@@ -68,7 +68,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::setup()
   current_sample_seq_.resize(config_.footstep_num);
   sva::PTransformd accum_initial_sample_pose = sva::PTransformd::Identity();
   for (int i = 0; i < config_.footstep_num; i++) {
-    if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+    if constexpr (isAlternateSupported()) {
         sva::PTransformd initial_sample_pose = config_.initial_sample_pose;
         if (config_.alternate_lr && (i % 2 == 1)) {
           initial_sample_pose.translation().y() *= -1;
@@ -128,7 +128,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
         i == 0 ? poseToSample<SamplingSpaceType>(sva::PTransformd::Identity()) : current_sample_seq_[i - 1];
     const SampleType& suc_sample = current_sample_seq_[i];
     SampleType rel_sample = relSample<SamplingSpaceType>(pre_sample, suc_sample);
-    if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+    if constexpr (isAlternateSupported()) {
         if (config_.alternate_lr && (i % 2 == 1)) {
           rel_sample.template tail<2>() *= -1;
         }
@@ -136,7 +136,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
     const VelType& svm_grad = calcSVMGrad<SamplingSpaceType>(
             rel_sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_);
     VelToVelMat<SamplingSpaceType> rel_vel_mat_suc = relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, true);
-    if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+    if constexpr (isAlternateSupported()) {
         if (config_.alternate_lr && (i % 2 == 1)) {
           rel_vel_mat_suc.template bottomRows<2>() *= -1;
         }
@@ -146,7 +146,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
         rel_sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_) - config_.svm_thre;
     if (i > 0) {
       VelToVelMat<SamplingSpaceType> rel_vel_mat_pre = relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, false);
-      if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+      if constexpr (isAlternateSupported()) {
           if (config_.alternate_lr && (i % 2 == 1)) {
             rel_vel_mat_pre.template bottomRows<2>() *= -1;
           }
@@ -202,7 +202,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishMarkerArray() const
     for (int i = 0; i < config_.footstep_num; i++) {
       grids_marker.ns = "reachable_grids_" + std::to_string(i);
       grids_marker.id = marker_arr_msg.markers.size();
-      if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+      if constexpr (isAlternateSupported()) {
           grids_marker.color = OmgCore::toColorRGBAMsg(
               (config_.alternate_lr && (i % 2 == 1)) ?
               std::vector<double>{0.0, 0.8, 0.0, 0.5} : std::vector<double>{0.8, 0.0, 0.0, 0.5});
@@ -211,7 +211,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishMarkerArray() const
           i == 0 ? sva::PTransformd::Identity() : sampleToPose<SamplingSpaceType>(current_sample_seq_[i - 1]));
       SampleType slice_sample =
           i == 0 ? current_sample_seq_[i] : relSample<SamplingSpaceType>(current_sample_seq_[i - 1], current_sample_seq_[i]);
-      if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+      if constexpr (isAlternateSupported()) {
           if (config_.alternate_lr && (i % 2 == 1)) {
             slice_sample.template tail<2>() *= -1;
           }
@@ -232,7 +232,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishMarkerArray() const
             if (grid_set_msg_->values[grid_idx] > config_.svm_thre) {
               Eigen::Vector3d pos = sampleToCloudPos<SamplingSpaceType>(sample);
               pos.z() = 0;
-              if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+              if constexpr (isAlternateSupported()) {
                   if (config_.alternate_lr && (i % 2 == 1)) {
                     pos.y() *= -1;
                   }
@@ -272,7 +272,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishCurrentState() const
   jsk_recognition_msgs::PolygonArray right_poly_arr_msg;
   poly_arr_msg.header = header_msg;
   poly_arr_msg.polygons.resize(config_.footstep_num + 1);
-  if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+  if constexpr (isAlternateSupported()) {
       left_poly_arr_msg.header = header_msg;
       right_poly_arr_msg.header = header_msg;
     }
@@ -285,7 +285,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishCurrentState() const
       poly_arr_msg.polygons[i].polygon.points[j] =
           OmgCore::toPoint32Msg(foot_pose.rotation().transpose() * config_.foot_vertices[j] + foot_pose.translation());
     }
-    if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+    if constexpr (isAlternateSupported()) {
         if (config_.alternate_lr) {
           if (i % 2 == 1) {
             left_poly_arr_msg.polygons.push_back(poly_arr_msg.polygons[i]);
@@ -296,7 +296,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishCurrentState() const
       }
   }
   current_poly_arr_pub_.publish(poly_arr_msg);
-  if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+  if constexpr (isAlternateSupported()) {
       if (config_.alternate_lr) {
         current_left_poly_arr_pub_.publish(left_poly_arr_msg);
         current_right_poly_arr_pub_.publish(right_poly_arr_msg);

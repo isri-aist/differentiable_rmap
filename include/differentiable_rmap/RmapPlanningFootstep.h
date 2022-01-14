@@ -98,6 +98,12 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
   /** \brief Publish current state. */
   virtual void publishCurrentState() const override;
 
+  /** \brief Returns whether switching left and right foot alternately is supported. */
+  inline static constexpr bool isAlternateSupported()
+  {
+    return SamplingSpaceType == SamplingSpace::SE2;
+  }
+
  protected:
   //! Configuration
   Configuration config_;
