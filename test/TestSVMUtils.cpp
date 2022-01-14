@@ -141,3 +141,32 @@ BOOST_AUTO_TEST_CASE(TestInputToVelMatSE2) { testInputToVelMat<SamplingSpace::SE
 BOOST_AUTO_TEST_CASE(TestInputToVelMatR3) { testInputToVelMat<SamplingSpace::R3>(); }
 BOOST_AUTO_TEST_CASE(TestInputToVelMatSO3) { testInputToVelMat<SamplingSpace::SO3>(); }
 BOOST_AUTO_TEST_CASE(TestInputToVelMatSE3) { testInputToVelMat<SamplingSpace::SE3>(); }
+
+template <SamplingSpace SamplingSpaceType>
+void testRelSample()
+{
+  int test_num = 1000;
+  for (int i = 0; i < test_num; i++) {
+    sva::PTransformd pre_pose = getRandomPose<SamplingSpaceType>();
+    sva::PTransformd suc_pose = getRandomPose<SamplingSpaceType>();
+    Sample<SamplingSpaceType> pre_sample = poseToSample<SamplingSpaceType>(pre_pose);
+    Sample<SamplingSpaceType> suc_sample = poseToSample<SamplingSpaceType>(suc_pose);
+
+    Sample<SamplingSpaceType> rel_sample1 = relSample<SamplingSpaceType>(pre_sample, suc_sample);
+    Sample<SamplingSpaceType> rel_sample2 = poseToSample<SamplingSpaceType>(suc_pose * pre_pose.inv());
+
+    // std::cout << "[testRelSample]" << std::endl;
+    // std::cout << "  rel_sample1: " << rel_sample1.transpose() << std::endl;
+    // std::cout << "  rel_sample2: " << rel_sample2.transpose() << std::endl;
+    // std::cout << "  error: " << (rel_sample1 - rel_sample2).norm() << std::endl;
+
+    BOOST_CHECK((rel_sample1 - rel_sample2).norm() < 1e-8);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(TestRelSampleR2) { testRelSample<SamplingSpace::R2>(); }
+BOOST_AUTO_TEST_CASE(TestRelSampleSO2) { testRelSample<SamplingSpace::SO2>(); }
+BOOST_AUTO_TEST_CASE(TestRelSampleSE2) { testRelSample<SamplingSpace::SE2>(); }
+BOOST_AUTO_TEST_CASE(TestRelSampleR3) { testRelSample<SamplingSpace::R3>(); }
+BOOST_AUTO_TEST_CASE(TestRelSampleSO3) { testRelSample<SamplingSpace::SO3>(); }
+BOOST_AUTO_TEST_CASE(TestRelSampleSE3) { testRelSample<SamplingSpace::SE3>(); }
