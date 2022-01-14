@@ -160,6 +160,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishMarkerArray() const
     grids_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.0, 0.0, 0.5});
     grids_marker.scale = OmgCore::toVector3Msg(
         calcGridCubeScale<SamplingSpaceType>(grid_set_msg_->divide_nums, sample_range));
+    grids_marker.scale.z = 0.01;
 
     for (int i = 0; i < config_.footstep_num; i++) {
       grids_marker.ns = "reachable_grids_" + std::to_string(i);
@@ -182,8 +183,9 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishMarkerArray() const
           sample_range,
           [&](int grid_idx, const SampleType& sample) {
             if (grid_set_msg_->values[grid_idx] > config_.svm_thre) {
-              grids_marker.points.push_back(
-                  OmgCore::toPointMsg(sampleToCloudPos<SamplingSpaceType>(sample)));
+              Eigen::Vector3d pos = sampleToCloudPos<SamplingSpaceType>(sample);
+              pos.z() = 0;
+              grids_marker.points.push_back(OmgCore::toPointMsg(pos));
             }
           },
           slice_update_dims,

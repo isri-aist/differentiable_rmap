@@ -17,6 +17,8 @@
     <rosparam>
       interactive_markers:
         - name: target
+          initial_pose:
+            pos: [0, 0, 0.1]
           controls: [tx, ty, rz]
           markers:
             - type: 2 # SPHERE
