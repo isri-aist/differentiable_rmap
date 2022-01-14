@@ -416,19 +416,19 @@ inline void integrateVelToSample<SamplingSpace::SE3>(
 }
 
 template <SamplingSpace SamplingSpaceType>
-Vel<SamplingSpaceType> sampleError(const Sample<SamplingSpaceType>& sample1,
-                                   const Sample<SamplingSpaceType>& sample2)
+Vel<SamplingSpaceType> sampleError(const Sample<SamplingSpaceType>& pre_sample,
+                                   const Sample<SamplingSpaceType>& suc_sample)
 {
-  // Translation velocity is assumed to be represented in world frame
-  return sample2 - sample1;
+  // Translation error is assumed to be represented in world frame
+  return suc_sample - pre_sample;
 }
 
 template <>
 inline Vel<SamplingSpace::SO2> sampleError<SamplingSpace::SO2>(
-    const Sample<SamplingSpace::SO2>& sample1,
-    const Sample<SamplingSpace::SO2>& sample2)
+    const Sample<SamplingSpace::SO2>& pre_sample,
+    const Sample<SamplingSpace::SO2>& suc_sample)
 {
-  Vel<SamplingSpace::SO2> error = sample2 - sample1;
+  Vel<SamplingSpace::SO2> error = suc_sample - pre_sample;
   // Range within [-pi, pi]
   error.x() = std::atan2(std::sin(error.x()), std::cos(error.x()));
   return error;
@@ -436,44 +436,44 @@ inline Vel<SamplingSpace::SO2> sampleError<SamplingSpace::SO2>(
 
 template <>
 inline Vel<SamplingSpace::SE2> sampleError<SamplingSpace::SE2>(
-    const Sample<SamplingSpace::SE2>& sample1,
-    const Sample<SamplingSpace::SE2>& sample2)
+    const Sample<SamplingSpace::SE2>& pre_sample,
+    const Sample<SamplingSpace::SE2>& suc_sample)
 {
   Vel<SamplingSpace::SE2> error;
   error.head<velDim<SamplingSpace::R2>()>() = sampleError<SamplingSpace::R2>(
-      sample1.head<sampleDim<SamplingSpace::R2>()>(),
-      sample2.head<sampleDim<SamplingSpace::R2>()>());
+      pre_sample.head<sampleDim<SamplingSpace::R2>()>(),
+      suc_sample.head<sampleDim<SamplingSpace::R2>()>());
   error.tail<velDim<SamplingSpace::SO2>()>() = sampleError<SamplingSpace::SO2>(
-      sample1.tail<sampleDim<SamplingSpace::SO2>()>(),
-      sample2.tail<sampleDim<SamplingSpace::SO2>()>());
+      pre_sample.tail<sampleDim<SamplingSpace::SO2>()>(),
+      suc_sample.tail<sampleDim<SamplingSpace::SO2>()>());
   return error;
 }
 
 template <>
 inline Vel<SamplingSpace::SO3> sampleError<SamplingSpace::SO3>(
-    const Sample<SamplingSpace::SO3>& sample1,
-    const Sample<SamplingSpace::SO3>& sample2)
+    const Sample<SamplingSpace::SO3>& pre_sample,
+    const Sample<SamplingSpace::SO3>& suc_sample)
 {
-  // Rotation velocity is assumed to be represented in sample1 frame, so rotationError is not appropriate
+  // Rotation error is assumed to be represented in pre_sample frame, so rotationError is not appropriate
   return sva::rotationVelocity(Eigen::Matrix3d(
       Eigen::Quaterniond(
-          sample2.w(), sample2.x(), sample2.y(), sample2.z()).toRotationMatrix().transpose() *
+          suc_sample.w(), suc_sample.x(), suc_sample.y(), suc_sample.z()).toRotationMatrix().transpose() *
       Eigen::Quaterniond(
-          sample1.w(), sample1.x(), sample1.y(), sample1.z()).toRotationMatrix()));
+          pre_sample.w(), pre_sample.x(), pre_sample.y(), pre_sample.z()).toRotationMatrix()));
 }
 
 template <>
 inline Vel<SamplingSpace::SE3> sampleError<SamplingSpace::SE3>(
-    const Sample<SamplingSpace::SE3>& sample1,
-    const Sample<SamplingSpace::SE3>& sample2)
+    const Sample<SamplingSpace::SE3>& pre_sample,
+    const Sample<SamplingSpace::SE3>& suc_sample)
 {
   Vel<SamplingSpace::SE3> error;
   error.head<velDim<SamplingSpace::R3>()>() = sampleError<SamplingSpace::R3>(
-      sample1.head<sampleDim<SamplingSpace::R3>()>(),
-      sample2.head<sampleDim<SamplingSpace::R3>()>());
+      pre_sample.head<sampleDim<SamplingSpace::R3>()>(),
+      suc_sample.head<sampleDim<SamplingSpace::R3>()>());
   error.tail<velDim<SamplingSpace::SO3>()>() = sampleError<SamplingSpace::SO3>(
-      sample1.tail<sampleDim<SamplingSpace::SO3>()>(),
-      sample2.tail<sampleDim<SamplingSpace::SO3>()>());
+      pre_sample.tail<sampleDim<SamplingSpace::SO3>()>(),
+      suc_sample.tail<sampleDim<SamplingSpace::SO3>()>());
   return error;
 }
 

@@ -93,6 +93,30 @@ using InputToVelMat = Eigen::Matrix<double, velDim<SamplingSpaceType>(), inputDi
 */
 template <SamplingSpace SamplingSpaceType>
 InputToVelMat<SamplingSpaceType> inputToVelMat(const Sample<SamplingSpaceType>& sample);
+
+/** \brief Get relative sample between two samples.
+    \tparam SamplingSpaceType sampling space
+    \param pre_sample predecessor sample
+    \param suc_sample successor sample
+*/
+template <SamplingSpace SamplingSpaceType>
+Sample<SamplingSpaceType> relSample(const Sample<SamplingSpaceType>& pre_sample,
+                                    const Sample<SamplingSpaceType>& suc_sample);
+
+/*! \brief Type of matrix to represent the linear relation from input to vel. */
+template <SamplingSpace SamplingSpaceType>
+using VelToVelMat = Eigen::Matrix<double, velDim<SamplingSpaceType>(), velDim<SamplingSpaceType>()>;
+
+/** \brief Get matrix to represent the linear relation from relative velocity to single velocity.
+    \tparam SamplingSpaceType sampling space
+    \param pre_sample predecessor sample
+    \param suc_sample successor sample
+    \param wrt_suc if true, the returned matrix is w.r.t. the successor sample. otherwise, it is w.r.t. predecessor sample.
+*/
+template <SamplingSpace SamplingSpaceType>
+VelToVelMat<SamplingSpaceType> relVelToVelMat(const Sample<SamplingSpaceType>& pre_sample,
+                                              const Sample<SamplingSpaceType>& suc_sample,
+                                              bool wrt_suc);
 }
 
 // See method 3 in https://www.codeproject.com/Articles/48575/How-to-Define-a-Template-Class-in-a-h-File-and-Imp

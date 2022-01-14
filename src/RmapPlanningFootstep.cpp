@@ -72,20 +72,25 @@ void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
   qp_coeff_.obj_mat_.setZero();
   qp_coeff_.obj_mat_.diagonal().template tail<vel_dim_>().setConstant(1.0);
   qp_coeff_.obj_mat_.diagonal().array() += lambda;
-  // \todo Set ineq mat/vec
   qp_coeff_.ineq_mat_.setZero();
   qp_coeff_.ineq_vec_.setZero();
-  // for (int i = 0; i < config_.footstep_num; i++) {
-  //   setSVMIneq<SamplingSpaceType>(
-  //       qp_coeff_.ineq_mat_.block(i, i * vel_dim_, 1, vel_dim_),
-  //       qp_coeff_.ineq_vec_.block(i, 0, 1, 1),
-  //       current_sample_,
-  //       svm_mo_->param,
-  //       svm_mo_,
-  //       svm_coeff_vec_,
-  //       svm_sv_mat_,
-  //       config_.svm_thre);
-  // }
+  for (int i = 0; i < config_.footstep_num; i++) {
+    const SampleType& pre_sample =
+        (i == 0) ? poseToSample<SamplingSpaceType>(sva::PTransformd::Identity()) : current_sample_seq_[i - 1];
+    const SampleType& suc_sample = current_sample_seq_[i];
+    SampleType rel_sample = relSample<SamplingSpaceType>(pre_sample, suc_sample);
+    const VelType& svm_grad =
+        calcSVMGrad<SamplingSpaceType>(
+            rel_sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_);
+    qp_coeff_.ineq_mat_.template block<1, vel_dim_>(i, i * vel_dim_) =
+        -1 * svm_grad.transpose() * relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, true);
+    qp_coeff_.ineq_vec_.template segment<1>(i) << calcSVMValue<SamplingSpaceType>(
+        rel_sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_) - config_.svm_thre;
+    if (i > 0) {
+      qp_coeff_.ineq_mat_.template block<1, vel_dim_>(i, (i - 1) * vel_dim_) =
+          -1 * svm_grad.transpose() * relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, false);
+    }
+  }
 
   // Solve QP
   Eigen::VectorXd vel_all = qp_solver_->solve(qp_coeff_);

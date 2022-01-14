@@ -176,4 +176,76 @@ inline InputToVelMat<SamplingSpace::SE3> inputToVelMat<SamplingSpace::SE3>(
       inputToVelMat<SamplingSpace::SO3>(sample.tail<sampleDim<SamplingSpace::SO3>()>());
   return mat;
 }
+
+template <SamplingSpace SamplingSpaceType>
+Sample<SamplingSpaceType> relSample(const Sample<SamplingSpaceType>& pre_sample,
+                                    const Sample<SamplingSpaceType>& suc_sample)
+{
+  if constexpr (SamplingSpaceType == SamplingSpace::SO3 ||
+                SamplingSpaceType == SamplingSpace::SE3) {
+      // In sampleError(), translation error is assumed to be represented in world frame.
+      // In relSample(), on the other hand, it is assumed to be represented in pre_sample frame.
+      // These assumptions lead to different results in SE2, SO3, and SE3, so sampleError() cannot be used.
+      return poseToSample<SamplingSpaceType>(
+          sampleToPose<SamplingSpaceType>(suc_sample) * sampleToPose<SamplingSpaceType>(pre_sample).inv());
+    } else {
+    return sampleError<SamplingSpaceType>(pre_sample, suc_sample);
+  }
+}
+
+template <>
+inline Sample<SamplingSpace::SE2> relSample<SamplingSpace::SE2>(
+    const Sample<SamplingSpace::SE2>& pre_sample,
+    const Sample<SamplingSpace::SE2>& suc_sample)
+{
+  double cos = std::cos(pre_sample.z());
+  double sin = std::sin(pre_sample.z());
+  Vel<SamplingSpace::SE2> sample_error = sampleError<SamplingSpace::SE2>(pre_sample, suc_sample);
+
+  Sample<SamplingSpace::SE2> rel_sample;
+  rel_sample <<
+      cos * sample_error.x() + sin * sample_error.y(),
+      -sin * sample_error.x() + cos * sample_error.y(),
+      sample_error.z();
+
+  return rel_sample;
+}
+
+template <SamplingSpace SamplingSpaceType>
+VelToVelMat<SamplingSpaceType> relVelToVelMat(const Sample<SamplingSpaceType>& pre_sample,
+                                              const Sample<SamplingSpaceType>& suc_sample,
+                                              bool wrt_suc)
+{
+  if constexpr (SamplingSpaceType == SamplingSpace::SO3 ||
+                SamplingSpaceType == SamplingSpace::SE3) {
+      mc_rtc::log::error_and_throw<std::runtime_error>(
+          "[relVelToVelMat] Need to specialize for SamplingSpace {}", std::to_string(SamplingSpaceType));
+    }
+  return VelToVelMat<SamplingSpaceType>::Identity();
+}
+
+template <>
+inline VelToVelMat<SamplingSpace::SE2> relVelToVelMat<SamplingSpace::SE2>(
+    const Sample<SamplingSpace::SE2>& pre_sample,
+    const Sample<SamplingSpace::SE2>& suc_sample,
+    bool wrt_suc)
+{
+  double cos = std::cos(pre_sample.z());
+  double sin = std::sin(pre_sample.z());
+
+  VelToVelMat<SamplingSpace::SE2> mat;
+  mat <<
+      cos, sin, 0,
+      -sin, cos, 0,
+      0, 0, 1;
+
+  if (!wrt_suc) {
+    Vel<SamplingSpace::SE2> sample_error = sampleError<SamplingSpace::SE2>(pre_sample, suc_sample);
+    mat *= -1;
+    mat(0, 2) = -sin * sample_error.x() + cos * sample_error.y();
+    mat(1, 2) = -cos * sample_error.x() - sin * sample_error.y();
+  }
+
+  return mat;
+}
 }
