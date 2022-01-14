@@ -8,6 +8,8 @@
 
 #include <mc_rtc/logging.h>
 
+#include <differentiable_rmap/SamplingUtils.h>
+
 
 namespace
 {
