@@ -27,6 +27,14 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
     //! Suppose that the SVM model represents a reachable map from the right foot to the left foot.
     bool alternate_lr = true;
 
+    //! Vertices of foot marker
+    std::vector<Eigen::Vector3d> foot_vertices = {
+      Eigen::Vector3d(-0.1, -0.05, 0.0),
+      Eigen::Vector3d(0.1, -0.05, 0.0),
+      Eigen::Vector3d(0.1, 0.05, 0.0),
+      Eigen::Vector3d(-0.1, 0.05, 0.0)
+    };
+
     /*! \brief Load mc_rtc configuration. */
     inline void load(const mc_rtc::Configuration& mc_rtc_config)
     {
@@ -35,6 +43,7 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
       mc_rtc_config("footstep_num", footstep_num);
       mc_rtc_config("adjacent_reg_weight", adjacent_reg_weight);
       mc_rtc_config("alternate_lr", alternate_lr);
+      mc_rtc_config("foot_vertices", foot_vertices);
     }
   };
 
@@ -98,6 +107,10 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
 
   //! ROS related members
   ros::Publisher current_pose_arr_pub_;
+  ros::Publisher current_poly_arr_pub_;
+  // Separate topics to change the marker colors on the right and left feet
+  ros::Publisher current_left_poly_arr_pub_;
+  ros::Publisher current_right_poly_arr_pub_;
 
   //! Adjacent regularization matrix
   Eigen::MatrixXd adjacent_reg_mat_;

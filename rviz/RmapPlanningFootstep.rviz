@@ -79,7 +79,20 @@ Visualization Manager:
       Namespaces:
         reachable_grids_0: true
         reachable_grids_1: true
+        reachable_grids_10: true
+        reachable_grids_11: true
+        reachable_grids_12: true
+        reachable_grids_13: true
+        reachable_grids_14: true
+        reachable_grids_15: true
         reachable_grids_2: true
+        reachable_grids_3: true
+        reachable_grids_4: true
+        reachable_grids_5: true
+        reachable_grids_6: true
+        reachable_grids_7: true
+        reachable_grids_8: true
+        reachable_grids_9: true
       Queue Size: 100
       Value: true
     - Class: rviz/InteractiveMarkers
@@ -97,7 +110,7 @@ Visualization Manager:
       Axes Radius: 0.019999999552965164
       Class: rviz/PoseArray
       Color: 255; 25; 0
-      Enabled: true
+      Enabled: false
       Head Length: 0.07000000029802322
       Head Radius: 0.029999999329447746
       Name: PoseArray
@@ -106,7 +119,33 @@ Visualization Manager:
       Shape: Axes
       Topic: /current_pose_arr
       Unreliable: false
+      Value: false
+    - Alpha: 1
+      Class: jsk_rviz_plugin/PolygonArray
+      Color: 164; 0; 0
+      Enabled: true
+      Name: LeftPolygonArray
+      Topic: /current_left_poly_arr
+      Unreliable: false
       Value: true
+      coloring: Flat color
+      enable lighting: false
+      normal length: 0.10000000149011612
+      only border: false
+      show normal: false
+    - Alpha: 1
+      Class: jsk_rviz_plugin/PolygonArray
+      Color: 78; 154; 6
+      Enabled: true
+      Name: RightPolygonArray
+      Topic: /current_right_poly_arr
+      Unreliable: false
+      Value: true
+      coloring: Flat color
+      enable lighting: false
+      normal length: 0.10000000149011612
+      only border: false
+      show normal: false
   Enabled: true
   Global Options:
     Background Color: 255; 255; 255
@@ -144,11 +183,11 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 327.1220397949219
+      Scale: 348.3104248046875
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
-      X: -0.0847526490688324
-      Y: 0.20456627011299133
+      X: 0.45115897059440613
+      Y: -0.41922324895858765
     Saved: ~
 Window Geometry:
   Displays:

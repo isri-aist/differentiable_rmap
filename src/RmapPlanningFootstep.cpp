@@ -7,6 +7,7 @@
 
 #include <geometry_msgs/PoseArray.h>
 #include <visualization_msgs/MarkerArray.h>
+#include <jsk_recognition_msgs/PolygonArray.h>
 
 #include <optmotiongen/Utils/RosUtils.h>
 
@@ -26,6 +27,14 @@ RmapPlanningFootstep<SamplingSpaceType>::RmapPlanningFootstep(
 {
   current_pose_arr_pub_ = nh_.template advertise<geometry_msgs::PoseArray>(
       "current_pose_arr", 1, true);
+  current_poly_arr_pub_ = nh_.template advertise<jsk_recognition_msgs::PolygonArray>(
+      "current_poly_arr", 1, true);
+  if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+      current_left_poly_arr_pub_ = nh_.template advertise<jsk_recognition_msgs::PolygonArray>(
+          "current_left_poly_arr", 1, true);
+      current_right_poly_arr_pub_ = nh_.template advertise<jsk_recognition_msgs::PolygonArray>(
+          "current_right_poly_arr", 1, true);
+    }
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -116,7 +125,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
   qp_coeff_.ineq_vec_.setZero();
   for (int i = 0; i < config_.footstep_num; i++) {
     const SampleType& pre_sample =
-        (i == 0) ? poseToSample<SamplingSpaceType>(sva::PTransformd::Identity()) : current_sample_seq_[i - 1];
+        i == 0 ? poseToSample<SamplingSpaceType>(sva::PTransformd::Identity()) : current_sample_seq_[i - 1];
     const SampleType& suc_sample = current_sample_seq_[i];
     SampleType rel_sample = relSample<SamplingSpaceType>(pre_sample, suc_sample);
     if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
@@ -250,12 +259,49 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishCurrentState() const
   // Publish pose array
   geometry_msgs::PoseArray pose_arr_msg;
   pose_arr_msg.header = header_msg;
-  pose_arr_msg.poses.resize(config_.footstep_num);
-  for (int i = 0; i < config_.footstep_num; i++) {
+  pose_arr_msg.poses.resize(config_.footstep_num + 1);
+  for (int i = 0; i < config_.footstep_num + 1; i++) {
     pose_arr_msg.poses[i] = OmgCore::toPoseMsg(
-        sampleToPose<SamplingSpaceType>(current_sample_seq_[i]));
+        i == 0 ? sva::PTransformd::Identity() : sampleToPose<SamplingSpaceType>(current_sample_seq_[i - 1]));
   }
   current_pose_arr_pub_.publish(pose_arr_msg);
+
+  // Publish polygon array
+  jsk_recognition_msgs::PolygonArray poly_arr_msg;
+  jsk_recognition_msgs::PolygonArray left_poly_arr_msg;
+  jsk_recognition_msgs::PolygonArray right_poly_arr_msg;
+  poly_arr_msg.header = header_msg;
+  poly_arr_msg.polygons.resize(config_.footstep_num + 1);
+  if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+      left_poly_arr_msg.header = header_msg;
+      right_poly_arr_msg.header = header_msg;
+    }
+  for (int i = 0; i < config_.footstep_num + 1; i++) {
+    poly_arr_msg.polygons[i].header = header_msg;
+    sva::PTransformd foot_pose =
+        i == 0 ? sva::PTransformd::Identity() : sampleToPose<SamplingSpaceType>(current_sample_seq_[i - 1]);
+    poly_arr_msg.polygons[i].polygon.points.resize(config_.foot_vertices.size());
+    for (size_t j = 0; j < config_.foot_vertices.size(); j++) {
+      poly_arr_msg.polygons[i].polygon.points[j] =
+          OmgCore::toPoint32Msg(foot_pose.rotation().transpose() * config_.foot_vertices[j] + foot_pose.translation());
+    }
+    if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+        if (config_.alternate_lr) {
+          if (i % 2 == 1) {
+            left_poly_arr_msg.polygons.push_back(poly_arr_msg.polygons[i]);
+          } else {
+            right_poly_arr_msg.polygons.push_back(poly_arr_msg.polygons[i]);
+          }
+        }
+      }
+  }
+  current_poly_arr_pub_.publish(poly_arr_msg);
+  if constexpr (SamplingSpaceType == SamplingSpace::SE2) {
+      if (config_.alternate_lr) {
+        current_left_poly_arr_pub_.publish(left_poly_arr_msg);
+        current_right_poly_arr_pub_.publish(right_poly_arr_msg);
+      }
+    }
 }
 
 std::shared_ptr<RmapPlanningBase> DiffRmap::createRmapPlanningFootstep(
