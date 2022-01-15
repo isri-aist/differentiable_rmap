@@ -174,6 +174,7 @@ void RmapVisualization<SamplingSpaceType>::dumpGridSet(
   grid_set_msg_.values.resize(total_grid_num);
 
   // Set grid value
+  auto start_time = std::chrono::system_clock::now();
   loopGrid<SamplingSpaceType>(
       divide_nums,
       sample_min_,
@@ -186,6 +187,10 @@ void RmapVisualization<SamplingSpaceType>::dumpGridSet(
             svm_coeff_vec_,
             svm_sv_mat_);
       });
+  double duration = 1e3 * std::chrono::duration_cast<std::chrono::duration<double>>(
+      std::chrono::system_clock::now() - start_time).count();
+  ROS_INFO_STREAM("SVM predict duration: " << duration << " [ms] (predict-one: " <<
+                  duration / total_grid_num <<" [ms])");
 
   // Dump to ROS bag
   rosbag::Bag bag(grid_bag_path, rosbag::bagmode::Write);

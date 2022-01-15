@@ -388,7 +388,8 @@ void RmapTraining<SamplingSpaceType>::trainSVM()
 
     double duration = 1e3 * std::chrono::duration_cast<std::chrono::duration<double>>(
         std::chrono::system_clock::now() - start_time).count();
-    ROS_INFO_STREAM("SVM save duration: " << duration << " [ms]");
+    // Save is fast compared with other process
+    // ROS_INFO_STREAM("SVM save duration: " << duration << " [ms]");
   }
 
   train_updated_ = true;
