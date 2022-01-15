@@ -1,5 +1,6 @@
 /* Author: Masaki Murooka */
 
+#include <array>
 #include <numeric>
 #include <chrono>
 
@@ -194,7 +195,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishMarkerArray() const
     visualization_msgs::Marker grids_marker;
     grids_marker.header = header_msg;
     grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
-    grids_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.0, 0.0, 0.5});
+    grids_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.0, 0.0, 0.3});
     grids_marker.scale = OmgCore::toVector3Msg(
         calcGridCubeScale<SamplingSpaceType>(grid_set_msg_->divide_nums, sample_range));
     grids_marker.scale.z = 0.01;
@@ -205,7 +206,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishMarkerArray() const
       if constexpr (isAlternateSupported()) {
           grids_marker.color = OmgCore::toColorRGBAMsg(
               (config_.alternate_lr && (i % 2 == 1)) ?
-              std::vector<double>{0.0, 0.8, 0.0, 0.5} : std::vector<double>{0.8, 0.0, 0.0, 0.5});
+              std::array<double, 4>{0.0, 0.8, 0.0, 0.3} : std::array<double, 4>{0.8, 0.0, 0.0, 0.3});
         }
       grids_marker.pose = OmgCore::toPoseMsg(
           i == 0 ? sva::PTransformd::Identity() : sampleToPose<SamplingSpaceType>(current_sample_seq_[i - 1]));

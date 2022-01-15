@@ -99,7 +99,7 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
   virtual void publishCurrentState() const override;
 
   /** \brief Returns whether switching left and right foot alternately is supported. */
-  inline static constexpr bool isAlternateSupported()
+  static inline constexpr bool isAlternateSupported()
   {
     return SamplingSpaceType == SamplingSpace::SE2;
   }
