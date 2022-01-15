@@ -11,6 +11,7 @@
 #include <jsk_recognition_msgs/PolygonArray.h>
 
 #include <optmotiongen/Utils/RosUtils.h>
+#include <optmotiongen/Func/CollisionFunc.h>
 
 #include <differentiable_rmap/RmapPlanningFootstep.h>
 #include <differentiable_rmap/SVMUtils.h>
@@ -59,7 +60,10 @@ template <SamplingSpace SamplingSpaceType>
 void RmapPlanningFootstep<SamplingSpaceType>::setup()
 {
   // Setup QP coefficients and solver
-  qp_coeff_.setup(vel_dim_ * config_.footstep_num, 0, config_.footstep_num);
+  qp_coeff_.setup(
+      vel_dim_ * config_.footstep_num,
+      0,
+      config_.footstep_num + config_.obst_shape_config_list.size() * config_.footstep_num);
   qp_coeff_.x_min_.setConstant(-config_.delta_config_limit);
   qp_coeff_.x_max_.setConstant(config_.delta_config_limit);
 
@@ -99,6 +103,17 @@ void RmapPlanningFootstep<SamplingSpaceType>::setup()
     }
   }
   // ROS_INFO_STREAM("adjacent_reg_mat_:\n" << adjacent_reg_mat_);
+
+  // Setup sch objects
+  foot_sch_ = std::make_shared<sch::S_Box>(
+      config_.foot_shape_config.scale.x(), config_.foot_shape_config.scale.y(), config_.foot_shape_config.scale.z());
+  obst_sch_list_.resize(config_.obst_shape_config_list.size());
+  for (size_t i = 0; i < config_.obst_shape_config_list.size(); i++) {
+    const auto& obst_shape_config = config_.obst_shape_config_list[i];
+    obst_sch_list_[i] = std::make_shared<sch::S_Box>(
+        obst_shape_config.scale.x(), obst_shape_config.scale.y(), obst_shape_config.scale.z());
+    OmgCore::setSchObjPose(obst_sch_list_[i], obst_shape_config.pose);
+  }
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -245,6 +260,20 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishMarkerArray() const
           slice_divide_idxs);
       marker_arr_msg.markers.push_back(grids_marker);
     }
+  }
+
+  // Obstacle marker
+  for (size_t i = 0; i < config_.obst_shape_config_list.size(); i++) {
+    const auto& obst_shape_config = config_.obst_shape_config_list[i];
+    visualization_msgs::Marker obst_marker;
+    obst_marker.header = header_msg;
+    obst_marker.type = visualization_msgs::Marker::CUBE;
+    obst_marker.ns = "obstacle_" + std::to_string(i);
+    obst_marker.id = marker_arr_msg.markers.size();
+    obst_marker.pose = OmgCore::toPoseMsg(obst_shape_config.pose);
+    obst_marker.scale = OmgCore::toVector3Msg(obst_shape_config.scale);
+    obst_marker.color = OmgCore::toColorRGBAMsg({0.0, 0.0, 0.8, 0.5});
+    marker_arr_msg.markers.push_back(obst_marker);
   }
 
   marker_arr_pub_.publish(marker_arr_msg);
