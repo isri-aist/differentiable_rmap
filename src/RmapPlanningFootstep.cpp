@@ -107,24 +107,46 @@ void RmapPlanningFootstep<SamplingSpaceType>::setup()
   // Setup sch objects
   foot_sch_ = std::make_shared<sch::S_Box>(
       config_.foot_shape_config.scale.x(), config_.foot_shape_config.scale.y(), config_.foot_shape_config.scale.z());
-  obst_sch_list_.resize(config_.obst_shape_config_list.size());
-  for (size_t i = 0; i < config_.obst_shape_config_list.size(); i++) {
+  const int& obst_num = config_.obst_shape_config_list.size();
+  obst_sch_list_.resize(obst_num);
+  sch_cd_list_.resize(obst_num);
+  signed_dist_list_.resize(obst_num * config_.footstep_num);
+  closest_points_list_.resize(obst_num * config_.footstep_num);
+  for (size_t i = 0; i < obst_num; i++) {
     const auto& obst_shape_config = config_.obst_shape_config_list[i];
     obst_sch_list_[i] = std::make_shared<sch::S_Box>(
         obst_shape_config.scale.x(), obst_shape_config.scale.y(), obst_shape_config.scale.z());
     OmgCore::setSchObjPose(obst_sch_list_[i], obst_shape_config.pose);
+    sch_cd_list_[i] = std::make_shared<sch::CD_Pair>(foot_sch_.get(), obst_sch_list_[i].get());
   }
 }
 
 template <SamplingSpace SamplingSpaceType>
 void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
 {
+  // Update collision avoidance
+  std::array<sch::Point3, 2> closest_sch_points;
+  for (int i = 0; i < config_.footstep_num; i++) {
+    OmgCore::setSchObjPose(
+        foot_sch_, config_.foot_shape_config.pose * sampleToPose<SamplingSpaceType>(current_sample_seq_[i]));
+    for (size_t j = 0; j < config_.obst_shape_config_list.size(); j++) {
+      int idx = i * config_.obst_shape_config_list.size() + j;
+      double& signed_dist = signed_dist_list_[idx];
+      signed_dist = sch_cd_list_[j]->getClosestPoints(closest_sch_points[0], closest_sch_points[1]);
+      // getClosestPoints() returns the squared distance with sign
+      signed_dist = signed_dist >= 0 ? std::sqrt(signed_dist) : -std::sqrt(-signed_dist);
+      for (auto k : {0, 1}) {
+        closest_points_list_[idx][k] << closest_sch_points[k][0], closest_sch_points[k][1], closest_sch_points[k][2];
+      }
+    }
+  }
+
   // Set QP objective matrices
+  qp_coeff_.obj_mat_.setZero();
   qp_coeff_.obj_vec_.setZero();
   qp_coeff_.obj_vec_.template tail<vel_dim_>() =
       sampleError<SamplingSpaceType>(target_sample_, current_sample_seq_.back());
   double lambda = qp_coeff_.obj_vec_.squaredNorm() + 1e-3;
-  qp_coeff_.obj_mat_.setZero();
   qp_coeff_.obj_mat_.diagonal().template tail<vel_dim_>().setConstant(1.0);
   qp_coeff_.obj_mat_.diagonal().array() += lambda;
   Eigen::VectorXd current_config(qp_coeff_.dim_var_);
@@ -210,21 +232,21 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishMarkerArray() const
     visualization_msgs::Marker grids_marker;
     grids_marker.header = header_msg;
     grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
-    grids_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.0, 0.0, 0.3});
     grids_marker.scale = OmgCore::toVector3Msg(
         calcGridCubeScale<SamplingSpaceType>(grid_set_msg_->divide_nums, sample_range));
     grids_marker.scale.z = 0.01;
+    grids_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.0, 0.0, 0.3});
 
     for (int i = 0; i < config_.footstep_num; i++) {
       grids_marker.ns = "reachable_grids_" + std::to_string(i);
       grids_marker.id = marker_arr_msg.markers.size();
+      grids_marker.pose = OmgCore::toPoseMsg(
+          i == 0 ? sva::PTransformd::Identity() : sampleToPose<SamplingSpaceType>(current_sample_seq_[i - 1]));
       if constexpr (isAlternateSupported()) {
           grids_marker.color = OmgCore::toColorRGBAMsg(
               (config_.alternate_lr && (i % 2 == 1)) ?
               std::array<double, 4>{0.0, 0.8, 0.0, 0.3} : std::array<double, 4>{0.8, 0.0, 0.0, 0.3});
         }
-      grids_marker.pose = OmgCore::toPoseMsg(
-          i == 0 ? sva::PTransformd::Identity() : sampleToPose<SamplingSpaceType>(current_sample_seq_[i - 1]));
       SampleType slice_sample =
           i == 0 ? current_sample_seq_[i] : relSample<SamplingSpaceType>(current_sample_seq_[i - 1], current_sample_seq_[i]);
       if constexpr (isAlternateSupported()) {
@@ -267,14 +289,45 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishMarkerArray() const
     const auto& obst_shape_config = config_.obst_shape_config_list[i];
     visualization_msgs::Marker obst_marker;
     obst_marker.header = header_msg;
-    obst_marker.type = visualization_msgs::Marker::CUBE;
     obst_marker.ns = "obstacle_" + std::to_string(i);
     obst_marker.id = marker_arr_msg.markers.size();
+    obst_marker.type = visualization_msgs::Marker::CUBE;
     obst_marker.pose = OmgCore::toPoseMsg(obst_shape_config.pose);
     obst_marker.scale = OmgCore::toVector3Msg(obst_shape_config.scale);
+    obst_marker.scale.z = 0.005;
     obst_marker.color = OmgCore::toColorRGBAMsg({0.0, 0.0, 0.8, 0.5});
     marker_arr_msg.markers.push_back(obst_marker);
   }
+
+  // Collision marker (connecting the closest points)
+  visualization_msgs::Marker collision_points_marker;
+  collision_points_marker.header.frame_id = "world";
+  collision_points_marker.ns = "collision_points";
+  collision_points_marker.id = marker_arr_msg.markers.size();
+  collision_points_marker.type = visualization_msgs::Marker::SPHERE_LIST;
+  collision_points_marker.color = OmgCore::toColorRGBAMsg({0, 0, 1, 1});
+  collision_points_marker.scale = OmgCore::toVector3Msg({0.02, 0.02, 0.02}); // sphere size
+  collision_points_marker.pose.orientation = OmgCore::toQuaternionMsg({0, 0, 0, 1});
+  visualization_msgs::Marker collision_lines_marker;
+  collision_lines_marker.header.frame_id = "world";
+  collision_lines_marker.ns = "collision_lines";
+  collision_lines_marker.id = marker_arr_msg.markers.size();
+  collision_lines_marker.type = visualization_msgs::Marker::LINE_LIST;
+  collision_lines_marker.color = OmgCore::toColorRGBAMsg({0, 0, 1, 1});
+  collision_lines_marker.scale.x = 0.01; // line width
+  collision_lines_marker.pose.orientation = OmgCore::toQuaternionMsg({0, 0, 0, 1});
+  for (int i = 0; i < config_.footstep_num; i++) {
+    for (size_t j = 0; j < config_.obst_shape_config_list.size(); j++) {
+      int idx = i * config_.obst_shape_config_list.size() + j;
+      for (auto k : {0, 1}) {
+        const auto& point_msg = OmgCore::toPointMsg(closest_points_list_[idx][k]);
+        collision_points_marker.points.push_back(point_msg);
+        collision_lines_marker.points.push_back(point_msg);
+      }
+    }
+  }
+  marker_arr_msg.markers.push_back(collision_points_marker);
+  marker_arr_msg.markers.push_back(collision_lines_marker);
 
   marker_arr_pub_.publish(marker_arr_msg);
 }

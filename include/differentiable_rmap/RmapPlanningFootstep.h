@@ -159,6 +159,15 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
   //! Sch box list of obstacles
   std::vector<std::shared_ptr<sch::S_Box>> obst_sch_list_;
 
+  //! List of collision detector of sch objects
+  std::vector<std::shared_ptr<sch::CD_Pair>> sch_cd_list_;
+
+  //! List of signed distance of sch objects
+  std::vector<double> signed_dist_list_;
+
+  //! List of closest points of sch objects
+  std::vector<std::array<Eigen::Vector3d, 2>> closest_points_list_;
+
   //! ROS related members
   ros::Publisher current_pose_arr_pub_;
   ros::Publisher current_poly_arr_pub_;
