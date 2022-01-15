@@ -48,9 +48,14 @@ void RmapVisualization<SamplingSpaceType>::configure(const mc_rtc::Configuration
 }
 
 template <SamplingSpace SamplingSpaceType>
-void RmapVisualization<SamplingSpaceType>::setup(const std::string& grid_bag_path)
+void RmapVisualization<SamplingSpaceType>::setup(const std::string& grid_bag_path,
+                                                 bool load_grid)
 {
-  dumpGridSet(grid_bag_path);
+  if (load_grid) {
+    loadGridSet(grid_bag_path);
+  } else {
+    dumpGridSet(grid_bag_path);
+  }
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -60,9 +65,10 @@ void RmapVisualization<SamplingSpaceType>::runOnce()
 }
 
 template <SamplingSpace SamplingSpaceType>
-void RmapVisualization<SamplingSpaceType>::runLoop(const std::string& grid_bag_path)
+void RmapVisualization<SamplingSpaceType>::runLoop(const std::string& grid_bag_path,
+                                                   bool load_grid)
 {
-  setup(grid_bag_path);
+  setup(grid_bag_path, load_grid);
 
   ros::Rate rate(100);
   while (ros::ok()) {
@@ -106,6 +112,26 @@ void RmapVisualization<SamplingSpaceType>::loadSVM(const std::string& svm_path)
       svm_coeff_vec_,
       svm_sv_mat_,
       svm_mo_);
+}
+
+template <SamplingSpace SamplingSpaceType>
+void RmapVisualization<SamplingSpaceType>::loadGridSet(
+    const std::string& grid_bag_path)
+{
+  ROS_INFO_STREAM("Load grid set from " << grid_bag_path);
+
+  grid_set_msg_ = *loadBag<differentiable_rmap::RmapGridSet>(grid_bag_path);
+
+  if (grid_set_msg_.type != static_cast<size_t>(SamplingSpaceType)) {
+    mc_rtc::log::error_and_throw<std::runtime_error>(
+        "SamplingSpace does not match with message: {} != {}",
+        grid_set_msg_.type, static_cast<size_t>(SamplingSpaceType));
+  }
+
+  for (int i = 0; i < sample_dim_; i++) {
+    sample_min_[i] = grid_set_msg_.min[i];
+    sample_max_[i] = grid_set_msg_.max[i];
+  }
 }
 
 template <SamplingSpace SamplingSpaceType>

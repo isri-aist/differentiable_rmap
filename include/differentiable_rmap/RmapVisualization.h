@@ -25,17 +25,21 @@ class RmapVisualizationBase
   virtual void configure(const mc_rtc::Configuration& mc_rtc_config) = 0;
 
   /** \brief Setup visualization.
-      \param grid_bag_path path of ROS bag file of grid set
+      \param grid_bag_path path of ROS bag file of grid set (file for output if load_grid is false, input otherwise)
+      \param load_grid whether to load grid set from file
    */
-  virtual void setup(const std::string& grid_bag_path = "/tmp/rmap_grid_set.bag") = 0;
+  virtual void setup(const std::string& grid_bag_path = "/tmp/rmap_grid_set.bag",
+                     bool load_grid = false) = 0;
 
   /** \brief Run visualization once. */
   virtual void runOnce() = 0;
 
   /** \brief Setup and run visualization loop.
-      \param grid_bag_path path of ROS bag file of grid set
+      \param grid_bag_path path of ROS bag file of grid set (file for output if load_grid is false, input otherwise)
+      \param load_grid whether to load grid set from file
    */
-  virtual void runLoop(const std::string& grid_bag_path = "/tmp/rmap_grid_set.bag") = 0;
+  virtual void runLoop(const std::string& grid_bag_path = "/tmp/rmap_grid_set.bag",
+                       bool load_grid = false) = 0;
 };
 
 /** \brief Class to plan in sample space based on differentiable reachability map.
@@ -97,17 +101,21 @@ class RmapVisualization: public RmapVisualizationBase
   virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
 
   /** \brief Setup visualization.
-      \param grid_bag_path path of ROS bag file of grid set
+      \param grid_bag_path path of ROS bag file of grid set (file for output if load_grid is false, input otherwise)
+      \param load_grid whether to load grid set from file
    */
-  virtual void setup(const std::string& grid_bag_path = "/tmp/rmap_grid_set.bag") override;
+  virtual void setup(const std::string& grid_bag_path = "/tmp/rmap_grid_set.bag",
+                     bool load_grid = false) override;
 
   /** \brief Run visualization once. */
   virtual void runOnce() override;
 
   /** \brief Setup and run visualization loop.
-      \param grid_bag_path path of ROS bag file of grid set
+      \param grid_bag_path path of ROS bag file of grid set (file for output if load_grid is false, input otherwise)
+      \param load_grid whether to load grid set from file
    */
-  virtual void runLoop(const std::string& grid_bag_path = "/tmp/rmap_grid_set.bag") override;
+  virtual void runLoop(const std::string& grid_bag_path = "/tmp/rmap_grid_set.bag",
+                       bool load_grid = false) override;
 
  protected:
   /** \brief Load sample set from ROS bag. */
@@ -115,6 +123,9 @@ class RmapVisualization: public RmapVisualizationBase
 
   /** \brief Save SVM model. */
   void loadSVM(const std::string& svm_path);
+
+  /** \brief Load grid set. */
+  void loadGridSet(const std::string& grid_bag_path);
 
   /** \brief Dump generated grid set to ROS bag. */
   void dumpGridSet(const std::string& grid_bag_path);

@@ -1,6 +1,7 @@
 <launch>
   <!-- R2, SE2, R3, or SE3 are supported -->
   <arg name="sampling_space" default="R2" />
+  <arg name="load_grid" default="false" />
 
   <node pkg="differentiable_rmap" type="NodeRmapVisualization" name="rmap_visualization"
         output="screen">
@@ -10,6 +11,7 @@
       sample_bag_path: /tmp/rmap_sample_set_$(arg sampling_space).bag
       svm_path: /tmp/rmap_svm_model_$(arg sampling_space).libsvm
       grid_bag_path: /tmp/rmap_grid_set_$(arg sampling_space).bag
+      load_grid: $(arg load_grid)
     </rosparam>
   </node>
 

@@ -35,7 +35,10 @@ int main(int argc, char **argv)
   std::string grid_bag_path = "/tmp/rmap_grid_set.bag";
   pnh.param<std::string>("grid_bag_path", grid_bag_path, grid_bag_path);
 
-  rmap_visualization->runLoop(grid_bag_path);
+  bool load_grid = false;
+  pnh.param<bool>("load_grid", load_grid, load_grid);
+
+  rmap_visualization->runLoop(grid_bag_path, load_grid);
 
   bool keep_alive = true;
   pnh.param<bool>("keep_alive", keep_alive, keep_alive);
