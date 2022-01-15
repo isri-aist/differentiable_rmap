@@ -225,7 +225,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
       Eigen::Vector3d dir = (closest_points[0] - closest_points[1]) / signed_dist;
       qp_coeff_.ineq_mat_.template block<1, vel_dim_>(config_.footstep_num + idx, i * vel_dim_) =
           -1 * dir.transpose() * posJacobian<SamplingSpaceType>(current_sample_seq_[i], closest_points[0]);
-      qp_coeff_.ineq_vec_.template segment<1>(config_.footstep_num + idx) << signed_dist;
+      qp_coeff_.ineq_vec_.template segment<1>(config_.footstep_num + idx) << signed_dist - config_.collision_margin;
     }
   }
 

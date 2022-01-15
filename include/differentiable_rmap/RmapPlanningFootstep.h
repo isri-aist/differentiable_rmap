@@ -47,6 +47,9 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
     //! Suppose that the SVM model represents a reachable map from the right foot to the left foot.
     bool alternate_lr = true;
 
+    //! Margin distance of collision avoidance [m]
+    double collision_margin = 0.0;
+
     //! Foot shape configuration (used for collision avoidance with obstacles)
     CollisionShapeConfiguration foot_shape_config;
 
@@ -69,6 +72,7 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
       mc_rtc_config("footstep_num", footstep_num);
       mc_rtc_config("adjacent_reg_weight", adjacent_reg_weight);
       mc_rtc_config("alternate_lr", alternate_lr);
+      mc_rtc_config("collision_margin", collision_margin);
       if (mc_rtc_config.has("foot_shape_config")) {
         foot_shape_config.load(mc_rtc_config("foot_shape_config"));
       }
