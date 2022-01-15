@@ -162,9 +162,6 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
   //! List of collision detector of sch objects
   std::vector<std::shared_ptr<sch::CD_Pair>> sch_cd_list_;
 
-  //! List of signed distance of sch objects
-  std::vector<double> signed_dist_list_;
-
   //! List of closest points of sch objects
   std::vector<std::array<Eigen::Vector3d, 2>> closest_points_list_;
 

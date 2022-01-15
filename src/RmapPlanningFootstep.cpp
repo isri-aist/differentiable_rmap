@@ -21,6 +21,39 @@
 using namespace DiffRmap;
 
 
+namespace
+{
+/** \brief Calculate Jacobian about the position w.r.t. sample.
+    \tparam SamplingSpaceType sampling space
+    \param sample sample
+    \param pos focused position represented in world frame
+*/
+template <SamplingSpace SamplingSpaceType>
+Eigen::Matrix<double, 3, velDim<SamplingSpaceType>()> posJacobian(
+    const Sample<SamplingSpaceType>& sample,
+    const Eigen::Vector3d& pos)
+{
+  mc_rtc::log::error_and_throw<std::runtime_error>(
+      "[posJacobian] Need to specialize for SamplingSpace {}", std::to_string(SamplingSpaceType));
+  return Eigen::Matrix<double, 3, velDim<SamplingSpaceType>()>::Zero();
+}
+
+template <>
+inline Eigen::Matrix<double, 3, velDim<SamplingSpace::SE2>()> posJacobian<SamplingSpace::SE2>(
+    const Sample<SamplingSpace::SE2>& sample,
+    const Eigen::Vector3d& pos)
+{
+  Eigen::Matrix<double, 3, velDim<SamplingSpace::SE2>()> jac
+      = Eigen::Matrix<double, 3, velDim<SamplingSpace::SE2>()>::Zero();
+  jac(0, 0) = 1;
+  jac(1, 1) = 1;
+  Eigen::Vector3d delta_pos = Eigen::Vector3d::Zero();
+  delta_pos.template head<2>() = (pos - sample).template head<2>();
+  jac.col(2) = Eigen::Vector3d::UnitZ().cross(delta_pos);
+  return jac;
+}
+}
+
 template <SamplingSpace SamplingSpaceType>
 RmapPlanningFootstep<SamplingSpaceType>::RmapPlanningFootstep(
     const std::string& svm_path,
@@ -104,13 +137,12 @@ void RmapPlanningFootstep<SamplingSpaceType>::setup()
   }
   // ROS_INFO_STREAM("adjacent_reg_mat_:\n" << adjacent_reg_mat_);
 
-  // Setup sch objects
+  // Setup collision
   foot_sch_ = std::make_shared<sch::S_Box>(
       config_.foot_shape_config.scale.x(), config_.foot_shape_config.scale.y(), config_.foot_shape_config.scale.z());
   const int& obst_num = config_.obst_shape_config_list.size();
   obst_sch_list_.resize(obst_num);
   sch_cd_list_.resize(obst_num);
-  signed_dist_list_.resize(obst_num * config_.footstep_num);
   closest_points_list_.resize(obst_num * config_.footstep_num);
   for (size_t i = 0; i < obst_num; i++) {
     const auto& obst_shape_config = config_.obst_shape_config_list[i];
@@ -124,23 +156,6 @@ void RmapPlanningFootstep<SamplingSpaceType>::setup()
 template <SamplingSpace SamplingSpaceType>
 void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
 {
-  // Update collision avoidance
-  std::array<sch::Point3, 2> closest_sch_points;
-  for (int i = 0; i < config_.footstep_num; i++) {
-    OmgCore::setSchObjPose(
-        foot_sch_, config_.foot_shape_config.pose * sampleToPose<SamplingSpaceType>(current_sample_seq_[i]));
-    for (size_t j = 0; j < config_.obst_shape_config_list.size(); j++) {
-      int idx = i * config_.obst_shape_config_list.size() + j;
-      double& signed_dist = signed_dist_list_[idx];
-      signed_dist = sch_cd_list_[j]->getClosestPoints(closest_sch_points[0], closest_sch_points[1]);
-      // getClosestPoints() returns the squared distance with sign
-      signed_dist = signed_dist >= 0 ? std::sqrt(signed_dist) : -std::sqrt(-signed_dist);
-      for (auto k : {0, 1}) {
-        closest_points_list_[idx][k] << closest_sch_points[k][0], closest_sch_points[k][1], closest_sch_points[k][2];
-      }
-    }
-  }
-
   // Set QP objective matrices
   qp_coeff_.obj_mat_.setZero();
   qp_coeff_.obj_vec_.setZero();
@@ -158,7 +173,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
   qp_coeff_.obj_vec_ += adjacent_reg_mat_ * current_config;
   qp_coeff_.obj_mat_ += adjacent_reg_mat_;
 
-  // Set QP inequality matrices
+  // Set QP inequality matrices of reachability
   qp_coeff_.ineq_mat_.setZero();
   qp_coeff_.ineq_vec_.setZero();
   for (int i = 0; i < config_.footstep_num; i++) {
@@ -190,6 +205,27 @@ void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
           }
         }
       qp_coeff_.ineq_mat_.template block<1, vel_dim_>(i, (i - 1) * vel_dim_) = -1 * svm_grad.transpose() * rel_vel_mat_pre;
+    }
+  }
+
+  // Set QP inequality matrices of collision
+  std::array<sch::Point3, 2> closest_sch_points;
+  for (int i = 0; i < config_.footstep_num; i++) {
+    OmgCore::setSchObjPose(
+        foot_sch_, config_.foot_shape_config.pose * sampleToPose<SamplingSpaceType>(current_sample_seq_[i]));
+    for (size_t j = 0; j < config_.obst_shape_config_list.size(); j++) {
+      int idx = i * config_.obst_shape_config_list.size() + j;
+      double signed_dist = sch_cd_list_[j]->getClosestPoints(closest_sch_points[0], closest_sch_points[1]);
+      // getClosestPoints() returns the squared distance with sign
+      signed_dist = signed_dist >= 0 ? std::sqrt(signed_dist) : -std::sqrt(-signed_dist);
+      std::array<Eigen::Vector3d, 2>& closest_points = closest_points_list_[idx];
+      for (auto k : {0, 1}) {
+        closest_points[k] << closest_sch_points[k][0], closest_sch_points[k][1], closest_sch_points[k][2];
+      }
+      Eigen::Vector3d dir = (closest_points[0] - closest_points[1]) / signed_dist;
+      qp_coeff_.ineq_mat_.template block<1, vel_dim_>(config_.footstep_num + idx, i * vel_dim_) =
+          -1 * dir.transpose() * posJacobian<SamplingSpaceType>(current_sample_seq_[i], closest_points[0]);
+      qp_coeff_.ineq_vec_.template segment<1>(config_.footstep_num + idx) << signed_dist;
     }
   }
 
