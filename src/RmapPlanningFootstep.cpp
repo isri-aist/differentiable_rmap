@@ -94,15 +94,17 @@ void RmapPlanningFootstep<SamplingSpaceType>::setup()
 {
   // Setup QP coefficients and solver
   int config_dim = config_.footstep_num * vel_dim_;
-  int obst_dim = config_.obst_shape_config_list.size() * config_.footstep_num;
+  int svm_ineq_dim = config_.footstep_num;
+  int collision_ineq_dim = config_.obst_shape_config_list.size() * config_.footstep_num;
+  // Introduce variables for inequality constraint errors
   qp_coeff_.setup(
-      config_dim + obst_dim,
+      config_dim + svm_ineq_dim + collision_ineq_dim,
       0,
-      config_.footstep_num + obst_dim);
+      svm_ineq_dim + collision_ineq_dim);
   qp_coeff_.x_min_.head(config_dim).setConstant(-config_.delta_config_limit);
   qp_coeff_.x_max_.head(config_dim).setConstant(config_.delta_config_limit);
-  qp_coeff_.x_min_.tail(obst_dim).setConstant(-1e10);
-  qp_coeff_.x_max_.tail(obst_dim).setConstant(1e10);
+  qp_coeff_.x_min_.tail(svm_ineq_dim + collision_ineq_dim).setConstant(-1e10);
+  qp_coeff_.x_max_.tail(svm_ineq_dim + collision_ineq_dim).setConstant(1e10);
 
   qp_solver_ = OmgCore::allocateQpSolver(OmgCore::QpSolverType::JRLQP);
 
@@ -161,18 +163,21 @@ template <SamplingSpace SamplingSpaceType>
 void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
 {
   int config_dim = config_.footstep_num * vel_dim_;
-  int obst_dim = config_.obst_shape_config_list.size() * config_.footstep_num;
+  int svm_ineq_dim = config_.footstep_num;
+  int collision_ineq_dim = config_.obst_shape_config_list.size() * config_.footstep_num;
 
   // Set QP objective matrices
   qp_coeff_.obj_mat_.setZero();
   qp_coeff_.obj_vec_.setZero();
   const VelType& sample_error = sampleError<SamplingSpaceType>(target_sample_, current_sample_seq_.back());
   qp_coeff_.obj_mat_.diagonal().template segment<vel_dim_>(config_dim - vel_dim_).setConstant(1.0);
-  double lambda = sample_error.squaredNorm() + config_.reg_weight;
-  qp_coeff_.obj_mat_.diagonal().head(config_dim).array() += lambda;
-  qp_coeff_.obj_mat_.diagonal().tail(obst_dim).setConstant(config_.collision_weight);
+  qp_coeff_.obj_mat_.diagonal().head(config_dim).array() += sample_error.squaredNorm() + config_.reg_weight;
+  qp_coeff_.obj_mat_.diagonal().tail(svm_ineq_dim + collision_ineq_dim).head(
+      svm_ineq_dim).setConstant(config_.svm_ineq_weight);
+  qp_coeff_.obj_mat_.diagonal().tail(svm_ineq_dim + collision_ineq_dim).tail(
+      collision_ineq_dim).setConstant(config_.collision_ineq_weight);
   qp_coeff_.obj_vec_.template segment<vel_dim_>(config_dim - vel_dim_) = sample_error;
-  Eigen::VectorXd current_config(qp_coeff_.dim_var_);
+  Eigen::VectorXd current_config(config_dim);
   for (int i = 0; i < config_.footstep_num; i++) {
     // The implementation of adjacent regularization is not strict because the error between samples is not a simple subtraction
     current_config.template segment<vel_dim_>(i * vel_dim_) =
@@ -215,6 +220,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
       qp_coeff_.ineq_mat_.template block<1, vel_dim_>(i, (i - 1) * vel_dim_) = -1 * svm_grad.transpose() * rel_vel_mat_pre;
     }
   }
+  qp_coeff_.ineq_mat_.rightCols(svm_ineq_dim + collision_ineq_dim).diagonal().head(svm_ineq_dim).setConstant(-1);
 
   // Set QP inequality matrices of collision
   std::array<sch::Point3, 2> closest_sch_points;
@@ -243,12 +249,12 @@ void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
       qp_coeff_.ineq_vec_.template segment<1>(config_.footstep_num + idx) << signed_dist - config_.collision_margin;
     }
   }
-  qp_coeff_.ineq_mat_.bottomRightCorner(obst_dim, obst_dim).diagonal().setConstant(-1);
+  qp_coeff_.ineq_mat_.rightCols(svm_ineq_dim + collision_ineq_dim).diagonal().tail(collision_ineq_dim).setConstant(-1);
 
-  ROS_INFO_STREAM("qp_coeff_.obj_mat_:\n" << qp_coeff_.obj_mat_);
-  ROS_INFO_STREAM("qp_coeff_.obj_vec_:\n" << qp_coeff_.obj_vec_.transpose());
-  ROS_INFO_STREAM("qp_coeff_.ineq_mat_:\n" << qp_coeff_.ineq_mat_);
-  ROS_INFO_STREAM("qp_coeff_.ineq_vec_:\n" << qp_coeff_.ineq_vec_.transpose());
+  // ROS_INFO_STREAM("qp_coeff_.obj_mat_:\n" << qp_coeff_.obj_mat_);
+  // ROS_INFO_STREAM("qp_coeff_.obj_vec_:\n" << qp_coeff_.obj_vec_.transpose());
+  // ROS_INFO_STREAM("qp_coeff_.ineq_mat_:\n" << qp_coeff_.ineq_mat_);
+  // ROS_INFO_STREAM("qp_coeff_.ineq_vec_:\n" << qp_coeff_.ineq_vec_.transpose());
 
   // Solve QP
   Eigen::VectorXd vel_all = qp_solver_->solve(qp_coeff_);

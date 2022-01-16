@@ -53,8 +53,11 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
     //! Margin distance of collision avoidance [m]
     double collision_margin = 0.0;
 
-    //! QP objective weight for collision avoidance error
-    double collision_weight = 1e6;
+    //! QP objective weight for SVM inequality error
+    double svm_ineq_weight = 1e6;
+
+    //! QP objective weight for collision avoidance inequality error
+    double collision_ineq_weight = 1e6;
 
     //! Foot shape configuration (used for collision avoidance with obstacles)
     CollisionShapeConfiguration foot_shape_config;
@@ -80,7 +83,8 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
       mc_rtc_config("adjacent_reg_weight", adjacent_reg_weight);
       mc_rtc_config("alternate_lr", alternate_lr);
       mc_rtc_config("collision_margin", collision_margin);
-      mc_rtc_config("collision_weight", collision_weight);
+      mc_rtc_config("svm_ineq_weight", svm_ineq_weight);
+      mc_rtc_config("collision_ineq_weight", collision_ineq_weight);
       if (mc_rtc_config.has("foot_shape_config")) {
         foot_shape_config.load(mc_rtc_config("foot_shape_config"));
       }

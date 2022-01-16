@@ -1,6 +1,9 @@
 # Number of footsteps
 footstep_num: 16
 
+# Regularization weight
+reg_weight: 1e-6
+
 # Adjacent regularization weight
 adjacent_reg_weight: 1e-3
 
@@ -11,8 +14,11 @@ alternate_lr: true
 # Margin distance of collision avoidance [m]
 collision_margin: 0.01
 
-# QP objective weight for collision avoidance error
-collision_weight: 1e6
+# QP objective weight for SVM inequality error
+svm_ineq_weight: 1e6
+
+# QP objective weight for collision avoidance inequality error
+collision_ineq_weight: 1e6
 
 # Vertices of foot marker
 foot_vertices: [
