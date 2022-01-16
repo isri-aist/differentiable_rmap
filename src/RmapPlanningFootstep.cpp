@@ -93,12 +93,16 @@ template <SamplingSpace SamplingSpaceType>
 void RmapPlanningFootstep<SamplingSpaceType>::setup()
 {
   // Setup QP coefficients and solver
+  int config_dim = config_.footstep_num * vel_dim_;
+  int obst_dim = config_.obst_shape_config_list.size() * config_.footstep_num;
   qp_coeff_.setup(
-      vel_dim_ * config_.footstep_num,
+      config_dim + obst_dim,
       0,
-      config_.footstep_num + config_.obst_shape_config_list.size() * config_.footstep_num);
-  qp_coeff_.x_min_.setConstant(-config_.delta_config_limit);
-  qp_coeff_.x_max_.setConstant(config_.delta_config_limit);
+      config_.footstep_num + obst_dim);
+  qp_coeff_.x_min_.head(config_dim).setConstant(-config_.delta_config_limit);
+  qp_coeff_.x_max_.head(config_dim).setConstant(config_.delta_config_limit);
+  qp_coeff_.x_min_.tail(obst_dim).setConstant(-1e10);
+  qp_coeff_.x_max_.tail(obst_dim).setConstant(1e10);
 
   qp_solver_ = OmgCore::allocateQpSolver(OmgCore::QpSolverType::JRLQP);
 
@@ -124,7 +128,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::setup()
   }
 
   // Setup adjacent regularization
-  adjacent_reg_mat_.setZero(qp_coeff_.dim_var_, qp_coeff_.dim_var_);
+  adjacent_reg_mat_.setZero(config_dim, config_dim);
   for (int i = 0; i < config_.footstep_num; i++) {
     adjacent_reg_mat_.block<vel_dim_, vel_dim_>(i * vel_dim_, i * vel_dim_).diagonal().setConstant(
         (i == config_.footstep_num - 1 ? 1 : 2) * config_.adjacent_reg_weight);
@@ -156,22 +160,26 @@ void RmapPlanningFootstep<SamplingSpaceType>::setup()
 template <SamplingSpace SamplingSpaceType>
 void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
 {
+  int config_dim = config_.footstep_num * vel_dim_;
+  int obst_dim = config_.obst_shape_config_list.size() * config_.footstep_num;
+
   // Set QP objective matrices
   qp_coeff_.obj_mat_.setZero();
   qp_coeff_.obj_vec_.setZero();
-  qp_coeff_.obj_vec_.template tail<vel_dim_>() =
-      sampleError<SamplingSpaceType>(target_sample_, current_sample_seq_.back());
-  double lambda = qp_coeff_.obj_vec_.squaredNorm() + 1e-3;
-  qp_coeff_.obj_mat_.diagonal().template tail<vel_dim_>().setConstant(1.0);
-  qp_coeff_.obj_mat_.diagonal().array() += lambda;
+  const VelType& sample_error = sampleError<SamplingSpaceType>(target_sample_, current_sample_seq_.back());
+  qp_coeff_.obj_mat_.diagonal().template segment<vel_dim_>(config_dim - vel_dim_).setConstant(1.0);
+  double lambda = sample_error.squaredNorm() + config_.reg_weight;
+  qp_coeff_.obj_mat_.diagonal().head(config_dim).array() += lambda;
+  qp_coeff_.obj_mat_.diagonal().tail(obst_dim).setConstant(config_.collision_weight);
+  qp_coeff_.obj_vec_.template segment<vel_dim_>(config_dim - vel_dim_) = sample_error;
   Eigen::VectorXd current_config(qp_coeff_.dim_var_);
   for (int i = 0; i < config_.footstep_num; i++) {
     // The implementation of adjacent regularization is not strict because the error between samples is not a simple subtraction
     current_config.template segment<vel_dim_>(i * vel_dim_) =
         sampleError<SamplingSpaceType>(identity_sample_, current_sample_seq_[i]);
   }
-  qp_coeff_.obj_vec_ += adjacent_reg_mat_ * current_config;
-  qp_coeff_.obj_mat_ += adjacent_reg_mat_;
+  qp_coeff_.obj_vec_.head(config_dim) += adjacent_reg_mat_ * current_config;
+  qp_coeff_.obj_mat_.topLeftCorner(config_dim, config_dim) += adjacent_reg_mat_;
 
   // Set QP inequality matrices of reachability
   qp_coeff_.ineq_mat_.setZero();
@@ -232,10 +240,15 @@ void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
       }
       qp_coeff_.ineq_mat_.template block<1, vel_dim_>(config_.footstep_num + idx, i * vel_dim_) =
           -1 * collision_dir_.transpose() * posJacobian<SamplingSpaceType>(current_sample_seq_[i], closest_points[0]);
-      qp_coeff_.ineq_vec_.template segment<1>(config_.footstep_num + idx) <<
-          std::max(signed_dist - config_.collision_margin, -0.1 * config_.delta_config_limit);
+      qp_coeff_.ineq_vec_.template segment<1>(config_.footstep_num + idx) << signed_dist - config_.collision_margin;
     }
   }
+  qp_coeff_.ineq_mat_.bottomRightCorner(obst_dim, obst_dim).diagonal().setConstant(-1);
+
+  ROS_INFO_STREAM("qp_coeff_.obj_mat_:\n" << qp_coeff_.obj_mat_);
+  ROS_INFO_STREAM("qp_coeff_.obj_vec_:\n" << qp_coeff_.obj_vec_.transpose());
+  ROS_INFO_STREAM("qp_coeff_.ineq_mat_:\n" << qp_coeff_.ineq_mat_);
+  ROS_INFO_STREAM("qp_coeff_.ineq_vec_:\n" << qp_coeff_.ineq_vec_.transpose());
 
   // Solve QP
   Eigen::VectorXd vel_all = qp_solver_->solve(qp_coeff_);

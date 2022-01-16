@@ -40,6 +40,9 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
     //! Number of footsteps
     int footstep_num = 3;
 
+    //! Regularization weight
+    double reg_weight = 1e-6;
+
     //! Adjacent regularization weight
     double adjacent_reg_weight = 1e-3;
 
@@ -49,6 +52,9 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
 
     //! Margin distance of collision avoidance [m]
     double collision_margin = 0.0;
+
+    //! QP objective weight for collision avoidance error
+    double collision_weight = 1e6;
 
     //! Foot shape configuration (used for collision avoidance with obstacles)
     CollisionShapeConfiguration foot_shape_config;
@@ -70,9 +76,11 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
       RmapPlanning<SamplingSpaceType>::Configuration::load(mc_rtc_config);
 
       mc_rtc_config("footstep_num", footstep_num);
+      mc_rtc_config("reg_weight", reg_weight);
       mc_rtc_config("adjacent_reg_weight", adjacent_reg_weight);
       mc_rtc_config("alternate_lr", alternate_lr);
       mc_rtc_config("collision_margin", collision_margin);
+      mc_rtc_config("collision_weight", collision_weight);
       if (mc_rtc_config.has("foot_shape_config")) {
         foot_shape_config.load(mc_rtc_config("foot_shape_config"));
       }
