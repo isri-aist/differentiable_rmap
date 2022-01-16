@@ -231,6 +231,9 @@ void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
 
   // Solve QP
   Eigen::VectorXd vel_all = qp_solver_->solve(qp_coeff_);
+  if (qp_solver_->solve_failed_) {
+    vel_all.setZero();
+  }
 
   // Integrate
   for (int i = 0; i < config_.footstep_num; i++) {
