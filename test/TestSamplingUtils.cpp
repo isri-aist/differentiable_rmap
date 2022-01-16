@@ -57,6 +57,8 @@ template <SamplingSpace SamplingSpaceType>
 void testIntegrate()
 {
   int test_num = 1000;
+
+  // Compare sample integration and pose integration
   for (int i = 0; i < test_num; i++) {
     sva::PTransformd pose = getRandomPose<SamplingSpaceType>();
     Vel<SamplingSpaceType> vel = 1e-3 * Vel<SamplingSpaceType>::Random();
@@ -126,6 +128,14 @@ void testIntegrate()
     BOOST_CHECK(
         sva::transformError(sampleToPose<SamplingSpaceType>(integrated_sample),
                             sampleToPose<SamplingSpaceType>(integrated_sample2)).vector().norm() < 1e-10);
+  }
+
+  // Check zero velocity integration does not change sample
+  for (int i = 0; i < test_num; i++) {
+    Sample<SamplingSpaceType> sample = poseToSample<SamplingSpaceType>(getRandomPose<SamplingSpaceType>());
+    Sample<SamplingSpaceType> integrated_sample = sample;
+    integrateVelToSample<SamplingSpaceType>(integrated_sample, Vel<SamplingSpaceType>::Zero());
+    BOOST_CHECK((sample - integrated_sample).norm() < 1e-10);
   }
 }
 
