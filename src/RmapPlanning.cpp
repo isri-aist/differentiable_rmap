@@ -107,10 +107,10 @@ void RmapPlanning<SamplingSpaceType>::runLoop()
 {
   setup();
 
-  ros::Rate rate(2000);
+  ros::Rate rate(config_.loop_rate);
   int loop_idx = 0;
   while (ros::ok()) {
-    runOnce(loop_idx % 20 == 0);
+    runOnce(loop_idx % config_.publish_interval == 0);
 
     rate.sleep();
     ros::spinOnce();

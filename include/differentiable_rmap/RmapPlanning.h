@@ -51,6 +51,12 @@ class RmapPlanning: public RmapPlanningBase
   /*! \brief Configuration. */
   struct Configuration
   {
+    //! Rate in runLoop()
+    int loop_rate = 2000;
+
+    //! Step interval to publish in runLoop()
+    int publish_interval = 20;
+
     //! Threshold of SVM predict value to be determined as reachable
     double svm_thre = 0.0;
 
@@ -75,6 +81,8 @@ class RmapPlanning: public RmapPlanningBase
     /*! \brief Load mc_rtc configuration. */
     inline void load(const mc_rtc::Configuration& mc_rtc_config)
     {
+      mc_rtc_config("loop_rate", loop_rate);
+      mc_rtc_config("publish_interval", publish_interval);
       mc_rtc_config("svm_thre", svm_thre);
       mc_rtc_config("delta_config_limit", delta_config_limit);
       mc_rtc_config("initial_sample_pose", initial_sample_pose);
