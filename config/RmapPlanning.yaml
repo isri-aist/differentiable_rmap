@@ -1,3 +1,9 @@
+# Rate in runLoop()
+loop_rate: 2000
+
+# Step interval to publish in runLoop()
+publish_interval: 20
+
 # Height of xy plane marker
 svm_thre: -0.1
 

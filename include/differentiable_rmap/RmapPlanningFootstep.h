@@ -169,6 +169,9 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
   //! List of closest points of sch objects
   std::vector<std::array<Eigen::Vector3d, 2>> closest_points_list_;
 
+  //! Collision direction from obstacle to foot
+  Eigen::Vector3d collision_dir_ = Eigen::Vector3d::Zero();
+
   //! ROS related members
   ros::Publisher current_pose_arr_pub_;
   ros::Publisher current_poly_arr_pub_;

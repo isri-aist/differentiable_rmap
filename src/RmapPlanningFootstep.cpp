@@ -222,10 +222,18 @@ void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
       for (auto k : {0, 1}) {
         closest_points[k] << closest_sch_points[k][0], closest_sch_points[k][1], closest_sch_points[k][2];
       }
-      Eigen::Vector3d dir = (closest_points[0] - closest_points[1]) / signed_dist;
+      // Skip updating collision_dir_ when signed_dist is zero
+      if (std::abs(signed_dist) > 1e-10) {
+        collision_dir_ = (closest_points[0] - closest_points[1]) / signed_dist;
+      }
+      // If collision_dir_ is zero vector (initial value), skip the corresponding inequality constraint
+      if (collision_dir_.norm() == 0.0) {
+        continue;
+      }
       qp_coeff_.ineq_mat_.template block<1, vel_dim_>(config_.footstep_num + idx, i * vel_dim_) =
-          -1 * dir.transpose() * posJacobian<SamplingSpaceType>(current_sample_seq_[i], closest_points[0]);
-      qp_coeff_.ineq_vec_.template segment<1>(config_.footstep_num + idx) << signed_dist - config_.collision_margin;
+          -1 * collision_dir_.transpose() * posJacobian<SamplingSpaceType>(current_sample_seq_[i], closest_points[0]);
+      qp_coeff_.ineq_vec_.template segment<1>(config_.footstep_num + idx) <<
+          std::max(signed_dist - config_.collision_margin, -0.1 * config_.delta_config_limit);
     }
   }
 

@@ -9,7 +9,7 @@ adjacent_reg_weight: 1e-3
 alternate_lr: true
 
 # Margin distance of collision avoidance [m]
-collision_margin: 0.1
+collision_margin: 0.01
 
 # Vertices of foot marker
 foot_vertices: [
@@ -27,13 +27,19 @@ foot_vertices: [
 foot_shape_config:
   pose:
     translation: [0.0075, 0.0, 0.0]
-  scale: [0.155, 0.08, 1e3]
+  scale: [0.155, 0.08, 1e1]
 
 # List of obstacle shape configuration
 obst_shape_config_list:
   - pose:
       translation: [1.5, 0.0, 0.0]
-    scale: [0.5, 1.5, 1e3]
+    scale: [0.5, 1.5, 1e2]
+
+# Rate in runLoop()
+loop_rate: 5000
+
+# Step interval to publish in runLoop()
+publish_interval: 100
 
 # Height of xy plane marker
 svm_thre: -0.1
