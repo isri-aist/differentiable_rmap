@@ -160,7 +160,7 @@ class RmapPlanning: public RmapPlanningBase
   virtual void publishCurrentState() const;
 
   /** \brief Transform topic callback. */
-  void transCallback(const geometry_msgs::TransformStamped::ConstPtr& trans_st_msg);
+  virtual void transCallback(const geometry_msgs::TransformStamped::ConstPtr& trans_st_msg);
 
  protected:
   //! mc_rtc Configuration
@@ -178,16 +178,19 @@ class RmapPlanning: public RmapPlanningBase
 
   //! QP coefficients
   OmgCore::QpCoeff qp_coeff_;
+
   //! QP solver
   std::shared_ptr<OmgCore::QpSolver> qp_solver_;
 
   //! Current sample
   SampleType current_sample_ = poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
+
   //! Target sample
   SampleType target_sample_ = poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
 
   //! Support vector coefficients
   Eigen::VectorXd svm_coeff_vec_;
+
   //! Support vector matrix
   Eigen::Matrix<double, input_dim_, Eigen::Dynamic> svm_sv_mat_;
 

@@ -1,0 +1,26 @@
+# Number of reaching points
+reaching_num: 2
+
+# Regularization weight
+reg_weight: 1e-6
+
+# QP objective weight for placement
+placement_weight: 1e-3
+
+# QP objective weight for SVM inequality error
+svm_ineq_weight: 1e6
+
+# Rate in runLoop()
+loop_rate: 5000
+
+# Step interval to publish in runLoop()
+publish_interval: 100
+
+# Height of xy plane marker
+svm_thre: -0.1
+
+# Limit of configuration update in one step [m], [rad]
+delta_config_limit: 0.005
+
+# Whether to predict on grid map
+grid_map_prediction: false

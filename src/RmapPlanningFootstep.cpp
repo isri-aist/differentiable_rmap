@@ -75,9 +75,6 @@ RmapPlanningFootstep<SamplingSpaceType>::RmapPlanningFootstep(
 template <SamplingSpace SamplingSpaceType>
 RmapPlanningFootstep<SamplingSpaceType>::~RmapPlanningFootstep()
 {
-  if (svm_mo_) {
-    delete svm_mo_;
-  }
 }
 
 template <SamplingSpace SamplingSpaceType>

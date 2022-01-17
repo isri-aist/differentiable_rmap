@@ -1,0 +1,33 @@
+<launch>
+  <!-- R2, SE2, R3, or SE3 are supported -->
+  <arg name="sampling_space" default="R2" />
+
+  <node pkg="differentiable_rmap" type="NodeRmapPlanningPlacement" name="rmap_planning_placement"
+        output="screen">
+    <rosparam subst_value="true">
+      sampling_space: $(arg sampling_space)
+      config_path: $(find differentiable_rmap)/config/RmapPlanningPlacement.yaml
+      svm_path: /tmp/rmap_svm_model_$(arg sampling_space).libsvm
+      bag_path: /tmp/rmap_grid_set_$(arg sampling_space).bag
+    </rosparam>
+  </node>
+
+  <node pkg="optmotiongen" type="InteractiveMarkerManager.py" name="rviz_server"
+        clear_params="true">
+    <rosparam>
+      interactive_markers:
+        - name: target_placement
+          initial_pose:
+            pos: [0.0, 0.0, 0.1]
+          controls: [tx, ty, rz]
+          markers:
+            - type: 0 # ARROW
+              scale: [0.15, 0.05, 0.05]
+              color: [1.0, 0.0, 1.0, 0.5]
+    </rosparam>
+  </node>
+
+  <node pkg="rviz" type="rviz" name="rviz"
+        args="-d $(find differentiable_rmap)/rviz/RmapPlanningPlacement.rviz"
+        output="log" clear_params="true" />
+</launch>

@@ -157,14 +157,15 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
   }
 
  protected:
+  //! Sample corresponding to identity pose
+  static inline const SampleType identity_sample_ = poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
+
+ protected:
   //! Configuration
   Configuration config_;
 
   //! Current sample sequence
   std::vector<SampleType> current_sample_seq_;
-
-  //! Sample corresponding to identity pose
-  const SampleType identity_sample_ = poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
 
   //! Adjacent regularization matrix
   Eigen::MatrixXd adjacent_reg_mat_;
