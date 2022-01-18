@@ -12,7 +12,7 @@ adjacent_reg_weight: 1e-3
 alternate_lr: true
 
 # Margin distance of collision avoidance [m]
-collision_margin: 0.01
+collision_margin: 0.1
 
 # QP objective weight for SVM inequality error
 svm_ineq_weight: 1e6
@@ -22,14 +22,14 @@ collision_ineq_weight: 1e6
 
 # Vertices of foot marker
 foot_vertices: [
-  [-0.07, -0.035, 0.05],
-  [-0.065, -0.04, 0.05],
-  [0.06, -0.04, 0.05],
-  [0.085, -0.02, 0.05],
-  [0.085, 0.02, 0.05],
-  [0.06, 0.04, 0.05],
-  [-0.065, 0.04, 0.05],
-  [-0.07, 0.035, 0.05]
+  [-0.07, -0.035, 0.01],
+  [-0.065, -0.04, 0.01],
+  [0.06, -0.04, 0.01],
+  [0.085, -0.02, 0.01],
+  [0.085, 0.02, 0.01],
+  [0.06, 0.04, 0.01],
+  [-0.065, 0.04, 0.01],
+  [-0.07, 0.035, 0.01]
   ]
 
 # Foot shape configuration (used for collision avoidance with obstacles)
