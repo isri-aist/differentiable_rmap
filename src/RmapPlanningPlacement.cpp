@@ -1,6 +1,7 @@
 /* Author: Masaki Murooka */
 
 #include <numeric>
+#include <limits>
 #include <chrono>
 
 #include <mc_rtc/constants.h>
@@ -380,6 +381,8 @@ bool RmapPlanningPlacement<SamplingSpaceType>::postureCallback(
     body_task->target() = sampleToPose<SamplingSpaceType>(current_reaching_sample_list_[i]);
 
     bool ik_solved = false;
+    double best_error = std::numeric_limits<double>::max();
+    std::shared_ptr<rbd::MultiBodyConfig> best_rbc;
     for (int j = 0; j < config_.ik_trial_num; j++) {
       if (j == 0) {
         // Set zero configuration
@@ -398,6 +401,10 @@ bool RmapPlanningPlacement<SamplingSpaceType>::postureCallback(
       problem->run(config_.ik_loop_num);
       taskset.update(rb_arr, rbc_arr, aux_rb_arr);
 
+      if (taskset.errorSquaredNorm() < best_error) {
+        best_error = taskset.errorSquaredNorm();
+        best_rbc = std::make_shared<rbd::MultiBodyConfig>(*rbc);
+      }
       if (taskset.errorSquaredNorm() < std::pow(config_.ik_error_thre, 2)) {
         ik_solved = true;
         break;
@@ -406,11 +413,11 @@ bool RmapPlanningPlacement<SamplingSpaceType>::postureCallback(
 
     if (!ik_solved) {
       ROS_WARN_STREAM("Failed to solve IK for reaching point " << std::to_string(i)
-                      << ". Task error: " << std::sqrt(taskset.errorSquaredNorm()));
+                      << ". Task error: " << std::sqrt(best_error));
     }
 
     // Add robot state message
-    robot_state_arr_msg.robot_states.push_back(rb->makeRobotStateMsg(rbc));
+    robot_state_arr_msg.robot_states.push_back(rb->makeRobotStateMsg(best_rbc));
   }
 
   // Publish robot
