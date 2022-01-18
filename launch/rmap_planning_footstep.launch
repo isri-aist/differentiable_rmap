@@ -19,7 +19,7 @@
         - name: target
           initial_pose:
             pos: [0, 0, 0.1]
-          controls: [tx, ty, rz]
+          axis_controls: [tx, ty, rz]
           markers:
             - type: 0 # ARROW
               scale: [0.15, 0.05, 0.05]
