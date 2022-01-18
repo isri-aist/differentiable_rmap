@@ -56,6 +56,10 @@ RmapPlanningPlacement<SamplingSpaceType>::RmapPlanningPlacement(
       "current_pose_arr", 1, true);
   rs_arr_pub_ = nh_.template advertise<optmotiongen_msgs::RobotStateArray>(
       "robot_state_arr", 1, true);
+  posture_srv_ = nh_.advertiseService
+      ("generate_posture",
+       &RmapPlanningPlacement<SamplingSpaceType>::postureCallback,
+       this);
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -73,8 +77,11 @@ void RmapPlanningPlacement<SamplingSpaceType>::configure(
 }
 
 template <SamplingSpace SamplingSpaceType>
-void RmapPlanningPlacement<SamplingSpaceType>::setup()
+void RmapPlanningPlacement<SamplingSpaceType>::setup(
+    const std::shared_ptr<OmgCore::Robot>& rb)
 {
+  rb_ = rb;
+
   // Setup QP coefficients and solver
   int config_dim = placement_vel_dim_ + config_.reaching_num * vel_dim_;
   int svm_ineq_dim = config_.reaching_num;
@@ -170,6 +177,23 @@ void RmapPlanningPlacement<SamplingSpaceType>::runOnce(bool publish)
     // Publish
     publishMarkerArray();
     publishCurrentState();
+  }
+}
+
+template <SamplingSpace SamplingSpaceType>
+void RmapPlanningPlacement<SamplingSpaceType>::runLoop(
+    const std::shared_ptr<OmgCore::Robot>& rb)
+{
+  setup(rb);
+
+  ros::Rate rate(config_.loop_rate);
+  int loop_idx = 0;
+  while (ros::ok()) {
+    runOnce(loop_idx % config_.publish_interval == 0);
+
+    rate.sleep();
+    ros::spinOnce();
+    loop_idx++;
   }
 }
 
@@ -279,12 +303,17 @@ void RmapPlanningPlacement<SamplingSpaceType>::transCallback(
 }
 
 template <SamplingSpace SamplingSpaceType>
-void RmapPlanningPlacement<SamplingSpaceType>::solveIK(
-    const std::shared_ptr<OmgCore::Robot>& rb,
-    const std::string& body_name,
-    const std::vector<std::string>& joint_name_list)
+bool RmapPlanningPlacement<SamplingSpaceType>::postureCallback(
+    std_srvs::Empty::Request& req,
+    std_srvs::Empty::Response& res)
 {
+  if (!rb_) {
+    ROS_ERROR_STREAM("[generateRobotPosture] Robot is not initialized.");
+    return false;
+  }
+
   // Setup robot
+  const auto& rb = rb_;
   OmgCore::RobotArray rb_arr;
   rb_arr.push_back(rb);
   rb_arr.setup();
@@ -294,7 +323,7 @@ void RmapPlanningPlacement<SamplingSpaceType>::solveIK(
       std::make_shared<OmgCore::BodyFunc>(
           rb_arr,
           0,
-          body_name),
+          config_.ik_body_name),
       sva::PTransformd::Identity(),
       "BodyPoseTask",
       getSelectIdxs(SamplingSpaceType));
@@ -308,35 +337,39 @@ void RmapPlanningPlacement<SamplingSpaceType>::solveIK(
       std::vector<OmgCore::QpSolverType>{OmgCore::QpSolverType::JRLQP});
 
   OmgCore::RobotConfigArray rbc_arr = problem->rbcArr();
-  OmgCore::AuxRobotArray aux_rb_arr;
-  // const auto& rb = rb_arr[0]; // given by argument
   const auto& rbc = rbc_arr[0];
+  OmgCore::AuxRobotArray aux_rb_arr;
 
   // Setup random sampling of joint position (used for initial posture)
-  std::vector<int> joint_idx_list(joint_name_list.size());
-  Eigen::VectorXd joint_pos_coeff(joint_name_list.size());
-  Eigen::VectorXd joint_pos_offset(joint_name_list.size());
-  for (size_t i = 0; i < joint_name_list.size(); i++) {
-    const auto& joint_name = joint_name_list[i];
-    joint_idx_list[i] = rb_arr[0]->jointIndexByName(joint_name);
-    double lower_joint_pos = rb_arr[0]->limits_.lower.at(joint_name)[0];
-    double upper_joint_pos = rb_arr[0]->limits_.upper.at(joint_name)[0];
-    joint_pos_coeff[i] = (upper_joint_pos - lower_joint_pos) / 2;
-    joint_pos_offset[i] = (upper_joint_pos + lower_joint_pos) / 2;
+  std::vector<int> joint_idx_list;
+  for (const auto& joint : rb->joints()) {
+    const auto& joint_name = joint.name();
+    int joint_idx = rb->jointIndexByName(joint_name);
+
+    if (joint_name == "Root" ||
+        joint.dof() != 1 ||
+        std::find(config_.ik_exclude_joint_name_list.begin(), config_.ik_exclude_joint_name_list.end(),
+                  joint_name) != config_.ik_exclude_joint_name_list.end()) {
+      // Overwrite joint range to restrict joints to be used
+      // Be carefull that this overwrites original robot
+      // This becomes unnecessary when optmotiongen supports joint selection
+      std::fill(rb->jposs_min_[joint_idx].begin(), rb->jposs_min_[joint_idx].end(), 0);
+      std::fill(rb->jposs_max_[joint_idx].begin(), rb->jposs_max_[joint_idx].end(), 0);
+    } else {
+      joint_idx_list.push_back(joint_idx);
+    }
   }
 
-  // Overwrite joint range to restrict joints to be used
-  // Be carefull that this overwrites original robot
-  // This becomes unnecessary when optmotiongen supports joint selection
-  for (const auto& joint : rb->joints()) {
-    if (std::find(joint_name_list.begin(), joint_name_list.end(), joint.name())
-        != joint_name_list.end()) {
-      continue;
-    }
-
-    int joint_idx = rb->jointIndexByName(joint.name());
-    std::fill(rb->jposs_min_[joint_idx].begin(), rb->jposs_min_[joint_idx].end(), 0);
-    std::fill(rb->jposs_max_[joint_idx].begin(), rb->jposs_max_[joint_idx].end(), 0);
+  Eigen::VectorXd joint_pos_coeff;
+  Eigen::VectorXd joint_pos_offset;
+  joint_pos_coeff.resize(joint_idx_list.size());
+  joint_pos_offset.resize(joint_idx_list.size());
+  for (size_t i = 0; i < joint_idx_list.size(); i++) {
+    const auto& joint_name = rb->joint(joint_idx_list[i]).name();
+    double lower_joint_pos = rb->limits_.lower.at(joint_name)[0];
+    double upper_joint_pos = rb->limits_.upper.at(joint_name)[0];
+    joint_pos_coeff[i] = (upper_joint_pos - lower_joint_pos) / 2;
+    joint_pos_offset[i] = (upper_joint_pos + lower_joint_pos) / 2;
   }
 
   // Solve IK
@@ -354,8 +387,8 @@ void RmapPlanningPlacement<SamplingSpaceType>::solveIK(
       } else {
         // Set random configuration
         Eigen::VectorXd joint_pos =
-            joint_pos_coeff.cwiseProduct(Eigen::VectorXd::Random(joint_name_list.size())) + joint_pos_offset;
-        for (size_t k = 0; k < joint_name_list.size(); k++) {
+            joint_pos_coeff.cwiseProduct(Eigen::VectorXd::Random(joint_idx_list.size())) + joint_pos_offset;
+        for (size_t k = 0; k < joint_idx_list.size(); k++) {
           rbc->q[joint_idx_list[k]][0] = joint_pos[k];
         }
       }
@@ -382,6 +415,8 @@ void RmapPlanningPlacement<SamplingSpaceType>::solveIK(
 
   // Publish robot
   rs_arr_pub_.publish(robot_state_arr_msg);
+
+  return true;
 }
 
 std::shared_ptr<RmapPlanningBase> DiffRmap::createRmapPlanningPlacement(

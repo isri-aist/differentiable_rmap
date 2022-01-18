@@ -25,6 +25,12 @@ delta_config_limit: 0.005
 # Whether to predict on grid map
 grid_map_prediction: false
 
+# Name of body to reach
+ik_body_name: tool0
+
+# Name list of joints which is not used in IK
+ik_exclude_joint_name_list: {}
+
 # Number of IK trial
 ik_trial_num: 10
 

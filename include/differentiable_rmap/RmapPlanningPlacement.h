@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <std_srvs/Empty.h>
+
 #include <optmotiongen/Utils/RobotUtils.h>
 
 #include <differentiable_rmap/RmapPlanning.h>
@@ -18,11 +20,26 @@ constexpr SamplingSpace placementSamplingSpace()
   return SamplingSpaceType;
 }
 
+/** \brief Virtual base class to plan manipulator placement based on differentiable reachability map. */
+class RmapPlanningPlacementBase
+{
+ public:
+  /** \brief Setup planning.
+      \param rb robot to be used for posture generation
+  */
+  virtual void setup(const std::shared_ptr<OmgCore::Robot>& rb) = 0;
+
+  /** \brief Setup and run planning loop.
+      \param rb robot to be used for posture generation
+  */
+  virtual void runLoop(const std::shared_ptr<OmgCore::Robot>& rb) = 0;
+};
+
 /** \brief Class to plan manipulator placement based on differentiable reachability map.
     \tparam SamplingSpaceType sampling space of reaching
 */
 template <SamplingSpace SamplingSpaceType>
-class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>
+class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public RmapPlanningPlacementBase
 {
  public:
   /*! \brief Configuration. */
@@ -39,6 +56,12 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>
 
     //! QP objective weight for SVM inequality error
     double svm_ineq_weight = 1e6;
+
+    //! Name of body to reach
+    std::string ik_body_name = "tool0";
+
+    //! Name list of joints which is not used in IK
+    std::vector<std::string> ik_exclude_joint_name_list;
 
     //! Number of IK trial
     int ik_trial_num = 10;
@@ -58,6 +81,8 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>
       mc_rtc_config("reg_weight", reg_weight);
       mc_rtc_config("placement_weight", placement_weight);
       mc_rtc_config("svm_ineq_weight", svm_ineq_weight);
+      mc_rtc_config("ik_body_name", ik_body_name);
+      mc_rtc_config("ik_exclude_joint_name_list", ik_exclude_joint_name_list);
       mc_rtc_config("ik_trial_num", ik_trial_num);
       mc_rtc_config("ik_loop_num", ik_loop_num);
       mc_rtc_config("ik_error_thre", ik_error_thre);
@@ -122,12 +147,31 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>
   virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
 
   /** \brief Setup planning. */
-  virtual void setup() override;
+  inline virtual void setup() override
+  {
+    setup(nullptr);
+  }
+
+  /** \brief Setup planning.
+      \param rb robot to be used for posture generation
+  */
+  virtual void setup(const std::shared_ptr<OmgCore::Robot>& rb);
 
   /** \brief Run planning once.
       \param publish whether to publish message
    */
   virtual void runOnce(bool publish) override;
+
+  /** \brief Setup and run planning loop. */
+  inline virtual void runLoop()
+  {
+    runLoop(nullptr);
+  }
+
+  /** \brief Setup and run planning loop.
+      \param rb robot to be used for posture generation
+  */
+  virtual void runLoop(const std::shared_ptr<OmgCore::Robot>& rb);
 
  protected:
   /** \brief Publish marker array. */
@@ -139,14 +183,9 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>
   /** \brief Transform topic callback. */
   virtual void transCallback(const geometry_msgs::TransformStamped::ConstPtr& trans_st_msg) override;
 
-  /** \brief Solve IK.
-      \param rb robot
-      \param body_name name of body to reach
-      \param joint_name_list name list of joints whose position is changed
-   */
-  void solveIK(const std::shared_ptr<OmgCore::Robot>& rb,
-               const std::string& body_name,
-               const std::vector<std::string>& joint_name_list);
+  /** \brief Callback to generate robot posture. */
+  bool postureCallback(std_srvs::Empty::Request& req,
+                       std_srvs::Empty::Response& res);
 
  protected:
   //! Sample of reaching corresponding to identity pose
@@ -172,9 +211,13 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>
   //! Target sample list of reaching
   std::vector<SampleType> target_reaching_sample_list_;
 
+  //! Robot to be used for posture generation
+  std::shared_ptr<OmgCore::Robot> rb_;
+
   //! ROS related members
   ros::Publisher current_pose_arr_pub_;
   ros::Publisher rs_arr_pub_;
+  ros::ServiceServer posture_srv_;
 
  protected:
   // See https://stackoverflow.com/a/6592617

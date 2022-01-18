@@ -5,6 +5,9 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /MarkerArray1/Namespaces1
+        - /RobotStateArray1/Robot Color Style1
+        - /RobotStateArray1/Robot Color Style1/Color1
+        - /RobotStateArray1/Robot Color Style1/Color11
       Splitter Ratio: 0.6277258396148682
     Tree Height: 725
   - Class: rviz/Selection
@@ -120,6 +123,320 @@ Visualization Manager:
       Shape: Axes
       Topic: /current_pose_arr
       Unreliable: false
+      Value: true
+    - Check name consistency: false
+      Class: optmotiongen_rviz_plugins/RobotStateArray
+      Enabled: true
+      Max Robot Num: 5
+      Name: RobotStateArray
+      Robot Color Style:
+        Color:
+          Alpha: 1
+          Color: 150; 50; 150
+          Original Color: true
+        Color1:
+          Alpha: 1
+          Color: 150; 50; 150
+          Original Color: true
+        Value: Uniform
+      Robot Description: robot_description
+      Robot State Array Topic: robot_state_arr
+      Robots:
+        Robot_000:
+          Links:
+            All Links Enabled: true
+            Expand Joint Details: false
+            Expand Link Details: false
+            Expand Tree: false
+            Link Tree Style: Links in Alphabetic Order
+            base:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            base_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            ee_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            forearm_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            shoulder_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            tool0:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            upper_arm_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            world:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            wrist_1_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            wrist_2_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            wrist_3_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+          Value: true
+        Robot_001:
+          Links:
+            All Links Enabled: true
+            Expand Joint Details: false
+            Expand Link Details: false
+            Expand Tree: false
+            Link Tree Style: Links in Alphabetic Order
+            base:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            base_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            ee_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            forearm_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            shoulder_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            tool0:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            upper_arm_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            world:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            wrist_1_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            wrist_2_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            wrist_3_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+          Value: true
+        Robot_002:
+          Links:
+            All Links Enabled: true
+            Expand Joint Details: false
+            Expand Link Details: false
+            Expand Tree: false
+            Link Tree Style: Links in Alphabetic Order
+            base:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            base_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            ee_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            forearm_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            shoulder_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            tool0:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            upper_arm_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            world:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            wrist_1_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            wrist_2_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            wrist_3_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+          Value: true
+        Robot_003:
+          Links:
+            All Links Enabled: true
+            Expand Joint Details: false
+            Expand Link Details: false
+            Expand Tree: false
+            Link Tree Style: Links in Alphabetic Order
+            base:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            base_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            ee_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            forearm_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            shoulder_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            tool0:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            upper_arm_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            world:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            wrist_1_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            wrist_2_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            wrist_3_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+          Value: true
+        Robot_004:
+          Links:
+            All Links Enabled: true
+            Expand Joint Details: false
+            Expand Link Details: false
+            Expand Tree: false
+            Link Tree Style: Links in Alphabetic Order
+            base:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            base_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            ee_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            forearm_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            shoulder_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            tool0:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            upper_arm_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            world:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            wrist_1_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            wrist_2_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            wrist_3_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+          Value: true
       Value: true
   Enabled: true
   Global Options:

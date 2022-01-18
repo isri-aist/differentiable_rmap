@@ -2,6 +2,17 @@
   <!-- R2, SE2, R3, or SE3 are supported -->
   <arg name="sampling_space" default="R2" />
 
+  <!-- load robot description -->
+  <arg name="robot_model_path" value="$(find differentiable_rmap)/urdf/UR10Planar.urdf.xacro"
+       if="$(eval arg('sampling_space') == 'R2')" />
+  <arg name="robot_model_path" value="$(find differentiable_rmap)/urdf/UR10Planar.urdf.xacro"
+       if="$(eval arg('sampling_space') == 'SE2')" />
+  <arg name="robot_model_path" value="$(find differentiable_rmap)/urdf/UR10.urdf.xacro"
+       if="$(eval arg('sampling_space') == 'R3')" />
+  <arg name="robot_model_path" value="$(find differentiable_rmap)/urdf/UR10.urdf.xacro"
+       if="$(eval arg('sampling_space') == 'SE3')" />
+  <param name="robot_description" command="$(find xacro)/xacro $(arg robot_model_path)" />
+
   <node pkg="differentiable_rmap" type="NodeRmapPlanningPlacement" name="rmap_planning_placement"
         output="screen">
     <rosparam subst_value="true">

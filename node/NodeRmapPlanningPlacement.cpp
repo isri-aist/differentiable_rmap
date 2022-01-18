@@ -9,7 +9,23 @@ int main(int argc, char **argv)
 {
   // Setup ROS
   ros::init(argc, argv, "rmap_planning_placement");
+  ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
+
+  std::shared_ptr<rbd::parsers::ParserResult> parse_res =
+      OmgCore::parseUrdfFromRosparam(
+          nh,
+          "robot_description",
+          rbd::Joint::Type::Fixed,
+          {});
+  auto rb = std::make_shared<OmgCore::Robot>(
+      parse_res->mb,
+      parse_res->name,
+      parse_res->limits,
+      parse_res->visual,
+      parse_res->collision);
+  // no velocity limit for the offline posture generator
+  rb->jvel_max_scale_ = 1e10;
 
   std::string sampling_space_str = "R2";
   pnh.param<std::string>("sampling_space", sampling_space_str, sampling_space_str);
@@ -32,7 +48,7 @@ int main(int argc, char **argv)
     rmap_planning->configure(mc_rtc::Configuration(config_path));
   }
 
-  rmap_planning->runLoop();
+  std::dynamic_pointer_cast<RmapPlanningPlacementBase>(rmap_planning)->runLoop(rb);
 
   bool keep_alive = true;
   pnh.param<bool>("keep_alive", keep_alive, keep_alive);
