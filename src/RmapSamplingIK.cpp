@@ -150,8 +150,8 @@ void RmapSamplingIK<SamplingSpaceType>::sampleOnce(int sample_idx)
       // Set random configuration
       Eigen::VectorXd joint_pos =
           joint_pos_coeff_.cwiseProduct(Eigen::VectorXd::Random(joint_name_list_.size())) + joint_pos_offset_;
-      for (size_t i = 0; i < joint_name_list_.size(); i++) {
-        rbc->q[joint_idx_list_[i]][0] = joint_pos[i];
+      for (size_t j = 0; j < joint_name_list_.size(); j++) {
+        rbc->q[joint_idx_list_[j]][0] = joint_pos[j];
       }
     }
     rbd::forwardKinematics(*rb, *rbc);

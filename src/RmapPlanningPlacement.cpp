@@ -7,7 +7,10 @@
 
 #include <geometry_msgs/PoseArray.h>
 #include <visualization_msgs/MarkerArray.h>
+#include <optmotiongen_msgs/RobotStateArray.h>
 
+#include <optmotiongen/Problem/IterativeQpProblem.h>
+#include <optmotiongen/Task/BodyTask.h>
 #include <optmotiongen/Utils/RosUtils.h>
 
 #include <differentiable_rmap/RmapPlanningPlacement.h>
@@ -18,6 +21,31 @@
 using namespace DiffRmap;
 
 
+namespace
+{
+/** \brief Get selection indices of task value depending on sampling space. */
+std::vector<size_t> getSelectIdxs(SamplingSpace sampling_space)
+{
+  switch (sampling_space) {
+    case SamplingSpace::R2:
+      return std::vector<size_t>{3, 4};
+    case SamplingSpace::SO2:
+      return std::vector<size_t>{2};
+    case SamplingSpace::SE2:
+      return std::vector<size_t>{2, 3, 4};
+    case SamplingSpace::R3:
+      return std::vector<size_t>{3, 4, 5};
+    case SamplingSpace::SO3:
+      return std::vector<size_t>{0, 1, 2};
+    case SamplingSpace::SE3:
+      return std::vector<size_t>{0, 1, 2, 3, 4, 5};
+    default:
+      mc_rtc::log::error_and_throw<std::runtime_error>(
+          "[getSelectIdxs] SamplingSpace {} is not supported.", std::to_string(sampling_space));
+  }
+}
+}
+
 template <SamplingSpace SamplingSpaceType>
 RmapPlanningPlacement<SamplingSpaceType>::RmapPlanningPlacement(
     const std::string& svm_path,
@@ -26,6 +54,8 @@ RmapPlanningPlacement<SamplingSpaceType>::RmapPlanningPlacement(
 {
   current_pose_arr_pub_ = nh_.template advertise<geometry_msgs::PoseArray>(
       "current_pose_arr", 1, true);
+  rs_arr_pub_ = nh_.template advertise<optmotiongen_msgs::RobotStateArray>(
+      "robot_state_arr", 1, true);
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -246,6 +276,112 @@ void RmapPlanningPlacement<SamplingSpaceType>::transCallback(
     target_reaching_sample_list_[std::stoi(frame_id)] =
         poseToSample<SamplingSpaceType>(OmgCore::toSvaPTransform(trans_st_msg->transform));
   }
+}
+
+template <SamplingSpace SamplingSpaceType>
+void RmapPlanningPlacement<SamplingSpaceType>::solveIK(
+    const std::shared_ptr<OmgCore::Robot>& rb,
+    const std::string& body_name,
+    const std::vector<std::string>& joint_name_list)
+{
+  // Setup robot
+  OmgCore::RobotArray rb_arr;
+  rb_arr.push_back(rb);
+  rb_arr.setup();
+
+  // Setup task and problem
+  auto body_task = std::make_shared<OmgCore::BodyPoseTask>(
+      std::make_shared<OmgCore::BodyFunc>(
+          rb_arr,
+          0,
+          body_name),
+      sva::PTransformd::Identity(),
+      "BodyPoseTask",
+      getSelectIdxs(SamplingSpaceType));
+
+  OmgCore::Taskset taskset;
+  taskset.addTask(body_task);
+
+  auto problem = std::make_shared<OmgCore::IterativeQpProblem>(rb_arr);
+  problem->setup(
+      std::vector<OmgCore::Taskset>{taskset},
+      std::vector<OmgCore::QpSolverType>{OmgCore::QpSolverType::JRLQP});
+
+  OmgCore::RobotConfigArray rbc_arr = problem->rbcArr();
+  OmgCore::AuxRobotArray aux_rb_arr;
+  // const auto& rb = rb_arr[0]; // given by argument
+  const auto& rbc = rbc_arr[0];
+
+  // Setup random sampling of joint position (used for initial posture)
+  std::vector<int> joint_idx_list(joint_name_list.size());
+  Eigen::VectorXd joint_pos_coeff(joint_name_list.size());
+  Eigen::VectorXd joint_pos_offset(joint_name_list.size());
+  for (size_t i = 0; i < joint_name_list.size(); i++) {
+    const auto& joint_name = joint_name_list[i];
+    joint_idx_list[i] = rb_arr[0]->jointIndexByName(joint_name);
+    double lower_joint_pos = rb_arr[0]->limits_.lower.at(joint_name)[0];
+    double upper_joint_pos = rb_arr[0]->limits_.upper.at(joint_name)[0];
+    joint_pos_coeff[i] = (upper_joint_pos - lower_joint_pos) / 2;
+    joint_pos_offset[i] = (upper_joint_pos + lower_joint_pos) / 2;
+  }
+
+  // Overwrite joint range to restrict joints to be used
+  // Be carefull that this overwrites original robot
+  // This becomes unnecessary when optmotiongen supports joint selection
+  for (const auto& joint : rb->joints()) {
+    if (std::find(joint_name_list.begin(), joint_name_list.end(), joint.name())
+        != joint_name_list.end()) {
+      continue;
+    }
+
+    int joint_idx = rb->jointIndexByName(joint.name());
+    std::fill(rb->jposs_min_[joint_idx].begin(), rb->jposs_min_[joint_idx].end(), 0);
+    std::fill(rb->jposs_max_[joint_idx].begin(), rb->jposs_max_[joint_idx].end(), 0);
+  }
+
+  // Solve IK
+  optmotiongen_msgs::RobotStateArray robot_state_arr_msg;
+  for (int i = 0; i < config_.reaching_num; i++) {
+    // Set IK target
+    rb->rootPose(sampleToPose<PlacementSamplingSpaceType>(current_placement_sample_));
+    body_task->target() = sampleToPose<SamplingSpaceType>(current_reaching_sample_list_[i]);
+
+    bool ik_solved = false;
+    for (int j = 0; j < config_.ik_trial_num; j++) {
+      if (j == 0) {
+        // Set zero configuration
+        rbc->zero(*rb);
+      } else {
+        // Set random configuration
+        Eigen::VectorXd joint_pos =
+            joint_pos_coeff.cwiseProduct(Eigen::VectorXd::Random(joint_name_list.size())) + joint_pos_offset;
+        for (size_t k = 0; k < joint_name_list.size(); k++) {
+          rbc->q[joint_idx_list[k]][0] = joint_pos[k];
+        }
+      }
+      rbd::forwardKinematics(*rb, *rbc);
+
+      // Solve IK
+      problem->run(config_.ik_loop_num);
+      taskset.update(rb_arr, rbc_arr, aux_rb_arr);
+
+      if (taskset.errorSquaredNorm() < std::pow(config_.ik_error_thre, 2)) {
+        ik_solved = true;
+        break;
+      }
+    }
+
+    if (!ik_solved) {
+      ROS_WARN_STREAM("Failed to solve IK for reaching point " << std::to_string(i)
+                      << ". Task error: " << std::sqrt(taskset.errorSquaredNorm()));
+    }
+
+    // Add robot state message
+    robot_state_arr_msg.robot_states.push_back(rb->makeRobotStateMsg(rbc));
+  }
+
+  // Publish robot
+  rs_arr_pub_.publish(robot_state_arr_msg);
 }
 
 std::shared_ptr<RmapPlanningBase> DiffRmap::createRmapPlanningPlacement(

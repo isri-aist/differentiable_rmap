@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <optmotiongen/Utils/RobotUtils.h>
+
 #include <differentiable_rmap/RmapPlanning.h>
 
 
@@ -38,6 +40,15 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>
     //! QP objective weight for SVM inequality error
     double svm_ineq_weight = 1e6;
 
+    //! Number of IK trial
+    int ik_trial_num = 10;
+
+    //! Number of IK loop
+    int ik_loop_num = 50;
+
+    //! Threshold of IK [m], [rad]
+    double ik_error_thre = 1e-2;
+
     /*! \brief Load mc_rtc configuration. */
     inline void load(const mc_rtc::Configuration& mc_rtc_config)
     {
@@ -47,6 +58,9 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>
       mc_rtc_config("reg_weight", reg_weight);
       mc_rtc_config("placement_weight", placement_weight);
       mc_rtc_config("svm_ineq_weight", svm_ineq_weight);
+      mc_rtc_config("ik_trial_num", ik_trial_num);
+      mc_rtc_config("ik_loop_num", ik_loop_num);
+      mc_rtc_config("ik_error_thre", ik_error_thre);
     }
   };
 
@@ -125,6 +139,15 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>
   /** \brief Transform topic callback. */
   virtual void transCallback(const geometry_msgs::TransformStamped::ConstPtr& trans_st_msg) override;
 
+  /** \brief Solve IK.
+      \param rb robot
+      \param body_name name of body to reach
+      \param joint_name_list name list of joints whose position is changed
+   */
+  void solveIK(const std::shared_ptr<OmgCore::Robot>& rb,
+               const std::string& body_name,
+               const std::vector<std::string>& joint_name_list);
+
  protected:
   //! Sample of reaching corresponding to identity pose
   static inline const SampleType identity_sample_ = poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
@@ -151,6 +174,7 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>
 
   //! ROS related members
   ros::Publisher current_pose_arr_pub_;
+  ros::Publisher rs_arr_pub_;
 
  protected:
   // See https://stackoverflow.com/a/6592617
