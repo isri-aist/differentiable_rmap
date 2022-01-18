@@ -25,7 +25,7 @@ RmapPlanning<SamplingSpaceType>::RmapPlanning(const std::string& svm_path,
   // Setup ROS
   trans_sub_ = nh_.subscribe(
       "interactive_marker_transform",
-      1,
+      100,
       &RmapPlanning<SamplingSpaceType>::transCallback,
       this);
   marker_arr_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("marker_arr", 1, true);

@@ -54,6 +54,13 @@ Visualization Manager:
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
       Value: true
+    - Class: rviz/Axes
+      Enabled: true
+      Length: 0.05000000074505806
+      Name: Axes
+      Radius: 0.03999999910593033
+      Reference Frame: <Fixed Frame>
+      Value: true
     - Alpha: 0.5
       Autocompute Intensity Bounds: true
       Class: grid_map_rviz_plugin/GridMap
@@ -82,6 +89,7 @@ Visualization Manager:
       Namespaces:
         reachable_grids_0: true
         reachable_grids_1: true
+        reachable_grids_2: true
       Queue Size: 100
       Value: true
     - Class: rviz/InteractiveMarkers
@@ -475,11 +483,11 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 291.20196533203125
+      Scale: 282.875732421875
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
-      X: 1.042445421218872
-      Y: -0.759132444858551
+      X: 0.7206423282623291
+      Y: 0.3472634255886078
     Saved: ~
 Window Geometry:
   Displays:

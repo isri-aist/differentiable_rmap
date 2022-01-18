@@ -1,5 +1,5 @@
 # Number of reaching points
-reaching_num: 2
+reaching_num: 3
 
 # Regularization weight
 reg_weight: 1e-6
