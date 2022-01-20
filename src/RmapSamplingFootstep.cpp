@@ -20,10 +20,7 @@ RmapSamplingFootstep<SamplingSpaceType>::RmapSamplingFootstep(
     RmapSamplingIK<SamplingSpaceType>(rb),
     support_foot_body_name_(support_foot_body_name),
     swing_foot_body_name_(swing_foot_body_name),
-    waist_body_name_(waist_body_name),
-    support_foot_body_idx_(rb->bodyIndexByName(support_foot_body_name_)),
-  swing_foot_body_idx_(rb->bodyIndexByName(swing_foot_body_name_)),
-  waist_body_idx_(rb->bodyIndexByName(waist_body_name_))
+    waist_body_name_(waist_body_name)
 {
   // Setup task
   support_foot_body_task_ = std::make_shared<OmgCore::BodyPoseTask>(

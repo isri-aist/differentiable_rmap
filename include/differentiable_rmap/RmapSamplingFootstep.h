@@ -112,11 +112,6 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
   std::string swing_foot_body_name_;
   std::string waist_body_name_;
 
-  //! Index of bodies used in IK
-  int support_foot_body_idx_;
-  int swing_foot_body_idx_;
-  int waist_body_idx_;
-
   //! Footstep position coefficient to make sample from [-1:1] random value
   FootstepPos footstep_pos_coeff_;
   //! Footstep position offset to make sample from [-1:1] random value
