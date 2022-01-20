@@ -27,6 +27,27 @@
       sample_num: 10000
       sleep_rate: 2000
     </rosparam>
+
+    <rosparam subst_value="true" if="$(eval arg('limb_name') == 'RightFoot')">
+      body_name: Rleg_Link5
+      joint_name_list: [RCY, RCR, RCP, RKP, RAP, RAR]
+      sample_num: 10000
+      sleep_rate: 2000
+    </rosparam>
+
+    <rosparam subst_value="true" if="$(eval arg('limb_name') == 'LeftHand')">
+      body_name: Lhand_Link0_Plan2
+      joint_name_list: [LSC, LSP, LSR, LSY, LEP, LWRY, LWRR, LWRP, LHDY]
+      sample_num: 10000
+      sleep_rate: 2000
+    </rosparam>
+
+    <rosparam subst_value="true" if="$(eval arg('limb_name') == 'RightHand')">
+      body_name: Rhand_Link0_Plan2
+      joint_name_list: [RSC, RSP, RSR, RSY, REP, RWRY, RWRR, RWRP, RHDY]
+      sample_num: 10000
+      sleep_rate: 2000
+    </rosparam>
   </node>
 
   <node pkg="rviz" type="rviz" name="rviz"

@@ -4,7 +4,7 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /RobotStateArray1/Robots1
+        - /RobotStateArray1/Robots1/Robot_0001
         - /RobotStateArray1/Robots1/Robot_0001/Links1
         - /ReachableCloud1/Autocompute Value Bounds1
       Splitter Ratio: 0.6277258396148682
@@ -88,12 +88,12 @@ Visualization Manager:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: false
+              Value: true
             Chest_Link2:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: false
+              Value: true
             Expand Joint Details: false
             Expand Link Details: false
             Expand Tree: false
@@ -101,67 +101,67 @@ Visualization Manager:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: false
+              Value: true
             Head_Link1_Plan2:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: false
+              Value: true
             Larm_Link0:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: false
+              Value: true
             Larm_Link1:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: false
+              Value: true
             Larm_Link2:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: false
+              Value: true
             Larm_Link3:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: false
+              Value: true
             Larm_Link4:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: false
+              Value: true
             Larm_Link5:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: false
+              Value: true
             Larm_Link6:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: false
+              Value: true
             Lhand_Link0_Plan2:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: false
+              Value: true
             Lindex_Link0:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: false
+              Value: true
             Lindex_Link1:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: false
+              Value: true
             Lindex_Link2:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: false
+              Value: true
             Link Tree Style: Links in Alphabetic Order
             Lleg_Link0:
               Alpha: 1
@@ -287,32 +287,32 @@ Visualization Manager:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: true
+              Value: false
             Rleg_Link1:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: true
+              Value: false
             Rleg_Link2:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: true
+              Value: false
             Rleg_Link3:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: true
+              Value: false
             Rleg_Link4:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: true
+              Value: false
             Rleg_Link5:
               Alpha: 1
               Show Axes: false
               Show Trail: false
-              Value: true
+              Value: false
             Rmiddle_Link0:
               Alpha: 1
               Show Axes: false
@@ -1803,8 +1803,7 @@ Visualization Manager:
       Marker Topic: /collision_marker
       Name: CollisionMarkerArray
       Namespaces:
-        closest_lines: true
-        closest_points: true
+        {}
       Queue Size: 100
       Value: true
   Enabled: true
@@ -1835,25 +1834,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 3.3152272701263428
+      Distance: 2.621150016784668
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.06443876773118973
-        Y: 0.2885998785495758
-        Z: 0.409577876329422
+        X: 0.06031908839941025
+        Y: 0.04762101173400879
+        Z: 0.7112547755241394
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5070840716362
+      Pitch: 0.37208425998687744
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.950006484985352
+      Yaw: 0.3168165385723114
     Saved: ~
 Window Geometry:
   Displays:
