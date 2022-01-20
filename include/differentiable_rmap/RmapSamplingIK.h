@@ -23,6 +23,9 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
     //! Number of samples to make bounding box
     int bbox_sample_num = 1000;
 
+    //! Padding rate of bounding box
+    double bbox_padding_rate = 1.2;
+
     //! Number of IK trial
     int ik_trial_num = 10;
 
@@ -41,6 +44,7 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
       RmapSampling<SamplingSpaceType>::Configuration::load(mc_rtc_config);
 
       mc_rtc_config("bbox_sample_num", bbox_sample_num);
+      mc_rtc_config("bbox_padding_rate", bbox_padding_rate);
       mc_rtc_config("ik_trial_num", ik_trial_num);
       mc_rtc_config("ik_loop_num", ik_loop_num);
       mc_rtc_config("ik_error_thre", ik_error_thre);

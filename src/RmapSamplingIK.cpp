@@ -119,8 +119,7 @@ void RmapSamplingIK<SamplingSpaceType>::setupSampling()
   }
 
   // Calculate coefficient and offset to make random position
-  constexpr double bbox_padding_rate = 1.2;
-  body_pos_coeff_ = bbox_padding_rate * (upper_body_pos - lower_body_pos) / 2;
+  body_pos_coeff_ = config_.bbox_padding_rate * (upper_body_pos - lower_body_pos) / 2;
   body_pos_offset_ = (upper_body_pos + lower_body_pos) / 2;
 }
 

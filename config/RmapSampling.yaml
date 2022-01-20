@@ -4,6 +4,9 @@ publish_loop_interval: 100
 # Number of samples to make bounding box
 bbox_sample_num: 1000
 
+# Padding rate of bounding box
+bbox_padding_rate: 1.2
+
 # Number of IK trial
 ik_trial_num: 10
 
