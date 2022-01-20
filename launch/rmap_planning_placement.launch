@@ -41,28 +41,28 @@
             pos: [1.0, 0.0, 1.0]
           axis_controls: []
           markers:
-            - type: 2 # SPHERE
+            - type: 1 # CUBE
               scale: [0.1, 0.1, 0.1]
               color: [1.0, 0.0, 0.0, 1.0]
-              interaction_mode: 7 # MOVE_3D
+              interaction_mode: 9 # MOVE_ROTATE_3D
         - name: target_1
           initial_pose:
             pos: [0.0, 1.0, 1.0]
           axis_controls: []
           markers:
-            - type: 2 # SPHERE
+            - type: 1 # CUBE
               scale: [0.1, 0.1, 0.1]
               color: [1.0, 0.0, 0.0, 1.0]
-              interaction_mode: 7 # MOVE_3D
+              interaction_mode: 9 # MOVE_ROTATE_3D
         - name: target_2
           initial_pose:
             pos: [-0.5, 1.5, 1.0]
           axis_controls: []
           markers:
-            - type: 2 # SPHERE
+            - type: 1 # CUBE
               scale: [0.1, 0.1, 0.1]
               color: [1.0, 0.0, 0.0, 1.0]
-              interaction_mode: 7 # MOVE_3D
+              interaction_mode: 9 # MOVE_ROTATE_3D
     </rosparam>
   </node>
 
