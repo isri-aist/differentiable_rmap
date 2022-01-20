@@ -382,6 +382,7 @@ bool RmapPlanningPlacement<SamplingSpaceType>::postureCallback(
 
     bool ik_solved = false;
     double best_error = std::numeric_limits<double>::max();
+    Eigen::VectorXd best_error_vec(0);
     std::shared_ptr<rbd::MultiBodyConfig> best_rbc;
     for (int j = 0; j < config_.ik_trial_num; j++) {
       if (j == 0) {
@@ -403,6 +404,7 @@ bool RmapPlanningPlacement<SamplingSpaceType>::postureCallback(
 
       if (taskset.errorSquaredNorm() < best_error) {
         best_error = taskset.errorSquaredNorm();
+        best_error_vec = body_task->weight().cwiseProduct(body_task->value());
         best_rbc = std::make_shared<rbd::MultiBodyConfig>(*rbc);
       }
       if (taskset.errorSquaredNorm() < std::pow(config_.ik_error_thre, 2)) {
@@ -412,8 +414,8 @@ bool RmapPlanningPlacement<SamplingSpaceType>::postureCallback(
     }
 
     if (!ik_solved) {
-      ROS_WARN_STREAM("Failed to solve IK for reaching point " << std::to_string(i)
-                      << ". Task error: " << std::sqrt(best_error));
+      ROS_WARN_STREAM("Failed to solve IK for reaching point " << std::to_string(i) << ". Task error: "
+                      << std::sqrt(best_error) << " [" << best_error_vec.transpose() << "]");
     }
 
     // Add robot state message
