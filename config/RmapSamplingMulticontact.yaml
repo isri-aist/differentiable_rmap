@@ -1,0 +1,20 @@
+# Interval of loop counts to publish ROS message
+publish_loop_interval: 100
+
+# Number of samples to make bounding box
+bbox_sample_num: 1000
+
+# Padding rate of bounding box
+bbox_padding_rate: 0.6
+
+# Number of IK trial
+ik_trial_num: 1
+
+# Number of IK loop
+ik_loop_num: 50
+
+# Threshold of IK [m], [rad]
+ik_error_thre: 5e-3
+
+# Constraint space of IK (default is same as template parameter SamplingSpaceType)
+ik_constraint_space: SE3
