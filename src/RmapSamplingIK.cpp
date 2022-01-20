@@ -48,26 +48,6 @@ RmapSamplingIK<SamplingSpaceType>::RmapSamplingIK(
     const std::vector<std::string>& joint_name_list):
     RmapSampling<SamplingSpaceType>(rb, body_name, joint_name_list)
 {
-  // Setup task and problem
-  body_task_ = std::make_shared<OmgCore::BodyPoseTask>(
-      std::make_shared<OmgCore::BodyFunc>(
-          rb_arr_,
-          0,
-          body_name_),
-      sva::PTransformd::Identity(),
-      "BodyPoseTask",
-      getSelectIdxs(SamplingSpaceType));
-
-  taskset_.addTask(body_task_);
-
-  problem_ = std::make_shared<OmgCore::IterativeQpProblem>(rb_arr_);
-  // JRLQP is superior to other QP solvers in terms of computational time and solvability
-  problem_->setup(
-      std::vector<OmgCore::Taskset>{taskset_},
-      std::vector<OmgCore::QpSolverType>{OmgCore::QpSolverType::JRLQP});
-
-  // Copy problem rbc_arr to member rb_arr to synchronize them
-  rbc_arr_ = problem_->rbcArr();
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -80,6 +60,32 @@ void RmapSamplingIK<SamplingSpaceType>::configure(const mc_rtc::Configuration& m
 template <SamplingSpace SamplingSpaceType>
 void RmapSamplingIK<SamplingSpaceType>::setupSampling()
 {
+  // Setup task
+  SamplingSpace ik_constraint_space = SamplingSpaceType;
+  if (!config_.ik_constraint_space.empty()) {
+    ik_constraint_space = strToSamplingSpace(config_.ik_constraint_space);
+  }
+  body_task_ = std::make_shared<OmgCore::BodyPoseTask>(
+      std::make_shared<OmgCore::BodyFunc>(
+          rb_arr_,
+          0,
+          body_name_),
+      sva::PTransformd::Identity(),
+      "BodyPoseTask",
+      getSelectIdxs(ik_constraint_space));
+
+  // Setup problem
+  taskset_.addTask(body_task_);
+
+  problem_ = std::make_shared<OmgCore::IterativeQpProblem>(rb_arr_);
+  // JRLQP is superior to other QP solvers in terms of computational time and solvability
+  problem_->setup(
+      std::vector<OmgCore::Taskset>{taskset_},
+      std::vector<OmgCore::QpSolverType>{OmgCore::QpSolverType::JRLQP});
+
+  // Copy problem rbc_arr to member rb_arr to synchronize them
+  rbc_arr_ = problem_->rbcArr();
+
   // Overwrite joint range to restrict joints to be used
   // Be carefull that this overwrites original robot
   // This becomes unnecessary when optmotiongen supports joint selection

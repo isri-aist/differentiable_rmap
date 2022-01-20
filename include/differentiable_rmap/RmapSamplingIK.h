@@ -32,6 +32,9 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
     //! Threshold of IK [m], [rad]
     double ik_error_thre = 1e-2;
 
+    //! Constraint space of IK (default is same as template parameter SamplingSpaceType)
+    std::string ik_constraint_space = "";
+
     /*! \brief Load mc_rtc configuration. */
     inline virtual void load(const mc_rtc::Configuration& mc_rtc_config) override
     {
@@ -41,6 +44,7 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
       mc_rtc_config("ik_trial_num", ik_trial_num);
       mc_rtc_config("ik_loop_num", ik_loop_num);
       mc_rtc_config("ik_error_thre", ik_error_thre);
+      mc_rtc_config("ik_constraint_space", ik_constraint_space);
     }
   };
 

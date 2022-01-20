@@ -22,6 +22,19 @@ RmapSamplingFootstep<SamplingSpaceType>::RmapSamplingFootstep(
     swing_foot_body_name_(swing_foot_body_name),
     waist_body_name_(waist_body_name)
 {
+  collision_marker_pub_ = nh_.template advertise<visualization_msgs::MarkerArray>("collision_marker", 1, true);
+}
+
+template <SamplingSpace SamplingSpaceType>
+void RmapSamplingFootstep<SamplingSpaceType>::configure(const mc_rtc::Configuration& mc_rtc_config)
+{
+  RmapSamplingIK<SamplingSpaceType>::configure(mc_rtc_config);
+  config_.load(mc_rtc_config);
+}
+
+template <SamplingSpace SamplingSpaceType>
+void RmapSamplingFootstep<SamplingSpaceType>::setupSampling()
+{
   // Setup task
   support_foot_body_task_ = std::make_shared<OmgCore::BodyPoseTask>(
       std::make_shared<OmgCore::BodyFunc>(
@@ -45,20 +58,6 @@ RmapSamplingFootstep<SamplingSpaceType>::RmapSamplingFootstep(
       sva::PTransformd::Identity(),
       "WaistBodyPoseTask");
 
-  // Setup ROS
-  collision_marker_pub_ = nh_.template advertise<visualization_msgs::MarkerArray>("collision_marker", 1, true);
-}
-
-template <SamplingSpace SamplingSpaceType>
-void RmapSamplingFootstep<SamplingSpaceType>::configure(const mc_rtc::Configuration& mc_rtc_config)
-{
-  RmapSamplingIK<SamplingSpaceType>::configure(mc_rtc_config);
-  config_.load(mc_rtc_config);
-}
-
-template <SamplingSpace SamplingSpaceType>
-void RmapSamplingFootstep<SamplingSpaceType>::setupSampling()
-{
   // Setup problem
   taskset_list_.resize(2);
   taskset_list_[0].addTask(support_foot_body_task_);
