@@ -87,6 +87,10 @@ void RmapSampling<SamplingSpaceType>::run(
 template <SamplingSpace SamplingSpaceType>
 void RmapSampling<SamplingSpaceType>::setupSampling()
 {
+  // Set robot root pose
+  rb_arr_[0]->rootPose(config_.root_pose);
+
+  // Calculate coefficient and offset to make random position
   joint_idx_list_.resize(joint_name_list_.size());
   joint_pos_coeff_.resize(joint_name_list_.size());
   joint_pos_offset_.resize(joint_name_list_.size());

@@ -1,6 +1,10 @@
 # Interval of loop counts to publish ROS message
 publish_loop_interval: 100
 
+# Robot root pose
+root_pose:
+  translation: [0, 0, 0.7]
+
 # Number of samples to make bounding box
 bbox_sample_num: 1000
 

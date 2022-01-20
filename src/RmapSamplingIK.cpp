@@ -60,6 +60,9 @@ void RmapSamplingIK<SamplingSpaceType>::configure(const mc_rtc::Configuration& m
 template <SamplingSpace SamplingSpaceType>
 void RmapSamplingIK<SamplingSpaceType>::setupSampling()
 {
+  // Set robot root pose
+  rb_arr_[0]->rootPose(config_.root_pose);
+
   // Setup task
   SamplingSpace ik_constraint_space = SamplingSpaceType;
   if (!config_.ik_constraint_space.empty()) {
