@@ -20,23 +20,33 @@ using namespace DiffRmap;
 
 template <SamplingSpace SamplingSpaceType>
 RmapPlanning<SamplingSpaceType>::RmapPlanning(const std::string& svm_path,
-                                              const std::string& bag_path)
+                                              const std::string& bag_path):
+    RmapPlanning<SamplingSpaceType>::RmapPlanning(svm_path, bag_path, true)
+{
+}
+
+template <SamplingSpace SamplingSpaceType>
+RmapPlanning<SamplingSpaceType>::RmapPlanning(const std::string& svm_path,
+                                              const std::string& bag_path,
+                                              bool setup_ros)
 {
   // Setup ROS
-  trans_sub_ = nh_.subscribe(
-      "interactive_marker_transform",
-      100,
-      &RmapPlanning<SamplingSpaceType>::transCallback,
-      this);
-  marker_arr_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("marker_arr", 1, true);
-  grid_map_pub_ = nh_.advertise<grid_map_msgs::GridMap>("grid_map", 1, true);
-  current_pos_pub_ = nh_.advertise<geometry_msgs::PointStamped>("current_pos", 1, true);
-  current_pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("current_pose", 1, true);
+  if (setup_ros) {
+    trans_sub_ = nh_.subscribe(
+        "interactive_marker_transform",
+        100,
+        &RmapPlanning<SamplingSpaceType>::transCallback,
+        this);
+    marker_arr_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("marker_arr", 1, true);
+    grid_map_pub_ = nh_.advertise<grid_map_msgs::GridMap>("grid_map", 1, true);
+    current_pos_pub_ = nh_.advertise<geometry_msgs::PointStamped>("current_pos", 1, true);
+    current_pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("current_pose", 1, true);
+  }
 
   // Load SVM model
   loadSVM(svm_path);
 
-  // Load sample set
+  // Load grid set
   if (!bag_path.empty()) {
     loadGridSet(bag_path);
   }

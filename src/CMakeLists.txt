@@ -8,6 +8,7 @@ add_library(DiffRmap
   RmapPlanning.cpp
   RmapPlanningFootstep.cpp
   RmapPlanningPlacement.cpp
+  RmapPlanningMulticontact.cpp
   )
 target_link_libraries(DiffRmap PUBLIC
   SpaceVecAlg::SpaceVecAlg

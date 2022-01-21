@@ -117,9 +117,18 @@ class RmapPlanning: public RmapPlanningBase
   /** \brief Constructor.
       \param svm_path path of SVM model file
       \param bag_path path of ROS bag file of grid set (empty for no grid set)
-   */
+  */
   RmapPlanning(const std::string& svm_path = "/tmp/rmap_svm_model.libsvm",
                const std::string& bag_path = "/tmp/rmap_grid_set.bag");
+
+  /** \brief Constructor.
+      \param svm_path path of SVM model file
+      \param bag_path path of ROS bag file of grid set (empty for no grid set)
+      \param setup_ros whether to setup ROS
+   */
+  RmapPlanning(const std::string& svm_path,
+               const std::string& bag_path,
+               bool setup_ros);
 
   /** \brief Destructor. */
   ~RmapPlanning();
