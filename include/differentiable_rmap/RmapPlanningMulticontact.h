@@ -146,18 +146,23 @@ class RmapPlanningMulticontact
     }
   }
 
- public:
-  /*! \brief Type of sample vector. */
-  template <Limb limb>
-  using SampleType = Sample<samplingSpaceType<limb>()>;
+  /*! \brief Dimension of sample for foot. */
+  static constexpr int foot_sample_dim_ = sampleDim<FootSamplingSpaceType>();
 
-  /*! \brief Type of input vector. */
-  template <Limb limb>
-  using InputType = Input<samplingSpaceType<limb>()>;
+  /*! \brief Dimension of SVM input for foot. */
+  static constexpr int foot_input_dim_ = inputDim<FootSamplingSpaceType>();
 
-  /*! \brief Type of velocity vector. */
-  template <Limb limb>
-  using VelType = Vel<samplingSpaceType<limb>()>;
+  /*! \brief Dimension of velocity for foot. */
+  static constexpr int foot_vel_dim_ = velDim<FootSamplingSpaceType>();
+
+  /*! \brief Dimension of sample for hand. */
+  static constexpr int hand_sample_dim_ = sampleDim<HandSamplingSpaceType>();
+
+  /*! \brief Dimension of SVM input for hand. */
+  static constexpr int hand_input_dim_ = inputDim<HandSamplingSpaceType>();
+
+  /*! \brief Dimension of velocity for hand. */
+  static constexpr int hand_vel_dim_ = velDim<HandSamplingSpaceType>();
 
  public:
   /** \brief Constructor.
