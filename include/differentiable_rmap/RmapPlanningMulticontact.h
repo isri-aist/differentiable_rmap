@@ -17,6 +17,9 @@ enum class Limb
   LeftHand,
   RightHand
 };
+
+/** \brief Convert string to limb. */
+Limb strToLimb(const std::string& limb_str);
 }
 
 namespace std

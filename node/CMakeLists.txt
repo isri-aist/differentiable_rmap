@@ -6,6 +6,7 @@ set(differentiable_rmap_node_list
   NodeRmapPlanning
   NodeRmapPlanningFootstep
   NodeRmapPlanningPlacement
+  NodeRmapPlanningMulticontact
   )
 
 foreach(NAME IN LISTS differentiable_rmap_node_list)
