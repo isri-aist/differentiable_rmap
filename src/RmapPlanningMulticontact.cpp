@@ -197,7 +197,7 @@ void RmapPlanningMulticontact::runOnce(bool publish)
       svm_ineq_dim).setConstant(config_.svm_ineq_weight);
   // qp_coeff_.obj_mat_.diagonal().tail(svm_ineq_dim + collision_ineq_dim).tail(
   //     collision_ineq_dim).setConstant(config_.collision_ineq_weight);
-  qp_coeff_.obj_vec_.template head<foot_vel_dim_>() = start_sample_error;
+  qp_coeff_.obj_vec_.template head<foot_vel_dim_>() = config_.start_foot_weight * start_sample_error;
   qp_coeff_.obj_vec_.template segment<foot_vel_dim_>(config_.motion_len * foot_vel_dim_) = target_sample_error;
   Eigen::VectorXd current_config(config_dim);
   for (int i = 0; i < config_.motion_len + 1; i++) {
@@ -230,14 +230,15 @@ void RmapPlanningMulticontact::runOnce(bool publish)
     } else {
       next_foot_rmap_planning = rmapPlanning<Limb::RightFoot>();
     }
+
     const FootSampleType& pre_foot_rel_sample =
         relSample<FootSamplingSpaceType>(cur_foot_sample, pre_foot_sample);
     const FootVelType& pre_foot_rel_svm_grad =
         calcSVMGradWithRmapPlanning<FootSamplingSpaceType>(pre_foot_rel_sample, next_foot_rmap_planning);
-    qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(ineq_start_idx, i * foot_vel_dim_) =
+    qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(ineq_start_idx, (i + 1) * foot_vel_dim_) =
         -1 * pre_foot_rel_svm_grad.transpose() *
         relVelToVelMat<FootSamplingSpaceType>(cur_foot_sample, pre_foot_sample, false);
-    qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(ineq_start_idx, (i + 1) * foot_vel_dim_) =
+    qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(ineq_start_idx, i * foot_vel_dim_) =
         -1 * pre_foot_rel_svm_grad.transpose() *
         relVelToVelMat<FootSamplingSpaceType>(cur_foot_sample, pre_foot_sample, true);
     qp_coeff_.ineq_vec_.template segment<1>(ineq_start_idx) <<
@@ -258,10 +259,10 @@ void RmapPlanningMulticontact::runOnce(bool publish)
   }
   qp_coeff_.ineq_mat_.rightCols(svm_ineq_dim + collision_ineq_dim).diagonal().head(svm_ineq_dim).setConstant(-1);
 
-  ROS_INFO_STREAM("qp_coeff_.obj_mat_:\n" << qp_coeff_.obj_mat_);
-  ROS_INFO_STREAM("qp_coeff_.obj_vec_:\n" << qp_coeff_.obj_vec_.transpose());
-  ROS_INFO_STREAM("qp_coeff_.ineq_mat_:\n" << qp_coeff_.ineq_mat_);
-  ROS_INFO_STREAM("qp_coeff_.ineq_vec_:\n" << qp_coeff_.ineq_vec_.transpose());
+  // ROS_INFO_STREAM("qp_coeff_.obj_mat_:\n" << qp_coeff_.obj_mat_);
+  // ROS_INFO_STREAM("qp_coeff_.obj_vec_:\n" << qp_coeff_.obj_vec_.transpose());
+  // ROS_INFO_STREAM("qp_coeff_.ineq_mat_:\n" << qp_coeff_.ineq_mat_);
+  // ROS_INFO_STREAM("qp_coeff_.ineq_vec_:\n" << qp_coeff_.ineq_vec_.transpose());
 
   // Solve QP
   Eigen::VectorXd vel_all = qp_solver_->solve(qp_coeff_);

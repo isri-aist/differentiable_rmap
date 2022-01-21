@@ -13,11 +13,11 @@ delta_config_limit: 0.005
 # Initial sample pose list
 initial_sample_pose_list:
   LeftFoot:
-    translation: [0.0, 0.0, 0.1]
+    translation: [0.0, 0.0, 0.0]
   RightFoot:
-    translation: [0.0, 0.0, 0.2]
+    translation: [0.0, 0.0, 0.0]
   LeftHand:
-    translation: [0.0, 0.0, 0.3]
+    translation: [0.0, 0.0, 0.0]
 
 # Number of footsteps
 motion_len: 3
