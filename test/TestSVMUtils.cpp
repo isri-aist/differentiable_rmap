@@ -214,3 +214,32 @@ BOOST_AUTO_TEST_CASE(TestRelSampleSE2) { testRelSample<SamplingSpace::SE2>(); }
 BOOST_AUTO_TEST_CASE(TestRelSampleR3) { testRelSample<SamplingSpace::R3>(); }
 BOOST_AUTO_TEST_CASE(TestRelSampleSO3) { testRelSample<SamplingSpace::SO3>(); }
 BOOST_AUTO_TEST_CASE(TestRelSampleSE3) { testRelSample<SamplingSpace::SE3>(); }
+
+template <SamplingSpace SamplingSpaceType>
+void testMidSample()
+{
+  int test_num = 1000;
+  for (int i = 0; i < test_num; i++) {
+    sva::PTransformd pose1 = getRandomPose<SamplingSpaceType>();
+    sva::PTransformd pose2 = getRandomPose<SamplingSpaceType>();
+    Sample<SamplingSpaceType> sample1 = poseToSample<SamplingSpaceType>(pose1);
+    Sample<SamplingSpaceType> sample2 = poseToSample<SamplingSpaceType>(pose2);
+
+    Sample<SamplingSpaceType> mid_sample1 = midSample<SamplingSpaceType>(sample1, sample2);
+    Sample<SamplingSpaceType> mid_sample2 = poseToSample<SamplingSpaceType>(sva::interpolate(pose1, pose2, 0.5));
+
+    // std::cout << "[testMidSample]" << std::endl;
+    // std::cout << "  mid_sample1: " << mid_sample1.transpose() << std::endl;
+    // std::cout << "  mid_sample2: " << mid_sample2.transpose() << std::endl;
+    // std::cout << "  error: " << (mid_sample1 - mid_sample2).norm() << std::endl;
+
+    BOOST_CHECK((mid_sample1 - mid_sample2).norm() < 1e-8);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(TestMidSampleR2) { testMidSample<SamplingSpace::R2>(); }
+BOOST_AUTO_TEST_CASE(TestMidSampleSO2) { testMidSample<SamplingSpace::SO2>(); }
+BOOST_AUTO_TEST_CASE(TestMidSampleSE2) { testMidSample<SamplingSpace::SE2>(); }
+BOOST_AUTO_TEST_CASE(TestMidSampleR3) { testMidSample<SamplingSpace::R3>(); }
+BOOST_AUTO_TEST_CASE(TestMidSampleSO3) { testMidSample<SamplingSpace::SO3>(); }
+BOOST_AUTO_TEST_CASE(TestMidSampleSE3) { testMidSample<SamplingSpace::SE3>(); }

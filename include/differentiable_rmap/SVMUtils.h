@@ -103,6 +103,15 @@ template <SamplingSpace SamplingSpaceType>
 Sample<SamplingSpaceType> relSample(const Sample<SamplingSpaceType>& pre_sample,
                                     const Sample<SamplingSpaceType>& suc_sample);
 
+/** \brief Get middle sample between two samples.
+    \tparam SamplingSpaceType sampling space
+    \param sample1 first sample
+    \param sample2 second sample
+*/
+template <SamplingSpace SamplingSpaceType>
+Sample<SamplingSpaceType> midSample(const Sample<SamplingSpaceType>& sample1,
+                                    const Sample<SamplingSpaceType>& sample2);
+
 /*! \brief Type of matrix to represent the linear relation from input to vel. */
 template <SamplingSpace SamplingSpaceType>
 using VelToVelMat = Eigen::Matrix<double, velDim<SamplingSpaceType>(), velDim<SamplingSpaceType>()>;

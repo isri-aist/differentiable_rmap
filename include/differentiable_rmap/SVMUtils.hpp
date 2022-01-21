@@ -212,6 +212,19 @@ inline Sample<SamplingSpace::SE2> relSample<SamplingSpace::SE2>(
 }
 
 template <SamplingSpace SamplingSpaceType>
+Sample<SamplingSpaceType> midSample(const Sample<SamplingSpaceType>& sample1,
+                                    const Sample<SamplingSpaceType>& sample2)
+{
+  if constexpr (SamplingSpaceType == SamplingSpace::R2 ||
+                SamplingSpaceType == SamplingSpace::R3) {
+      return (sample1 + sample2) / 2;
+    } else {
+    return poseToSample<SamplingSpaceType>(sva::interpolate(
+        sampleToPose<SamplingSpaceType>(sample1), sampleToPose<SamplingSpaceType>(sample2), 0.5));
+  }
+}
+
+template <SamplingSpace SamplingSpaceType>
 VelToVelMat<SamplingSpaceType> relVelToVelMat(const Sample<SamplingSpaceType>& pre_sample,
                                               const Sample<SamplingSpaceType>& suc_sample,
                                               bool wrt_suc)
