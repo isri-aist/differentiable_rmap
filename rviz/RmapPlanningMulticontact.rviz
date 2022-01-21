@@ -77,22 +77,7 @@ Visualization Manager:
       Marker Topic: /marker_arr
       Name: MarkerArray
       Namespaces:
-        reachable_grids_0: true
-        reachable_grids_1: true
-        reachable_grids_10: true
-        reachable_grids_11: true
-        reachable_grids_12: true
-        reachable_grids_13: true
-        reachable_grids_14: true
-        reachable_grids_15: true
-        reachable_grids_2: true
-        reachable_grids_3: true
-        reachable_grids_4: true
-        reachable_grids_5: true
-        reachable_grids_6: true
-        reachable_grids_7: true
-        reachable_grids_8: true
-        reachable_grids_9: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/InteractiveMarkers
@@ -110,7 +95,7 @@ Visualization Manager:
       Axes Radius: 0.019999999552965164
       Class: rviz/PoseArray
       Color: 255; 25; 0
-      Enabled: false
+      Enabled: true
       Head Length: 0.07000000029802322
       Head Radius: 0.029999999329447746
       Name: PoseArray
@@ -119,29 +104,16 @@ Visualization Manager:
       Shape: Axes
       Topic: /current_pose_arr
       Unreliable: false
-      Value: false
+      Value: true
     - Alpha: 1
       Class: jsk_rviz_plugin/PolygonArray
       Color: 164; 0; 0
       Enabled: true
-      Name: LeftPolygonArray
-      Topic: /current_left_poly_arr
+      Name: PolygonArray
+      Topic: /current_poly_arr
       Unreliable: false
       Value: true
-      coloring: Flat color
-      enable lighting: false
-      normal length: 0.10000000149011612
-      only border: false
-      show normal: true
-    - Alpha: 1
-      Class: jsk_rviz_plugin/PolygonArray
-      Color: 78; 154; 6
-      Enabled: true
-      Name: RightPolygonArray
-      Topic: /current_right_poly_arr
-      Unreliable: false
-      Value: true
-      coloring: Flat color
+      coloring: Auto
       enable lighting: false
       normal length: 0.10000000149011612
       only border: false
@@ -173,21 +145,26 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: -1.5700000524520874
-      Class: rviz/TopDownOrtho
+      Class: rviz/Orbit
+      Distance: 2.457087993621826
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
+      Focal Point:
+        X: 0.5144695043563843
+        Y: 0.2049524188041687
+        Z: 0.33711710572242737
+      Focal Shape Fixed Size: false
+      Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 296.63360595703125
+      Pitch: 0.5803984999656677
       Target Frame: <Fixed Frame>
-      Value: TopDownOrtho (rviz)
-      X: -0.5797686576843262
-      Y: -0.8957812190055847
+      Value: Orbit (rviz)
+      Yaw: 2.0953917503356934
     Saved: ~
 Window Geometry:
   Displays:

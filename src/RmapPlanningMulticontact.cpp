@@ -324,24 +324,38 @@ void RmapPlanningMulticontact::publishMarkerArray() const
 
 void RmapPlanningMulticontact::publishCurrentState() const
 {
+  std_msgs::Header header_msg;
+  header_msg.frame_id = "world";
+  header_msg.stamp = ros::Time::now();
+
+  // Publish pose array
+  geometry_msgs::PoseArray pose_arr_msg;
+  pose_arr_msg.header = header_msg;
+  pose_arr_msg.poses.resize(2 * config_.motion_len + 1);
+  for (int i = 0; i < config_.motion_len + 1; i++) {
+    pose_arr_msg.poses[i] = OmgCore::toPoseMsg(sampleToPose<FootSamplingSpaceType>(current_foot_sample_seq_[i]));
+    if (i < config_.motion_len) {
+      pose_arr_msg.poses[config_.motion_len + 1 + i] =
+          OmgCore::toPoseMsg(sampleToPose<HandSamplingSpaceType>(current_hand_sample_seq_[i]));
+    }
+  }
+  current_pose_arr_pub_.publish(pose_arr_msg);
+
+  // Publish polygon array
+  jsk_recognition_msgs::PolygonArray poly_arr_msg;
+  poly_arr_msg.header = header_msg;
+  poly_arr_msg.polygons.resize(config_.motion_len + 1);
+  for (int i = 0; i < config_.motion_len + 1; i++) {
+    poly_arr_msg.polygons[i].header = header_msg;
+    sva::PTransformd foot_pose = sampleToPose<FootSamplingSpaceType>(current_foot_sample_seq_[i]);
+    poly_arr_msg.polygons[i].polygon.points.resize(config_.foot_vertices.size());
+    for (size_t j = 0; j < config_.foot_vertices.size(); j++) {
+      poly_arr_msg.polygons[i].polygon.points[j] =
+          OmgCore::toPoint32Msg(foot_pose.rotation().transpose() * config_.foot_vertices[j] + foot_pose.translation());
+    }
+  }
+  current_poly_arr_pub_.publish(poly_arr_msg);
 }
-// {
-//   std_msgs::Header header_msg;
-//   header_msg.frame_id = "world";
-//   header_msg.stamp = ros::Time::now();
-
-//   // Publish point
-//   geometry_msgs::PointStamped pos_msg;
-//   pos_msg.header = header_msg;
-//   pos_msg.point = OmgCore::toPointMsg(sampleToCloudPos<SamplingSpaceType>(current_sample_));
-//   current_pos_pub_.publish(pos_msg);
-
-//   // Publish pose
-//   geometry_msgs::PoseStamped pose_msg;
-//   pose_msg.header = header_msg;
-//   pose_msg.pose = OmgCore::toPoseMsg(sampleToPose<SamplingSpaceType>(current_sample_));
-//   current_pose_pub_.publish(pose_msg);
-// }
 
 void RmapPlanningMulticontact::transCallback(
     const geometry_msgs::TransformStamped::ConstPtr& trans_st_msg)
