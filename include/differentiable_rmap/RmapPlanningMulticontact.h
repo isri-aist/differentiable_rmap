@@ -123,9 +123,6 @@ class RmapPlanningMulticontact
   };
 
  public:
-  /*! \brief Number of limb. */
-  static constexpr size_t limb_num = 3;
-
   /*! \brief Sampling space for foot. */
   static constexpr SamplingSpace FootSamplingSpaceType = SamplingSpace::SE2;
 
@@ -163,6 +160,25 @@ class RmapPlanningMulticontact
 
   /*! \brief Dimension of velocity for hand. */
   static constexpr int hand_vel_dim_ = velDim<HandSamplingSpaceType>();
+
+ public:
+  /*! \brief Type of sample vector for foot. */
+  using FootSampleType = Sample<FootSamplingSpaceType>;
+
+  /*! \brief Type of input vector for foot. */
+  using FootInputType = Input<FootSamplingSpaceType>;
+
+  /*! \brief Type of velocity vector for foot. */
+  using FootVelType = Vel<FootSamplingSpaceType>;
+
+  /*! \brief Type of sample vector for hand. */
+  using HandSampleType = Sample<HandSamplingSpaceType>;
+
+  /*! \brief Type of input vector for hand. */
+  using HandInputType = Input<HandSamplingSpaceType>;
+
+  /*! \brief Type of velocity vector for hand. */
+  using HandVelType = Vel<HandSamplingSpaceType>;
 
  public:
   /** \brief Constructor.
