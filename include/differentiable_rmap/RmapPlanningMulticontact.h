@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <map>
 #include <unordered_map>
 
 #include <differentiable_rmap/RmapPlanning.h>
@@ -68,10 +69,15 @@ class RmapPlanningMulticontact
     double delta_config_limit = 0.1;
 
     //! Initial sample pose list
-    std::vector<sva::PTransformd> initial_sample_pose_list;
+    std::map<Limb, sva::PTransformd> initial_sample_pose_list = {
+      {Limb::LeftFoot, sva::PTransformd::Identity()},
+      {Limb::RightFoot, sva::PTransformd::Identity()},
+      {Limb::LeftHand, sva::PTransformd::Identity()},
+      {Limb::RightHand, sva::PTransformd::Identity()}
+    };
 
     //! Number of footsteps
-    int motion_seq_len = 3;
+    int motion_len = 3;
 
     //! Regularization weight
     double reg_weight = 1e-6;
@@ -97,8 +103,14 @@ class RmapPlanningMulticontact
       mc_rtc_config("publish_interval", publish_interval);
       mc_rtc_config("svm_thre", svm_thre);
       mc_rtc_config("delta_config_limit", delta_config_limit);
-      mc_rtc_config("initial_sample_pose_list", initial_sample_pose_list);
-      mc_rtc_config("motion_seq_len", motion_seq_len);
+
+      std::map<std::string, sva::PTransformd> tmp_initial_sample_pose_list;
+      mc_rtc_config("initial_sample_pose_list", tmp_initial_sample_pose_list);
+      for (const auto& tmp_initial_sample_pose_kv : tmp_initial_sample_pose_list) {
+        initial_sample_pose_list[strToLimb(tmp_initial_sample_pose_kv.first)] = tmp_initial_sample_pose_kv.second;
+      }
+
+      mc_rtc_config("motion_len", motion_len);
       mc_rtc_config("reg_weight", reg_weight);
       mc_rtc_config("adjacent_reg_weight", adjacent_reg_weight);
       mc_rtc_config("svm_ineq_weight", svm_ineq_weight);
@@ -171,6 +183,13 @@ class RmapPlanningMulticontact
   void runLoop();
 
  protected:
+  /** \brief Get list of rmap planning for specified limb. */
+  template <Limb limb>
+  inline std::shared_ptr<RmapPlanning<samplingSpaceType<limb>()>> rmapPlanning()
+  {
+    return std::dynamic_pointer_cast<RmapPlanning<samplingSpaceType<limb>()>>(rmap_planning_list_.at(limb));
+  }
+
   /** \brief Publish marker array. */
   void publishMarkerArray() const;
 
@@ -181,13 +200,22 @@ class RmapPlanningMulticontact
   void transCallback(const geometry_msgs::TransformStamped::ConstPtr& trans_st_msg);
 
  protected:
+  //! Sample corresponding to identity pose for foot
+  static inline const Sample<FootSamplingSpaceType> foot_identity_sample_ =
+      poseToSample<FootSamplingSpaceType>(sva::PTransformd::Identity());
+
+  //! Sample corresponding to identity pose for hand
+  static inline const Sample<HandSamplingSpaceType> hand_identity_sample_ =
+      poseToSample<HandSamplingSpaceType>(sva::PTransformd::Identity());
+
+ protected:
   //! mc_rtc Configuration
   mc_rtc::Configuration mc_rtc_config_;
 
   //! Configuration
   Configuration config_;
 
-  //! 
+  //! List of rmap planning for each limb
   std::unordered_map<Limb, std::shared_ptr<RmapPlanningBase>> rmap_planning_list_;
 
   //! QP coefficients
@@ -196,11 +224,17 @@ class RmapPlanningMulticontact
   //! QP solver
   std::shared_ptr<OmgCore::QpSolver> qp_solver_;
 
-  //! Current sample
-  // SampleType current_sample_ = poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
+  //! Current sample sequence for foot
+  std::vector<Sample<FootSamplingSpaceType>> current_foot_sample_seq_;
+
+  //! Current sample sequence for hand
+  std::vector<Sample<HandSamplingSpaceType>> current_hand_sample_seq_;
 
   //! Target sample
-  Sample<FootSamplingSpaceType> target_sample_ = poseToSample<FootSamplingSpaceType>(sva::PTransformd::Identity());
+  Sample<FootSamplingSpaceType> target_foot_sample_ = poseToSample<FootSamplingSpaceType>(sva::PTransformd::Identity());
+
+  //! Adjacent regularization matrix
+  Eigen::MatrixXd adjacent_reg_mat_;
 
   //! ROS related members
   ros::NodeHandle nh_;

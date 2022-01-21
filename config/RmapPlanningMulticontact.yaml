@@ -12,12 +12,15 @@ delta_config_limit: 0.005
 
 # Initial sample pose list
 initial_sample_pose_list:
-  - translation: [0.0, 0.0, 0.0]
-  - translation: [0.0, 0.0, 0.0]
-  - translation: [0.0, 0.0, 0.0]
+  LeftFoot:
+    translation: [0.0, 0.0, 0.1]
+  RightFoot:
+    translation: [0.0, 0.0, 0.2]
+  LeftHand:
+    translation: [0.0, 0.0, 0.3]
 
 # Number of footsteps
-motion_seq_len: 3
+motion_len: 3
 
 # Regularization weight
 reg_weight: 1e-6
