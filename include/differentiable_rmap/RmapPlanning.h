@@ -171,6 +171,19 @@ class RmapPlanning: public RmapPlanningBase
   /** \brief Transform topic callback. */
   virtual void transCallback(const geometry_msgs::TransformStamped::ConstPtr& trans_st_msg);
 
+ public:
+  //! SVM model
+  svm_model* svm_mo_;
+
+  //! Support vector coefficients
+  Eigen::VectorXd svm_coeff_vec_;
+
+  //! Support vector matrix
+  Eigen::Matrix<double, input_dim_, Eigen::Dynamic> svm_sv_mat_;
+
+  //! Grid set message
+  differentiable_rmap::RmapGridSet::ConstPtr grid_set_msg_;
+
  protected:
   //! mc_rtc Configuration
   mc_rtc::Configuration mc_rtc_config_;
@@ -181,9 +194,6 @@ class RmapPlanning: public RmapPlanningBase
   //! Min/max position of samples
   SampleType sample_min_ = SampleType::Constant(-1.0);
   SampleType sample_max_ = SampleType::Constant(1.0);
-
-  //! SVM model
-  svm_model* svm_mo_;
 
   //! QP coefficients
   OmgCore::QpCoeff qp_coeff_;
@@ -197,17 +207,8 @@ class RmapPlanning: public RmapPlanningBase
   //! Target sample
   SampleType target_sample_ = poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
 
-  //! Support vector coefficients
-  Eigen::VectorXd svm_coeff_vec_;
-
-  //! Support vector matrix
-  Eigen::Matrix<double, input_dim_, Eigen::Dynamic> svm_sv_mat_;
-
   //! Grid map
   std::shared_ptr<grid_map::GridMap> grid_map_;
-
-  //! Grid set message
-  differentiable_rmap::RmapGridSet::ConstPtr grid_set_msg_;
 
   //! ROS related members
   ros::NodeHandle nh_;

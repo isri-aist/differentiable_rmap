@@ -177,38 +177,45 @@ void RmapPlanningMulticontact::runOnce(bool publish)
   // Set QP inequality matrices of reachability
   qp_coeff_.ineq_mat_.setZero();
   qp_coeff_.ineq_vec_.setZero();
-  // for (int i = 0; i < config_.motion_len; i++) {
-  //   const SampleType& pre_sample =
-  //       i == 0 ? poseToSample<SamplingSpaceType>(sva::PTransformd::Identity()) : current_sample_seq_[i - 1];
-  //   const SampleType& suc_sample = current_sample_seq_[i];
-  //   SampleType rel_sample = relSample<SamplingSpaceType>(pre_sample, suc_sample);
-  //   if constexpr (isAlternateSupported()) {
-  //       if (config_.alternate_lr && (i % 2 == 1)) {
-  //         rel_sample.template tail<2>() *= -1;
-  //       }
-  //     }
-  //   const VelType& svm_grad = calcSVMGrad<SamplingSpaceType>(
-  //           rel_sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_);
-  //   VelToVelMat<SamplingSpaceType> rel_vel_mat_suc = relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, true);
-  //   if constexpr (isAlternateSupported()) {
-  //       if (config_.alternate_lr && (i % 2 == 1)) {
-  //         rel_vel_mat_suc.template bottomRows<2>() *= -1;
-  //       }
-  //     }
-  //   qp_coeff_.ineq_mat_.template block<1, velDim<FootSamplingSpaceType>>(i, i * vel_dim_) = -1 * svm_grad.transpose() * rel_vel_mat_suc;
-  //   qp_coeff_.ineq_vec_.template segment<1>(i) << calcSVMValue<SamplingSpaceType>(
-  //       rel_sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_) - config_.svm_thre;
-  //   if (i > 0) {
-  //     VelToVelMat<SamplingSpaceType> rel_vel_mat_pre = relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, false);
-  //     if constexpr (isAlternateSupported()) {
-  //         if (config_.alternate_lr && (i % 2 == 1)) {
-  //           rel_vel_mat_pre.template bottomRows<2>() *= -1;
-  //         }
-  //       }
-  //     qp_coeff_.ineq_mat_.template block<1, vel_dim_>(i, (i - 1) * vel_dim_) = -1 * svm_grad.transpose() * rel_vel_mat_pre;
-  //   }
-  // }
-  // qp_coeff_.ineq_mat_.rightCols(svm_ineq_dim + collision_ineq_dim).diagonal().head(svm_ineq_dim).setConstant(-1);
+  for (int i = 0; i < config_.motion_len - 1; i++) {
+    int ineq_start_idx = 3 + i * 7;
+    const Sample<FootSamplingSpaceType>& pre_foot_sample = current_foot_sample_seq_[i];
+    const Sample<FootSamplingSpaceType>& cur_foot_sample = current_foot_sample_seq_[i + 1];
+    const Sample<FootSamplingSpaceType>& next_foot_sample = current_foot_sample_seq_[i + 2];
+    const Sample<HandSamplingSpaceType>& cur_hand_sample = current_hand_sample_seq_[i];
+    const Sample<HandSamplingSpaceType>& next_hand_sample = current_hand_sample_seq_[i + 1];
+
+    std::shared_ptr<RmapPlanning<FootSamplingSpaceType>> next_foot_rmap_planning;
+    if (i % 2 == 0) {
+      next_foot_rmap_planning = rmapPlanning<Limb::LeftFoot>();
+    } else {
+      next_foot_rmap_planning = rmapPlanning<Limb::RightFoot>();
+    }
+    const auto& next_foot_svm_mo = next_foot_rmap_planning->svm_mo_;
+    const auto& next_foot_svm_coeff_vec = next_foot_rmap_planning->svm_coeff_vec_;
+    const auto& next_foot_svm_sv_mat = next_foot_rmap_planning->svm_sv_mat_;
+
+    const Sample<FootSamplingSpaceType>& pre_foot_rel_sample = relSample<FootSamplingSpaceType>(cur_foot_sample, pre_foot_sample);
+    const Vel<FootSamplingSpaceType>& pre_foot_rel_svm_grad = calcSVMGrad<FootSamplingSpaceType>(
+        pre_foot_rel_sample, next_foot_svm_mo->param, next_foot_svm_mo, next_foot_svm_coeff_vec, next_foot_svm_sv_mat);
+    qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(ineq_start_idx, i * foot_vel_dim_) =
+        -1 * pre_foot_rel_svm_grad.transpose() * relVelToVelMat<FootSamplingSpaceType>(cur_foot_sample, pre_foot_sample, false);
+    qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(ineq_start_idx, (i + 1) * foot_vel_dim_) =
+        -1 * pre_foot_rel_svm_grad.transpose() * relVelToVelMat<FootSamplingSpaceType>(cur_foot_sample, pre_foot_sample, true);
+    qp_coeff_.ineq_vec_.template segment<1>(ineq_start_idx) << calcSVMValue<FootSamplingSpaceType>(
+        pre_foot_rel_sample, next_foot_svm_mo->param, next_foot_svm_mo, next_foot_svm_coeff_vec, next_foot_svm_sv_mat) - config_.svm_thre;
+
+    const Sample<FootSamplingSpaceType>& next_foot_rel_sample = relSample<FootSamplingSpaceType>(cur_foot_sample, next_foot_sample);
+    const Vel<FootSamplingSpaceType>& next_foot_rel_svm_grad = calcSVMGrad<FootSamplingSpaceType>(
+        next_foot_rel_sample, next_foot_svm_mo->param, next_foot_svm_mo, next_foot_svm_coeff_vec, next_foot_svm_sv_mat);
+    qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(ineq_start_idx + 1, (i + 1) * foot_vel_dim_) =
+        -1 * next_foot_rel_svm_grad.transpose() * relVelToVelMat<FootSamplingSpaceType>(cur_foot_sample, next_foot_sample, false);
+    qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(ineq_start_idx + 1, (i + 2) * foot_vel_dim_) =
+        -1 * next_foot_rel_svm_grad.transpose() * relVelToVelMat<FootSamplingSpaceType>(cur_foot_sample, next_foot_sample, true);
+    qp_coeff_.ineq_vec_.template segment<1>(ineq_start_idx + 1) << calcSVMValue<FootSamplingSpaceType>(
+        next_foot_rel_sample, next_foot_svm_mo->param, next_foot_svm_mo, next_foot_svm_coeff_vec, next_foot_svm_sv_mat) - config_.svm_thre;
+  }
+  qp_coeff_.ineq_mat_.rightCols(svm_ineq_dim + collision_ineq_dim).diagonal().head(svm_ineq_dim).setConstant(-1);
 
   ROS_INFO_STREAM("qp_coeff_.obj_mat_:\n" << qp_coeff_.obj_mat_);
   ROS_INFO_STREAM("qp_coeff_.obj_vec_:\n" << qp_coeff_.obj_vec_.transpose());
