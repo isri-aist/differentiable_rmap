@@ -85,6 +85,9 @@ class RmapPlanningMulticontact
     //! Adjacent regularization weight
     double adjacent_reg_weight = 1e-3;
 
+    //! Start foot weight
+    double start_foot_weight = 1e3;
+
     //! QP objective weight for SVM inequality error
     double svm_ineq_weight = 1e6;
 
@@ -113,6 +116,7 @@ class RmapPlanningMulticontact
       mc_rtc_config("motion_len", motion_len);
       mc_rtc_config("reg_weight", reg_weight);
       mc_rtc_config("adjacent_reg_weight", adjacent_reg_weight);
+      mc_rtc_config("start_foot_weight", start_foot_weight);
       mc_rtc_config("svm_ineq_weight", svm_ineq_weight);
       mc_rtc_config("foot_vertices", foot_vertices);
     }
@@ -201,11 +205,11 @@ class RmapPlanningMulticontact
 
  protected:
   //! Sample corresponding to identity pose for foot
-  static inline const Sample<FootSamplingSpaceType> foot_identity_sample_ =
+  static inline const Sample<FootSamplingSpaceType> identity_foot_sample_ =
       poseToSample<FootSamplingSpaceType>(sva::PTransformd::Identity());
 
   //! Sample corresponding to identity pose for hand
-  static inline const Sample<HandSamplingSpaceType> hand_identity_sample_ =
+  static inline const Sample<HandSamplingSpaceType> identity_hand_sample_ =
       poseToSample<HandSamplingSpaceType>(sva::PTransformd::Identity());
 
  protected:

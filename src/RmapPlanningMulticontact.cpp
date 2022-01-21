@@ -152,27 +152,32 @@ void RmapPlanningMulticontact::runOnce(bool publish)
   // Set QP objective matrices
   qp_coeff_.obj_mat_.setZero();
   qp_coeff_.obj_vec_.setZero();
-  const Vel<FootSamplingSpaceType>& sample_error =
+  const Vel<FootSamplingSpaceType>& start_sample_error =
+      sampleError<FootSamplingSpaceType>(identity_foot_sample_, current_foot_sample_seq_.front());
+  const Vel<FootSamplingSpaceType>& target_sample_error =
       sampleError<FootSamplingSpaceType>(target_foot_sample_, current_foot_sample_seq_.back());
+  qp_coeff_.obj_mat_.diagonal().template head<velDim<FootSamplingSpaceType>()>().setConstant(config_.start_foot_weight);
   qp_coeff_.obj_mat_.diagonal().template segment<velDim<FootSamplingSpaceType>()>(
       config_.motion_len * velDim<FootSamplingSpaceType>()).setConstant(1.0);
-  qp_coeff_.obj_mat_.diagonal().head(config_dim).array() += sample_error.squaredNorm() + config_.reg_weight;
+  qp_coeff_.obj_mat_.diagonal().head(config_dim).array() +=
+      start_sample_error.squaredNorm() + target_sample_error.squaredNorm() + config_.reg_weight;
   qp_coeff_.obj_mat_.diagonal().tail(svm_ineq_dim + collision_ineq_dim).head(
       svm_ineq_dim).setConstant(config_.svm_ineq_weight);
   // qp_coeff_.obj_mat_.diagonal().tail(svm_ineq_dim + collision_ineq_dim).tail(
   //     collision_ineq_dim).setConstant(config_.collision_ineq_weight);
+  qp_coeff_.obj_vec_.template head<velDim<FootSamplingSpaceType>()>() = start_sample_error;
   qp_coeff_.obj_vec_.template segment<velDim<FootSamplingSpaceType>()>(
-      config_.motion_len * velDim<FootSamplingSpaceType>()) = sample_error;
+      config_.motion_len * velDim<FootSamplingSpaceType>()) = target_sample_error;
   Eigen::VectorXd current_config(config_dim);
   for (int i = 0; i < config_.motion_len + 1; i++) {
     // The implementation of adjacent regularization is not strict because the error between samples is not a simple subtraction
     current_config.template segment<velDim<FootSamplingSpaceType>()>(
         i * velDim<FootSamplingSpaceType>()) =
-        sampleError<FootSamplingSpaceType>(foot_identity_sample_, current_foot_sample_seq_[i]);
+        sampleError<FootSamplingSpaceType>(identity_foot_sample_, current_foot_sample_seq_[i]);
     if (i < config_.motion_len) {
       current_config.template segment<velDim<HandSamplingSpaceType>()>(
           hand_start_idx + i * velDim<HandSamplingSpaceType>()) =
-          sampleError<HandSamplingSpaceType>(hand_identity_sample_, current_hand_sample_seq_[i]);
+          sampleError<HandSamplingSpaceType>(identity_hand_sample_, current_hand_sample_seq_[i]);
     }
   }
   // ROS_INFO_STREAM("current_config:\n" << current_config.transpose());

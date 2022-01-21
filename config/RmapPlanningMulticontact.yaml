@@ -28,6 +28,9 @@ reg_weight: 1e-6
 # Adjacent regularization weight
 adjacent_reg_weight: 1e-3
 
+# Start foot weight
+start_foot_weight: 1e3
+
 # QP objective weight for SVM inequality error
 svm_ineq_weight: 1e6
 
