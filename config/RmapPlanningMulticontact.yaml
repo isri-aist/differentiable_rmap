@@ -17,7 +17,7 @@ initial_sample_pose_list:
   RightFoot:
     translation: [0.0, 0.0, 0.0]
   LeftHand:
-    translation: [0.0, 0.0, 0.7]
+    translation: [0.0, 0.75, 0.7]
 
 # Number of footsteps
 motion_len: 3
@@ -36,6 +36,9 @@ svm_ineq_weight: 1e6
 
 # Waist height [m]
 waist_height: 0.7
+
+# Hand lateral position [m]
+hand_lateral_pos: 0.75
 
 # Vertices of foot marker
 foot_vertices: [

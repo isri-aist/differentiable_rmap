@@ -180,7 +180,7 @@ void RmapPlanningMulticontact::setup()
   // Introduce variables for inequality constraint errors
   qp_coeff_.setup(
       config_dim + svm_ineq_dim + collision_ineq_dim,
-      0,
+      config_.motion_len,
       svm_ineq_dim + collision_ineq_dim);
   qp_coeff_.x_min_.head(config_dim).setConstant(-config_.delta_config_limit);
   qp_coeff_.x_max_.head(config_dim).setConstant(config_.delta_config_limit);
@@ -270,6 +270,14 @@ void RmapPlanningMulticontact::runOnce(bool publish)
   qp_coeff_.obj_vec_.head(config_dim) += adjacent_reg_mat_ * current_config;
   qp_coeff_.obj_mat_.topLeftCorner(config_dim, config_dim) += adjacent_reg_mat_;
 
+  // Set QP equality matrices of hand contact
+  qp_coeff_.eq_mat_.setZero();
+  qp_coeff_.eq_vec_.setZero();
+  for (int i = 0; i < config_.motion_len; i++) {
+    qp_coeff_.eq_mat_(i, hand_start_idx + i * hand_vel_dim_ + 1) = 1;
+    qp_coeff_.eq_vec_(i) = config_.hand_lateral_pos - current_hand_sample_seq_[i].y();
+  }
+
   // Set QP inequality matrices of reachability
   qp_coeff_.ineq_mat_.setZero();
   qp_coeff_.ineq_vec_.setZero();
@@ -331,6 +339,8 @@ void RmapPlanningMulticontact::runOnce(bool publish)
 
   // ROS_INFO_STREAM("qp_coeff_.obj_mat_:\n" << qp_coeff_.obj_mat_);
   // ROS_INFO_STREAM("qp_coeff_.obj_vec_:\n" << qp_coeff_.obj_vec_.transpose());
+  // ROS_INFO_STREAM("qp_coeff_.eq_mat_:\n" << qp_coeff_.eq_mat_);
+  // ROS_INFO_STREAM("qp_coeff_.eq_vec_:\n" << qp_coeff_.eq_vec_.transpose());
   // ROS_INFO_STREAM("qp_coeff_.ineq_mat_:\n" << qp_coeff_.ineq_mat_);
   // ROS_INFO_STREAM("qp_coeff_.ineq_vec_:\n" << qp_coeff_.ineq_vec_.transpose());
 
