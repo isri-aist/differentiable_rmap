@@ -204,7 +204,7 @@ void RmapPlanningMulticontact::setup()
   // Setup adjacent regularization
   adjacent_reg_mat_.setZero(config_dim, config_dim);
   for (int i = 0; i < config_.motion_len + 1; i++) {
-    // Set foot blocks
+    // Set for adjacent foot
     adjacent_reg_mat_.block<foot_vel_dim_, foot_vel_dim_>(i * foot_vel_dim_, i * foot_vel_dim_).diagonal().setConstant(
             ((i == 0 || i == config_.motion_len) ? 1 : 2) * config_.adjacent_reg_weight);
     if (i < config_.motion_len) {
@@ -214,19 +214,29 @@ void RmapPlanningMulticontact::setup()
               -config_.adjacent_reg_weight);
     }
 
-    // Set hand blocks
+    // Set for adjacent hand
+    // if (i < config_.motion_len) {
+    //   adjacent_reg_mat_.block<hand_vel_dim_, hand_vel_dim_>(
+    //       hand_start_idx + i * hand_vel_dim_, hand_start_idx + i * hand_vel_dim_).diagonal().setConstant(
+    //           ((i == 0 || i == config_.motion_len - 1) ? 1 : 2) * config_.adjacent_reg_weight);
+    // }
+    // if (i < config_.motion_len - 1) {
+    //   adjacent_reg_mat_.block<hand_vel_dim_, hand_vel_dim_>(
+    //       hand_start_idx + (i + 1) * hand_vel_dim_, hand_start_idx + i * hand_vel_dim_).diagonal().setConstant(
+    //           -config_.adjacent_reg_weight);
+    //   adjacent_reg_mat_.block<hand_vel_dim_, hand_vel_dim_>(
+    //       hand_start_idx + i * hand_vel_dim_, hand_start_idx + (i + 1) * hand_vel_dim_).diagonal().setConstant(
+    //           -config_.adjacent_reg_weight);
+    // }
+
+    // Set for relative sagittal position between hand and foot
     if (i < config_.motion_len) {
-      adjacent_reg_mat_.block<hand_vel_dim_, hand_vel_dim_>(
-          hand_start_idx + i * hand_vel_dim_, hand_start_idx + i * hand_vel_dim_).diagonal().setConstant(
-              ((i == 0 || i == config_.motion_len - 1) ? 1 : 2) * config_.adjacent_reg_weight);
-    }
-    if (i < config_.motion_len - 1) {
-      adjacent_reg_mat_.block<hand_vel_dim_, hand_vel_dim_>(
-          hand_start_idx + (i + 1) * hand_vel_dim_, hand_start_idx + i * hand_vel_dim_).diagonal().setConstant(
-              -config_.adjacent_reg_weight);
-      adjacent_reg_mat_.block<hand_vel_dim_, hand_vel_dim_>(
-          hand_start_idx + i * hand_vel_dim_, hand_start_idx + (i + 1) * hand_vel_dim_).diagonal().setConstant(
-              -config_.adjacent_reg_weight);
+      int foot_idx = i * foot_vel_dim_;
+      int hand_idx = hand_start_idx + i * hand_vel_dim_;
+      adjacent_reg_mat_(foot_idx, foot_idx) += config_.rel_hand_foot_weight;
+      adjacent_reg_mat_(hand_idx, hand_idx) += config_.rel_hand_foot_weight;
+      adjacent_reg_mat_(foot_idx, hand_idx) -= config_.rel_hand_foot_weight;
+      adjacent_reg_mat_(hand_idx, foot_idx) -= config_.rel_hand_foot_weight;
     }
   }
   // ROS_INFO_STREAM("adjacent_reg_mat_:\n" << adjacent_reg_mat_);

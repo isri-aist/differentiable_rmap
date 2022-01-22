@@ -85,6 +85,9 @@ class RmapPlanningMulticontact
     //! Adjacent regularization weight
     double adjacent_reg_weight = 1e-3;
 
+    //! Weight for relative sagittal position between hand and foot
+    double rel_hand_foot_weight = 1e-3;
+
     //! Start foot weight
     double start_foot_weight = 1e3;
 
@@ -122,6 +125,7 @@ class RmapPlanningMulticontact
       mc_rtc_config("motion_len", motion_len);
       mc_rtc_config("reg_weight", reg_weight);
       mc_rtc_config("adjacent_reg_weight", adjacent_reg_weight);
+      mc_rtc_config("rel_hand_foot_weight", rel_hand_foot_weight);
       mc_rtc_config("start_foot_weight", start_foot_weight);
       mc_rtc_config("svm_ineq_weight", svm_ineq_weight);
       mc_rtc_config("waist_height", waist_height);
