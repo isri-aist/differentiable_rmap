@@ -91,6 +91,9 @@ class RmapPlanningMulticontact
     //! QP objective weight for SVM inequality error
     double svm_ineq_weight = 1e6;
 
+    //! Waist height [m]
+    double waist_height = 0.8;
+
     //! Vertices of foot marker
     std::vector<Eigen::Vector3d> foot_vertices = {
       Eigen::Vector3d(-0.1, -0.05, 0.0),
@@ -118,6 +121,7 @@ class RmapPlanningMulticontact
       mc_rtc_config("adjacent_reg_weight", adjacent_reg_weight);
       mc_rtc_config("start_foot_weight", start_foot_weight);
       mc_rtc_config("svm_ineq_weight", svm_ineq_weight);
+      mc_rtc_config("waist_height", waist_height);
       mc_rtc_config("foot_vertices", foot_vertices);
     }
   };
