@@ -17,10 +17,10 @@ initial_sample_pose_list:
   RightFoot:
     translation: [0.0, -0.15, 0.0]
   LeftHand:
-    translation: [0.0, 0.75, 0.7]
+    translation: [0.0, 0.6, 0.7]
 
 # Number of footsteps
-motion_len: 4
+motion_len: 8
 
 # Regularization weight
 reg_weight: 1e-6
@@ -41,7 +41,7 @@ svm_ineq_weight: 1e6
 waist_height: 0.7
 
 # Hand lateral position [m]
-hand_lateral_pos: 0.75
+hand_lateral_pos: 0.6
 
 # Vertices of foot marker
 foot_vertices: [
