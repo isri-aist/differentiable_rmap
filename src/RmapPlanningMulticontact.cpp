@@ -299,12 +299,8 @@ void RmapPlanningMulticontact::runOnce(bool publish)
     const HandSampleType& pre_hand_sample = current_hand_sample_seq_[i];
     const HandSampleType& cur_hand_sample = current_hand_sample_seq_[i + 1];
 
-    std::shared_ptr<RmapPlanning<FootSamplingSpaceType>> next_foot_rmap_planning;
-    if (i % 2 == 0) {
-      next_foot_rmap_planning = rmapPlanning<Limb::LeftFoot>();
-    } else {
-      next_foot_rmap_planning = rmapPlanning<Limb::RightFoot>();
-    }
+    std::shared_ptr<RmapPlanning<FootSamplingSpaceType>> next_foot_rmap_planning =
+        i % 2 == 0 ? rmapPlanning<Limb::LeftFoot>() : rmapPlanning<Limb::RightFoot>();
     std::shared_ptr<RmapPlanning<HandSamplingSpaceType>> hand_rmap_planning = rmapPlanning<Limb::LeftHand>();
 
     const FootSampleType& pre_foot_rel_sample =
@@ -394,64 +390,70 @@ void RmapPlanningMulticontact::runLoop()
 
 void RmapPlanningMulticontact::publishMarkerArray() const
 {
+  std_msgs::Header header_msg;
+  header_msg.frame_id = "world";
+  header_msg.stamp = ros::Time::now();
+
+  // Instantiate marker array
+  visualization_msgs::MarkerArray marker_arr_msg;
+
+  // Delete marker
+  visualization_msgs::Marker del_marker;
+  del_marker.action = visualization_msgs::Marker::DELETEALL;
+  del_marker.header = header_msg;
+  del_marker.id = marker_arr_msg.markers.size();
+  marker_arr_msg.markers.push_back(del_marker);
+
+  // Foot reachable grids marker
+  {
+    visualization_msgs::Marker grids_marker;
+    grids_marker.header = header_msg;
+    grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
+    grids_marker.scale.z = 0.01;
+    grids_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.0, 0.0, 0.3});
+
+    for (int i = 1; i < config_.motion_len + 1; i++) {
+      std::shared_ptr<RmapPlanning<FootSamplingSpaceType>> foot_rmap_planning =
+          i % 2 == 0 ? rmapPlanning<Limb::LeftFoot>() : rmapPlanning<Limb::RightFoot>();
+      const FootSampleType& sample_min = foot_rmap_planning->sample_min_;
+      const FootSampleType& sample_max = foot_rmap_planning->sample_max_;
+      const FootSampleType& sample_range = sample_max  - sample_min;
+      const auto& grid_set_msg = foot_rmap_planning->grid_set_msg_;
+
+      grids_marker.ns = "foot_reachable_grids_" + std::to_string(i);
+      grids_marker.id = marker_arr_msg.markers.size();
+      grids_marker.scale = OmgCore::toVector3Msg(
+          calcGridCubeScale<FootSamplingSpaceType>(grid_set_msg->divide_nums, sample_range));
+      grids_marker.pose = OmgCore::toPoseMsg(sampleToPose<FootSamplingSpaceType>(current_foot_sample_seq_[i]));
+      grids_marker.color = OmgCore::toColorRGBAMsg(
+          i % 2 == 1 ? std::array<double, 4>{0.0, 0.8, 0.0, 0.3} : std::array<double, 4>{0.8, 0.0, 0.0, 0.3});
+      const FootSampleType& slice_sample =
+          relSample<FootSamplingSpaceType>(current_foot_sample_seq_[i - 1], current_foot_sample_seq_[i]);
+      GridIdxsType<FootSamplingSpaceType> slice_divide_idxs;
+      gridDivideRatiosToIdxs(
+          slice_divide_idxs,
+          (slice_sample - sample_min).array() / sample_range.array(),
+          grid_set_msg->divide_nums);
+      grids_marker.points.clear();
+      loopGrid<FootSamplingSpaceType>(
+          grid_set_msg->divide_nums,
+          sample_min,
+          sample_range,
+          [&](int grid_idx, const FootSampleType& sample) {
+            if (grid_set_msg->values[grid_idx] > config_.svm_thre) {
+              Eigen::Vector3d pos = sampleToCloudPos<FootSamplingSpaceType>(sample);
+              pos.z() = 0;
+              grids_marker.points.push_back(OmgCore::toPointMsg(pos));
+            }
+          },
+          std::vector<int>{0, 1},
+          slice_divide_idxs);
+      marker_arr_msg.markers.push_back(grids_marker);
+    }
+  }
+
+  marker_arr_pub_.publish(marker_arr_msg);
 }
-// {
-//   std_msgs::Header header_msg;
-//   header_msg.frame_id = "world";
-//   header_msg.stamp = ros::Time::now();
-
-//   // Instantiate marker array
-//   visualization_msgs::MarkerArray marker_arr_msg;
-
-//   // Delete marker
-//   visualization_msgs::Marker del_marker;
-//   del_marker.action = visualization_msgs::Marker::DELETEALL;
-//   del_marker.header = header_msg;
-//   del_marker.id = marker_arr_msg.markers.size();
-//   marker_arr_msg.markers.push_back(del_marker);
-
-//   // XY plane marker
-//   visualization_msgs::Marker xy_plane_marker;
-//   double plane_thickness = 0.01;
-//   xy_plane_marker.header = header_msg;
-//   xy_plane_marker.ns = "xy_plane";
-//   xy_plane_marker.id = marker_arr_msg.markers.size();
-//   xy_plane_marker.type = visualization_msgs::Marker::CUBE;
-//   xy_plane_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.8, 0.8, 1.0});
-//   xy_plane_marker.scale.x = 100.0;
-//   xy_plane_marker.scale.y = 100.0;
-//   xy_plane_marker.scale.z = plane_thickness;
-//   xy_plane_marker.pose = OmgCore::toPoseMsg(
-//       sva::PTransformd(Eigen::Vector3d(0, 0, config_.svm_thre - 0.5 * plane_thickness)));
-//   marker_arr_msg.markers.push_back(xy_plane_marker);
-
-//   // Reachable grids marker
-//   if (grid_set_msg_) {
-//     visualization_msgs::Marker grids_marker;
-//     SampleType sample_range = sample_max_ - sample_min_;
-//     grids_marker.header = header_msg;
-//     grids_marker.ns = "reachable_grids";
-//     grids_marker.id = marker_arr_msg.markers.size();
-//     grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
-//     grids_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.0, 0.0, 0.5});
-//     grids_marker.scale = OmgCore::toVector3Msg(
-//         calcGridCubeScale<SamplingSpaceType>(grid_set_msg_->divide_nums, sample_range));
-//     grids_marker.pose = OmgCore::toPoseMsg(sva::PTransformd::Identity());
-//     loopGrid<SamplingSpaceType>(
-//         grid_set_msg_->divide_nums,
-//         sample_min_,
-//         sample_range,
-//         [&](int grid_idx, const SampleType& sample) {
-//           if (grid_set_msg_->values[grid_idx] > config_.svm_thre) {
-//             grids_marker.points.push_back(
-//                 OmgCore::toPointMsg(sampleToCloudPos<SamplingSpaceType>(sample)));
-//           }
-//         });
-//     marker_arr_msg.markers.push_back(grids_marker);
-//   }
-
-//   marker_arr_pub_.publish(marker_arr_msg);
-// }
 
 void RmapPlanningMulticontact::publishCurrentState() const
 {

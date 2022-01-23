@@ -172,6 +172,10 @@ class RmapPlanning: public RmapPlanningBase
   virtual void transCallback(const geometry_msgs::TransformStamped::ConstPtr& trans_st_msg);
 
  public:
+  //! Min/max position of samples
+  SampleType sample_min_ = SampleType::Constant(-1.0);
+  SampleType sample_max_ = SampleType::Constant(1.0);
+
   //! SVM model
   svm_model* svm_mo_;
 
@@ -190,10 +194,6 @@ class RmapPlanning: public RmapPlanningBase
 
   //! Configuration
   Configuration config_;
-
-  //! Min/max position of samples
-  SampleType sample_min_ = SampleType::Constant(-1.0);
-  SampleType sample_max_ = SampleType::Constant(1.0);
 
   //! QP coefficients
   OmgCore::QpCoeff qp_coeff_;

@@ -222,7 +222,7 @@ class RmapPlanningMulticontact
  protected:
   /** \brief Get list of rmap planning for specified limb. */
   template <Limb limb>
-  inline std::shared_ptr<RmapPlanning<samplingSpaceType<limb>()>> rmapPlanning()
+  inline std::shared_ptr<RmapPlanning<samplingSpaceType<limb>()>> rmapPlanning() const
   {
     return std::dynamic_pointer_cast<RmapPlanning<samplingSpaceType<limb>()>>(rmap_planning_list_.at(limb));
   }
