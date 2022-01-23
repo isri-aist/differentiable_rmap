@@ -13,9 +13,9 @@ delta_config_limit: 0.005
 # Initial sample pose list
 initial_sample_pose_list:
   LeftFoot:
-    translation: [0.0, 0.15, 0.0]
+    translation: [0.0, 0.1, 0.0]
   RightFoot:
-    translation: [0.0, -0.15, 0.0]
+    translation: [0.0, -0.1, 0.0]
   LeftHand:
     translation: [0.0, 0.6, 0.7]
 
