@@ -272,6 +272,9 @@ class RmapPlanningMulticontact
   //! Current sample sequence for hand
   std::vector<Sample<HandSamplingSpaceType>> current_hand_sample_seq_;
 
+  //! Start sample
+  Sample<FootSamplingSpaceType> start_foot_sample_ = poseToSample<FootSamplingSpaceType>(sva::PTransformd::Identity());
+
   //! Target sample
   Sample<FootSamplingSpaceType> target_foot_sample_ = poseToSample<FootSamplingSpaceType>(sva::PTransformd::Identity());
 

@@ -213,6 +213,7 @@ void RmapPlanningMulticontact::setup()
     current_hand_sample_seq_[i] = poseToSample<HandSamplingSpaceType>(
         config_.initial_sample_pose_list.at(Limb::LeftHand));
   }
+  start_foot_sample_ = poseToSample<FootSamplingSpaceType>(config_.initial_sample_pose_list.at(Limb::LeftFoot));
 
   // Setup adjacent regularization
   adjacent_reg_mat_.setZero(config_dim_, config_dim_);
@@ -248,7 +249,7 @@ void RmapPlanningMulticontact::runOnce(bool publish)
   qp_coeff_.obj_mat_.setZero();
   qp_coeff_.obj_vec_.setZero();
   const FootVelType& start_sample_error =
-      sampleError<FootSamplingSpaceType>(identity_foot_sample_, current_foot_sample_seq_.front());
+      sampleError<FootSamplingSpaceType>(start_foot_sample_, current_foot_sample_seq_.front());
   const FootVelType& target_sample_error =
       sampleError<FootSamplingSpaceType>(target_foot_sample_, current_foot_sample_seq_.back());
   qp_coeff_.obj_mat_.diagonal().template head<foot_vel_dim_>().setConstant(config_.start_foot_weight);
