@@ -141,7 +141,9 @@ class RmapPlanningMulticontact
   /*! \brief Sampling space for hand. */
   static constexpr SamplingSpace HandSamplingSpaceType = SamplingSpace::R3;
 
-  /*! \brief Get sampling space. */
+  /*! \brief Get sampling space for specified limb.
+      \tparam limb limb
+   */
   template <Limb limb>
   static inline constexpr SamplingSpace samplingSpaceType()
   {
@@ -220,11 +222,14 @@ class RmapPlanningMulticontact
   void runLoop();
 
  protected:
-  /** \brief Get list of rmap planning for specified limb. */
+  /** \brief Get rmap planning for specified limb.
+      \tparam limb limb
+   */
   template <Limb limb>
   inline std::shared_ptr<RmapPlanning<samplingSpaceType<limb>()>> rmapPlanning() const
   {
-    return std::dynamic_pointer_cast<RmapPlanning<samplingSpaceType<limb>()>>(rmap_planning_list_.at(limb));
+    return std::dynamic_pointer_cast<RmapPlanning<samplingSpaceType<limb>()>>(
+        rmap_planning_list_.at(limb));
   }
 
   /** \brief Publish marker array. */
@@ -272,6 +277,18 @@ class RmapPlanningMulticontact
 
   //! Adjacent regularization matrix
   Eigen::MatrixXd adjacent_reg_mat_;
+
+  //! Number of foot and hand
+  int foot_num_ = 0;
+  int hand_num_ = 0;
+
+  //! Dimensions of configuration, SVM inequality, and collision inequality
+  int config_dim_ = 0;
+  int svm_ineq_dim_ = 0;
+  int collision_ineq_dim_ = 0;
+
+  //! Index of configuration where hand starts
+  int hand_start_config_idx_ = 0;
 
   //! ROS related members
   ros::NodeHandle nh_;

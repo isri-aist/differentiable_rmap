@@ -146,18 +146,21 @@ RmapPlanningMulticontact::RmapPlanningMulticontact(
   current_poly_arr_pub_ = nh_.template advertise<jsk_recognition_msgs::PolygonArray>(
       "current_poly_arr", 1, true);
 
-  rmap_planning_list_[Limb::LeftFoot] = std::make_shared<RmapPlanning<FootSamplingSpaceType>>(
-      svm_path_list.at(Limb::LeftFoot),
-      bag_path_list.at(Limb::LeftFoot),
-      false);
-  rmap_planning_list_[Limb::RightFoot] = std::make_shared<RmapPlanning<FootSamplingSpaceType>>(
-      svm_path_list.at(Limb::RightFoot),
-      bag_path_list.at(Limb::RightFoot),
-      false);
-  rmap_planning_list_[Limb::LeftHand] = std::make_shared<RmapPlanning<HandSamplingSpaceType>>(
-      svm_path_list.at(Limb::LeftHand),
-      bag_path_list.at(Limb::LeftHand),
-      false);
+  rmap_planning_list_[Limb::LeftFoot] =
+      std::make_shared<RmapPlanning<FootSamplingSpaceType>>(
+          svm_path_list.at(Limb::LeftFoot),
+          bag_path_list.at(Limb::LeftFoot),
+          false);
+  rmap_planning_list_[Limb::RightFoot] =
+      std::make_shared<RmapPlanning<FootSamplingSpaceType>>(
+          svm_path_list.at(Limb::RightFoot),
+          bag_path_list.at(Limb::RightFoot),
+          false);
+  rmap_planning_list_[Limb::LeftHand] =
+      std::make_shared<RmapPlanning<HandSamplingSpaceType>>(
+          svm_path_list.at(Limb::LeftHand),
+          bag_path_list.at(Limb::LeftHand),
+          false);
 }
 
 RmapPlanningMulticontact::~RmapPlanningMulticontact()
@@ -172,83 +175,75 @@ void RmapPlanningMulticontact::configure(const mc_rtc::Configuration& mc_rtc_con
 
 void RmapPlanningMulticontact::setup()
 {
+  if (config_.motion_len % 2 != 0) {
+    mc_rtc::log::error_and_throw<std::runtime_error>(
+        "[RmapPlanningMulticontact::setup] motion_len must be a multiple of 2, but is {}",
+        config_.motion_len);
+  }
+
+  // Setup dimensions
+  foot_num_ = config_.motion_len + 1;
+  hand_num_ = config_.motion_len / 2;
+  config_dim_ = foot_num_ * foot_vel_dim_ + hand_num_ * hand_vel_dim_;
+  svm_ineq_dim_ = (foot_num_ - 1) + (4 * hand_num_ - 1);
+  collision_ineq_dim_ = 0;
+  hand_start_config_idx_ = foot_num_ * foot_vel_dim_;
+
   // Setup QP coefficients and solver
-  int config_dim = (config_.motion_len + 1) * foot_vel_dim_ + config_.motion_len * hand_vel_dim_;
-  int svm_ineq_dim = 3 + 7 * (config_.motion_len - 1);
-  int collision_ineq_dim = 0;
-  int hand_start_idx = (config_.motion_len + 1) * foot_vel_dim_;
   // Introduce variables for inequality constraint errors
   qp_coeff_.setup(
-      config_dim + svm_ineq_dim + collision_ineq_dim,
-      config_.motion_len,
-      svm_ineq_dim + collision_ineq_dim);
-  qp_coeff_.x_min_.head(config_dim).setConstant(-config_.delta_config_limit);
-  qp_coeff_.x_max_.head(config_dim).setConstant(config_.delta_config_limit);
-  qp_coeff_.x_min_.tail(svm_ineq_dim + collision_ineq_dim).setConstant(-1e10);
-  qp_coeff_.x_max_.tail(svm_ineq_dim + collision_ineq_dim).setConstant(1e10);
+      config_dim_ + svm_ineq_dim_ + collision_ineq_dim_,
+      hand_num_,
+      svm_ineq_dim_ + collision_ineq_dim_);
+  qp_coeff_.x_min_.head(config_dim_).setConstant(-config_.delta_config_limit);
+  qp_coeff_.x_max_.head(config_dim_).setConstant(config_.delta_config_limit);
+  qp_coeff_.x_min_.tail(svm_ineq_dim_ + collision_ineq_dim_).setConstant(-1e10);
+  qp_coeff_.x_max_.tail(svm_ineq_dim_ + collision_ineq_dim_).setConstant(1e10);
 
   qp_solver_ = OmgCore::allocateQpSolver(OmgCore::QpSolverType::JRLQP);
 
   // Setup current sample sequence
-  current_foot_sample_seq_.resize(config_.motion_len + 1);
-  current_hand_sample_seq_.resize(config_.motion_len);
-  for (int i = 0; i < config_.motion_len + 1; i++) {
+  current_foot_sample_seq_.resize(foot_num_);
+  current_hand_sample_seq_.resize(hand_num_);
+  for (int i = 0; i < foot_num_; i++) {
     current_foot_sample_seq_[i] = poseToSample<FootSamplingSpaceType>(
         config_.initial_sample_pose_list.at(i % 2 == 0 ? Limb::LeftFoot : Limb::RightFoot));
-    if (i < config_.motion_len) {
-      current_hand_sample_seq_[i] = poseToSample<HandSamplingSpaceType>(
-          config_.initial_sample_pose_list.at(Limb::LeftHand));
-    }
+  }
+  for (int i = 0; i < hand_num_; i++) {
+    current_hand_sample_seq_[i] = poseToSample<HandSamplingSpaceType>(
+        config_.initial_sample_pose_list.at(Limb::LeftHand));
   }
 
   // Setup adjacent regularization
-  adjacent_reg_mat_.setZero(config_dim, config_dim);
-  for (int i = 0; i < config_.motion_len + 1; i++) {
-    // Set for adjacent foot
-    adjacent_reg_mat_.block<foot_vel_dim_, foot_vel_dim_>(i * foot_vel_dim_, i * foot_vel_dim_).diagonal().setConstant(
-            ((i == 0 || i == config_.motion_len) ? 1 : 2) * config_.adjacent_reg_weight);
-    if (i < config_.motion_len) {
-      adjacent_reg_mat_.block<foot_vel_dim_, foot_vel_dim_>((i + 1) * foot_vel_dim_, i * foot_vel_dim_).diagonal().setConstant(
+  adjacent_reg_mat_.setZero(config_dim_, config_dim_);
+  // Set for adjacent foot
+  for (int i = 0; i < foot_num_; i++) {
+    adjacent_reg_mat_.block<foot_vel_dim_, foot_vel_dim_>(
+        i * foot_vel_dim_, i * foot_vel_dim_).diagonal().setConstant(
+            ((i == 0 || i == foot_num_ - 1) ? 1 : 2) * config_.adjacent_reg_weight);
+    if (i < foot_num_ - 1) {
+      adjacent_reg_mat_.block<foot_vel_dim_, foot_vel_dim_>(
+          (i + 1) * foot_vel_dim_, i * foot_vel_dim_).diagonal().setConstant(
               -config_.adjacent_reg_weight);
-      adjacent_reg_mat_.block<foot_vel_dim_, foot_vel_dim_>(i * foot_vel_dim_, (i + 1) * foot_vel_dim_).diagonal().setConstant(
+      adjacent_reg_mat_.block<foot_vel_dim_, foot_vel_dim_>(
+          i * foot_vel_dim_, (i + 1) * foot_vel_dim_).diagonal().setConstant(
               -config_.adjacent_reg_weight);
     }
-
-    // Set for adjacent hand
-    // if (i < config_.motion_len) {
-    //   adjacent_reg_mat_.block<hand_vel_dim_, hand_vel_dim_>(
-    //       hand_start_idx + i * hand_vel_dim_, hand_start_idx + i * hand_vel_dim_).diagonal().setConstant(
-    //           ((i == 0 || i == config_.motion_len - 1) ? 1 : 2) * config_.adjacent_reg_weight);
-    // }
-    // if (i < config_.motion_len - 1) {
-    //   adjacent_reg_mat_.block<hand_vel_dim_, hand_vel_dim_>(
-    //       hand_start_idx + (i + 1) * hand_vel_dim_, hand_start_idx + i * hand_vel_dim_).diagonal().setConstant(
-    //           -config_.adjacent_reg_weight);
-    //   adjacent_reg_mat_.block<hand_vel_dim_, hand_vel_dim_>(
-    //       hand_start_idx + i * hand_vel_dim_, hand_start_idx + (i + 1) * hand_vel_dim_).diagonal().setConstant(
-    //           -config_.adjacent_reg_weight);
-    // }
-
-    // Set for relative sagittal position between hand and foot
-    if (i < config_.motion_len) {
-      int foot_idx = i * foot_vel_dim_;
-      int hand_idx = hand_start_idx + i * hand_vel_dim_;
-      adjacent_reg_mat_(foot_idx, foot_idx) += config_.rel_hand_foot_weight;
-      adjacent_reg_mat_(hand_idx, hand_idx) += config_.rel_hand_foot_weight;
-      adjacent_reg_mat_(foot_idx, hand_idx) -= config_.rel_hand_foot_weight;
-      adjacent_reg_mat_(hand_idx, foot_idx) -= config_.rel_hand_foot_weight;
-    }
+  }
+  // Set for relative sagittal position between hand and foot
+  for (int i = 0; i < foot_num_ - 1; i++) {
+    int foot_config_idx = i * foot_vel_dim_;
+    int hand_config_idx = hand_start_config_idx_ + (i % 2 == 0 ? i / 2 : (i - 1) / 2) * hand_vel_dim_;
+    adjacent_reg_mat_(foot_config_idx, foot_config_idx) += config_.rel_hand_foot_weight;
+    adjacent_reg_mat_(hand_config_idx, hand_config_idx) += config_.rel_hand_foot_weight;
+    adjacent_reg_mat_(foot_config_idx, hand_config_idx) -= config_.rel_hand_foot_weight;
+    adjacent_reg_mat_(hand_config_idx, foot_config_idx) -= config_.rel_hand_foot_weight;
   }
   // ROS_INFO_STREAM("adjacent_reg_mat_:\n" << adjacent_reg_mat_);
 }
 
 void RmapPlanningMulticontact::runOnce(bool publish)
 {
-  int config_dim = (config_.motion_len + 1) * foot_vel_dim_ + config_.motion_len * hand_vel_dim_;
-  int svm_ineq_dim = 3 + 7 * (config_.motion_len - 1);
-  int collision_ineq_dim = 0;
-  int hand_start_idx = (config_.motion_len + 1) * foot_vel_dim_;
-
   // Set QP objective matrices
   qp_coeff_.obj_mat_.setZero();
   qp_coeff_.obj_vec_.setZero();
@@ -257,91 +252,112 @@ void RmapPlanningMulticontact::runOnce(bool publish)
   const FootVelType& target_sample_error =
       sampleError<FootSamplingSpaceType>(target_foot_sample_, current_foot_sample_seq_.back());
   qp_coeff_.obj_mat_.diagonal().template head<foot_vel_dim_>().setConstant(config_.start_foot_weight);
-  qp_coeff_.obj_mat_.diagonal().template segment<foot_vel_dim_>(config_.motion_len * foot_vel_dim_).setConstant(1.0);
-  qp_coeff_.obj_mat_.diagonal().head(config_dim).array() +=
+  qp_coeff_.obj_mat_.diagonal().template segment<foot_vel_dim_>((foot_num_ - 1) * foot_vel_dim_).setConstant(1.0);
+  qp_coeff_.obj_mat_.diagonal().head(config_dim_).array() +=
       start_sample_error.squaredNorm() + target_sample_error.squaredNorm() + config_.reg_weight;
-  qp_coeff_.obj_mat_.diagonal().tail(svm_ineq_dim + collision_ineq_dim).head(
-      svm_ineq_dim).setConstant(config_.svm_ineq_weight);
-  // qp_coeff_.obj_mat_.diagonal().tail(svm_ineq_dim + collision_ineq_dim).tail(
-  //     collision_ineq_dim).setConstant(config_.collision_ineq_weight);
+  qp_coeff_.obj_mat_.diagonal().tail(svm_ineq_dim_ + collision_ineq_dim_).head(
+      svm_ineq_dim_).setConstant(config_.svm_ineq_weight);
+  // qp_coeff_.obj_mat_.diagonal().tail(svm_ineq_dim_ + collision_ineq_dim_).tail(
+  //     collision_ineq_dim_).setConstant(config_.collision_ineq_weight);
   qp_coeff_.obj_vec_.template head<foot_vel_dim_>() = config_.start_foot_weight * start_sample_error;
-  qp_coeff_.obj_vec_.template segment<foot_vel_dim_>(config_.motion_len * foot_vel_dim_) = target_sample_error;
-  Eigen::VectorXd current_config(config_dim);
-  for (int i = 0; i < config_.motion_len + 1; i++) {
-    // The implementation of adjacent regularization is not strict because the error between samples is not a simple subtraction
+  qp_coeff_.obj_vec_.template segment<foot_vel_dim_>((foot_num_ - 1) * foot_vel_dim_) = target_sample_error;
+  Eigen::VectorXd current_config(config_dim_);
+  // The implementation of adjacent regularization is not strict because the error between samples is not a simple subtraction
+  for (int i = 0; i < foot_num_; i++) {
     current_config.template segment<foot_vel_dim_>(i * foot_vel_dim_) =
         sampleError<FootSamplingSpaceType>(identity_foot_sample_, current_foot_sample_seq_[i]);
-    if (i < config_.motion_len) {
-      current_config.template segment<hand_vel_dim_>(hand_start_idx + i * hand_vel_dim_) =
-          sampleError<HandSamplingSpaceType>(identity_hand_sample_, current_hand_sample_seq_[i]);
-    }
+  }
+  for (int i = 0; i < hand_num_; i++) {
+    current_config.template segment<hand_vel_dim_>(hand_start_config_idx_ + i * hand_vel_dim_) =
+        sampleError<HandSamplingSpaceType>(identity_hand_sample_, current_hand_sample_seq_[i]);
   }
   // ROS_INFO_STREAM("current_config:\n" << current_config.transpose());
-  qp_coeff_.obj_vec_.head(config_dim) += adjacent_reg_mat_ * current_config;
-  qp_coeff_.obj_mat_.topLeftCorner(config_dim, config_dim) += adjacent_reg_mat_;
+  qp_coeff_.obj_vec_.head(config_dim_) += adjacent_reg_mat_ * current_config;
+  qp_coeff_.obj_mat_.topLeftCorner(config_dim_, config_dim_) += adjacent_reg_mat_;
 
   // Set QP equality matrices of hand contact
   qp_coeff_.eq_mat_.setZero();
   qp_coeff_.eq_vec_.setZero();
-  for (int i = 0; i < config_.motion_len; i++) {
-    qp_coeff_.eq_mat_(i, hand_start_idx + i * hand_vel_dim_ + 1) = 1;
+  for (int i = 0; i < hand_num_; i++) {
+    qp_coeff_.eq_mat_(i, hand_start_config_idx_ + i * hand_vel_dim_ + 1) = 1;
     qp_coeff_.eq_vec_(i) = config_.hand_lateral_pos - current_hand_sample_seq_[i].y();
   }
 
   // Set QP inequality matrices of reachability
   qp_coeff_.ineq_mat_.setZero();
   qp_coeff_.ineq_vec_.setZero();
-  for (int i = 0; i < config_.motion_len - 1; i++) {
-    int ineq_start_idx = 3 + i * 7;
+  for (int i = 0; i < foot_num_ - 1; i++) {
     const FootSampleType& pre_foot_sample = current_foot_sample_seq_[i];
-    const FootSampleType& cur_foot_sample = current_foot_sample_seq_[i + 1];
-    const FootSampleType& next_foot_sample = current_foot_sample_seq_[i + 2];
-    const HandSampleType& pre_hand_sample = current_hand_sample_seq_[i];
-    const HandSampleType& cur_hand_sample = current_hand_sample_seq_[i + 1];
+    const FootSampleType& suc_foot_sample = current_foot_sample_seq_[i + 1];
+    std::shared_ptr<RmapPlanning<FootSamplingSpaceType>> foot_rmap_planning =
+        i % 2 == 0 ? rmapPlanning<Limb::RightFoot>() : rmapPlanning<Limb::LeftFoot>();
 
-    std::shared_ptr<RmapPlanning<FootSamplingSpaceType>> next_foot_rmap_planning =
-        i % 2 == 0 ? rmapPlanning<Limb::LeftFoot>() : rmapPlanning<Limb::RightFoot>();
-    std::shared_ptr<RmapPlanning<HandSamplingSpaceType>> hand_rmap_planning = rmapPlanning<Limb::LeftHand>();
-
-    const FootSampleType& pre_foot_rel_sample =
-        relSample<FootSamplingSpaceType>(cur_foot_sample, pre_foot_sample);
-    const FootVelType& pre_foot_rel_svm_grad =
-        calcSVMGradWithRmapPlanning<FootSamplingSpaceType>(pre_foot_rel_sample, next_foot_rmap_planning);
-    qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(ineq_start_idx, (i + 1) * foot_vel_dim_) =
-        -1 * pre_foot_rel_svm_grad.transpose() *
-        relVelToVelMat<FootSamplingSpaceType>(cur_foot_sample, pre_foot_sample, false);
-    qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(ineq_start_idx, i * foot_vel_dim_) =
-        -1 * pre_foot_rel_svm_grad.transpose() *
-        relVelToVelMat<FootSamplingSpaceType>(cur_foot_sample, pre_foot_sample, true);
-    qp_coeff_.ineq_vec_.template segment<1>(ineq_start_idx) <<
-        calcSVMValueWithRmapPlanning<FootSamplingSpaceType>(pre_foot_rel_sample, next_foot_rmap_planning) - config_.svm_thre;
-
-    const FootSampleType& next_foot_rel_sample =
-        relSample<FootSamplingSpaceType>(cur_foot_sample, next_foot_sample);
-    const FootVelType& next_foot_rel_svm_grad =
-        calcSVMGradWithRmapPlanning<FootSamplingSpaceType>(next_foot_rel_sample, next_foot_rmap_planning);
-    qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(ineq_start_idx + 1, (i + 1) * foot_vel_dim_) =
-        -1 * next_foot_rel_svm_grad.transpose() *
-        relVelToVelMat<FootSamplingSpaceType>(cur_foot_sample, next_foot_sample, false);
-    qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(ineq_start_idx + 1, (i + 2) * foot_vel_dim_) =
-        -1 * next_foot_rel_svm_grad.transpose() *
-        relVelToVelMat<FootSamplingSpaceType>(cur_foot_sample, next_foot_sample, true);
-    qp_coeff_.ineq_vec_.template segment<1>(ineq_start_idx + 1) <<
-        calcSVMValueWithRmapPlanning<FootSamplingSpaceType>(next_foot_rel_sample, next_foot_rmap_planning) - config_.svm_thre;
-
-    const HandSampleType& cur_hand_rel_sample = relSampleHandFromFoot(cur_foot_sample, cur_hand_sample, config_.waist_height);
-    const HandVelType& cur_hand_rel_svm_grad =
-        calcSVMGradWithRmapPlanning<HandSamplingSpaceType>(cur_hand_rel_sample, hand_rmap_planning);
-    qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(ineq_start_idx + 5, (i + 1) * foot_vel_dim_) =
-        -1 * cur_hand_rel_svm_grad.transpose() *
-        relSampleGradHandFromFoot(cur_foot_sample, cur_hand_sample, false);
-    qp_coeff_.ineq_mat_.template block<1, hand_vel_dim_>(ineq_start_idx + 5, hand_start_idx + (i + 1) * hand_vel_dim_) =
-        -1 * cur_hand_rel_svm_grad.transpose() *
-        relSampleGradHandFromFoot(cur_foot_sample, cur_hand_sample, true);
-    qp_coeff_.ineq_vec_.template segment<1>(ineq_start_idx + 5) <<
-        calcSVMValueWithRmapPlanning<HandSamplingSpaceType>(cur_hand_rel_sample, hand_rmap_planning) - config_.svm_thre;
+    const FootSampleType& rel_foot_sample =
+        relSample<FootSamplingSpaceType>(pre_foot_sample, suc_foot_sample);
+    const FootVelType& rel_foot_svm_grad =
+        calcSVMGradWithRmapPlanning<FootSamplingSpaceType>(rel_foot_sample, foot_rmap_planning);
+    qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(i, i * foot_vel_dim_) =
+        -1 * rel_foot_svm_grad.transpose() *
+        relVelToVelMat<FootSamplingSpaceType>(pre_foot_sample, suc_foot_sample, false);
+    qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(i, (i + 1) * foot_vel_dim_) =
+        -1 * rel_foot_svm_grad.transpose() *
+        relVelToVelMat<FootSamplingSpaceType>(pre_foot_sample, suc_foot_sample, true);
+    qp_coeff_.ineq_vec_.template segment<1>(i) <<
+        calcSVMValueWithRmapPlanning<FootSamplingSpaceType>(rel_foot_sample, foot_rmap_planning) - config_.svm_thre;
   }
-  qp_coeff_.ineq_mat_.rightCols(svm_ineq_dim + collision_ineq_dim).diagonal().head(svm_ineq_dim).setConstant(-1);
+  // svm_ineq_dim_ = (foot_num_ - 1) + (4 * hand_num_ - 1);
+  // {
+  //   int ineq_start_idx = 3 + i * 7;
+  //   const FootSampleType& pre_foot_sample = current_foot_sample_seq_[i];
+  //   const FootSampleType& cur_foot_sample = current_foot_sample_seq_[i + 1];
+  //   const FootSampleType& next_foot_sample = current_foot_sample_seq_[i + 2];
+  //   const HandSampleType& pre_hand_sample = current_hand_sample_seq_[i];
+  //   const HandSampleType& cur_hand_sample = current_hand_sample_seq_[i + 1];
+
+  //   std::shared_ptr<RmapPlanning<FootSamplingSpaceType>> next_foot_rmap_planning =
+  //       i % 2 == 0 ? rmapPlanning<Limb::LeftFoot>() : rmapPlanning<Limb::RightFoot>();
+  //   std::shared_ptr<RmapPlanning<HandSamplingSpaceType>> hand_rmap_planning = rmapPlanning<Limb::LeftHand>();
+
+  //   const FootSampleType& pre_foot_rel_sample =
+  //       relSample<FootSamplingSpaceType>(cur_foot_sample, pre_foot_sample);
+  //   const FootVelType& pre_foot_rel_svm_grad =
+  //       calcSVMGradWithRmapPlanning<FootSamplingSpaceType>(pre_foot_rel_sample, next_foot_rmap_planning);
+  //   qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(ineq_start_idx, (i + 1) * foot_vel_dim_) =
+  //       -1 * pre_foot_rel_svm_grad.transpose() *
+  //       relVelToVelMat<FootSamplingSpaceType>(cur_foot_sample, pre_foot_sample, false);
+  //   qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(ineq_start_idx, i * foot_vel_dim_) =
+  //       -1 * pre_foot_rel_svm_grad.transpose() *
+  //       relVelToVelMat<FootSamplingSpaceType>(cur_foot_sample, pre_foot_sample, true);
+  //   qp_coeff_.ineq_vec_.template segment<1>(ineq_start_idx) <<
+  //       calcSVMValueWithRmapPlanning<FootSamplingSpaceType>(pre_foot_rel_sample, next_foot_rmap_planning) - config_.svm_thre;
+
+  //   const FootSampleType& next_foot_rel_sample =
+  //       relSample<FootSamplingSpaceType>(cur_foot_sample, next_foot_sample);
+  //   const FootVelType& next_foot_rel_svm_grad =
+  //       calcSVMGradWithRmapPlanning<FootSamplingSpaceType>(next_foot_rel_sample, next_foot_rmap_planning);
+  //   qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(ineq_start_idx + 1, (i + 1) * foot_vel_dim_) =
+  //       -1 * next_foot_rel_svm_grad.transpose() *
+  //       relVelToVelMat<FootSamplingSpaceType>(cur_foot_sample, next_foot_sample, false);
+  //   qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(ineq_start_idx + 1, (i + 2) * foot_vel_dim_) =
+  //       -1 * next_foot_rel_svm_grad.transpose() *
+  //       relVelToVelMat<FootSamplingSpaceType>(cur_foot_sample, next_foot_sample, true);
+  //   qp_coeff_.ineq_vec_.template segment<1>(ineq_start_idx + 1) <<
+  //       calcSVMValueWithRmapPlanning<FootSamplingSpaceType>(next_foot_rel_sample, next_foot_rmap_planning) - config_.svm_thre;
+
+  //   const HandSampleType& cur_hand_rel_sample = relSampleHandFromFoot(cur_foot_sample, cur_hand_sample, config_.waist_height);
+  //   const HandVelType& cur_hand_rel_svm_grad =
+  //       calcSVMGradWithRmapPlanning<HandSamplingSpaceType>(cur_hand_rel_sample, hand_rmap_planning);
+  //   qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(ineq_start_idx + 5, (i + 1) * foot_vel_dim_) =
+  //       -1 * cur_hand_rel_svm_grad.transpose() *
+  //       relSampleGradHandFromFoot(cur_foot_sample, cur_hand_sample, false);
+  //   qp_coeff_.ineq_mat_.template block<1, hand_vel_dim_>(ineq_start_idx + 5, hand_start_config_idx_ + (i + 1) * hand_vel_dim_) =
+  //       -1 * cur_hand_rel_svm_grad.transpose() *
+  //       relSampleGradHandFromFoot(cur_foot_sample, cur_hand_sample, true);
+  //   qp_coeff_.ineq_vec_.template segment<1>(ineq_start_idx + 5) <<
+  //       calcSVMValueWithRmapPlanning<HandSamplingSpaceType>(cur_hand_rel_sample, hand_rmap_planning) - config_.svm_thre;
+  // }
+  qp_coeff_.ineq_mat_.rightCols(
+      svm_ineq_dim_ + collision_ineq_dim_).diagonal().head(svm_ineq_dim_).setConstant(-1);
 
   // ROS_INFO_STREAM("qp_coeff_.obj_mat_:\n" << qp_coeff_.obj_mat_);
   // ROS_INFO_STREAM("qp_coeff_.obj_vec_:\n" << qp_coeff_.obj_vec_.transpose());
@@ -357,13 +373,13 @@ void RmapPlanningMulticontact::runOnce(bool publish)
   }
 
   // Integrate
-  for (int i = 0; i < config_.motion_len + 1; i++) {
+  for (int i = 0; i < foot_num_; i++) {
     integrateVelToSample<FootSamplingSpaceType>(
         current_foot_sample_seq_[i], vel_all.template segment<foot_vel_dim_>(i * foot_vel_dim_));
-    if (i < config_.motion_len) {
-      integrateVelToSample<HandSamplingSpaceType>(
-          current_hand_sample_seq_[i], vel_all.template segment<hand_vel_dim_>(hand_start_idx + i * hand_vel_dim_));
-    }
+  }
+  for (int i = 0; i < hand_num_; i++) {
+    integrateVelToSample<HandSamplingSpaceType>(
+        current_hand_sample_seq_[i], vel_all.template segment<hand_vel_dim_>(hand_start_config_idx_ + i * hand_vel_dim_));
   }
 
   if (publish) {
@@ -412,7 +428,7 @@ void RmapPlanningMulticontact::publishMarkerArray() const
     grids_marker.scale.z = 0.01;
     grids_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.0, 0.0, 0.3});
 
-    for (int i = 1; i < config_.motion_len + 1; i++) {
+    for (int i = 1; i < foot_num_; i++) {
       std::shared_ptr<RmapPlanning<FootSamplingSpaceType>> foot_rmap_planning =
           i % 2 == 0 ? rmapPlanning<Limb::LeftFoot>() : rmapPlanning<Limb::RightFoot>();
       const FootSampleType& sample_min = foot_rmap_planning->sample_min_;
@@ -424,9 +440,9 @@ void RmapPlanningMulticontact::publishMarkerArray() const
       grids_marker.id = marker_arr_msg.markers.size();
       grids_marker.scale = OmgCore::toVector3Msg(
           calcGridCubeScale<FootSamplingSpaceType>(grid_set_msg->divide_nums, sample_range));
-      grids_marker.pose = OmgCore::toPoseMsg(sampleToPose<FootSamplingSpaceType>(current_foot_sample_seq_[i]));
+      grids_marker.pose = OmgCore::toPoseMsg(sampleToPose<FootSamplingSpaceType>(current_foot_sample_seq_[i - 1]));
       grids_marker.color = OmgCore::toColorRGBAMsg(
-          i % 2 == 1 ? std::array<double, 4>{0.0, 0.8, 0.0, 0.3} : std::array<double, 4>{0.8, 0.0, 0.0, 0.3});
+          i % 2 == 0 ? std::array<double, 4>{0.8, 0.0, 0.0, 0.3} : std::array<double, 4>{0.0, 0.8, 0.0, 0.3});
       const FootSampleType& slice_sample =
           relSample<FootSamplingSpaceType>(current_foot_sample_seq_[i - 1], current_foot_sample_seq_[i]);
       GridIdxsType<FootSamplingSpaceType> slice_divide_idxs;
@@ -464,23 +480,24 @@ void RmapPlanningMulticontact::publishCurrentState() const
   // Publish pose array
   geometry_msgs::PoseArray pose_arr_msg;
   pose_arr_msg.header = header_msg;
-  pose_arr_msg.poses.resize(2 * config_.motion_len + 1);
-  for (int i = 0; i < config_.motion_len + 1; i++) {
-    pose_arr_msg.poses[i] = OmgCore::toPoseMsg(sampleToPose<FootSamplingSpaceType>(current_foot_sample_seq_[i]));
-    if (i < config_.motion_len) {
-      pose_arr_msg.poses[config_.motion_len + 1 + i] =
-          OmgCore::toPoseMsg(sampleToPose<HandSamplingSpaceType>(current_hand_sample_seq_[i]));
-    }
+  pose_arr_msg.poses.resize(foot_num_ + hand_num_);
+  for (int i = 0; i < foot_num_; i++) {
+    pose_arr_msg.poses[i] =
+        OmgCore::toPoseMsg(sampleToPose<FootSamplingSpaceType>(current_foot_sample_seq_[i]));
+  }
+  for (int i = 0; i < hand_num_; i++) {
+    pose_arr_msg.poses[foot_num_ + i] =
+        OmgCore::toPoseMsg(sampleToPose<HandSamplingSpaceType>(current_hand_sample_seq_[i]));
   }
   current_pose_arr_pub_.publish(pose_arr_msg);
 
   // Publish polygon array
   jsk_recognition_msgs::PolygonArray poly_arr_msg;
   poly_arr_msg.header = header_msg;
-  poly_arr_msg.polygons.resize(config_.motion_len + 1);
-  for (int i = 0; i < config_.motion_len + 1; i++) {
+  poly_arr_msg.polygons.resize(foot_num_);
+  for (int i = 0; i < foot_num_; i++) {
     poly_arr_msg.polygons[i].header = header_msg;
-    sva::PTransformd foot_pose = sampleToPose<FootSamplingSpaceType>(current_foot_sample_seq_[i]);
+    const sva::PTransformd& foot_pose = sampleToPose<FootSamplingSpaceType>(current_foot_sample_seq_[i]);
     poly_arr_msg.polygons[i].polygon.points.resize(config_.foot_vertices.size());
     for (size_t j = 0; j < config_.foot_vertices.size(); j++) {
       poly_arr_msg.polygons[i].polygon.points[j] =
