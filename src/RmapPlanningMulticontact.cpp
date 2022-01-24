@@ -418,21 +418,21 @@ void RmapPlanningMulticontact::publishMarkerArray() const
     visualization_msgs::Marker grids_marker;
     grids_marker.header = header_msg;
     grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
-    grids_marker.scale.z = 0.01;
     grids_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.0, 0.0, 0.3});
 
     for (int i = 1; i < foot_num_; i++) {
-      std::shared_ptr<RmapPlanning<FootSamplingSpaceType>> foot_rmap_planning =
+      std::shared_ptr<RmapPlanning<FootSamplingSpaceType>> rmap_planning =
           i % 2 == 0 ? rmapPlanning<Limb::LeftFoot>() : rmapPlanning<Limb::RightFoot>();
-      const FootSampleType& sample_min = foot_rmap_planning->sample_min_;
-      const FootSampleType& sample_max = foot_rmap_planning->sample_max_;
-      const FootSampleType& sample_range = sample_max  - sample_min;
-      const auto& grid_set_msg = foot_rmap_planning->grid_set_msg_;
+      const FootSampleType& sample_min = rmap_planning->sample_min_;
+      const FootSampleType& sample_max = rmap_planning->sample_max_;
+      const FootSampleType& sample_range = sample_max - sample_min;
+      const auto& grid_set_msg = rmap_planning->grid_set_msg_;
 
       grids_marker.ns = "foot_reachable_grids_" + std::to_string(i);
       grids_marker.id = marker_arr_msg.markers.size();
       grids_marker.scale = OmgCore::toVector3Msg(
           calcGridCubeScale<FootSamplingSpaceType>(grid_set_msg->divide_nums, sample_range));
+      grids_marker.scale.z = 0.01;
       grids_marker.pose = OmgCore::toPoseMsg(sampleToPose<FootSamplingSpaceType>(current_foot_sample_seq_[i - 1]));
       grids_marker.color = OmgCore::toColorRGBAMsg(
           i % 2 == 0 ? std::array<double, 4>{0.8, 0.0, 0.0, 0.3} : std::array<double, 4>{0.0, 0.8, 0.0, 0.3});
@@ -457,6 +457,41 @@ void RmapPlanningMulticontact::publishMarkerArray() const
           },
           std::vector<int>{0, 1},
           slice_divide_idxs);
+      marker_arr_msg.markers.push_back(grids_marker);
+    }
+  }
+
+  // Hand reachable grids marker
+  {
+    std::shared_ptr<RmapPlanning<HandSamplingSpaceType>> rmap_planning = rmapPlanning<Limb::LeftHand>();
+    const HandSampleType& sample_min = rmap_planning->sample_min_;
+    const HandSampleType& sample_max = rmap_planning->sample_max_;
+    const HandSampleType& sample_range = sample_max - sample_min;
+    const auto& grid_set_msg = rmap_planning->grid_set_msg_;
+
+    visualization_msgs::Marker grids_marker;
+    grids_marker.header = header_msg;
+    grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
+    grids_marker.color = OmgCore::toColorRGBAMsg({0.0, 0.0, 0.8, 0.3});
+    grids_marker.scale = OmgCore::toVector3Msg(
+        calcGridCubeScale<HandSamplingSpaceType>(grid_set_msg->divide_nums, sample_range));
+    loopGrid<HandSamplingSpaceType>(
+        grid_set_msg->divide_nums,
+        sample_min,
+        sample_range,
+        [&](int grid_idx, const HandSampleType& sample) {
+          if (grid_set_msg->values[grid_idx] > config_.svm_thre) {
+            grids_marker.points.push_back(
+                OmgCore::toPointMsg(sampleToCloudPos<HandSamplingSpaceType>(sample)));
+          }
+        });
+    for (int i = 0; i < foot_num_ - 1; i++) {
+      grids_marker.ns = "hand_reachable_grids_" + std::to_string(i);
+      sva::PTransformd pose = sampleToPose<FootSamplingSpaceType>(
+          midSample<FootSamplingSpaceType>(current_foot_sample_seq_[i], current_foot_sample_seq_[i + 1]));
+      pose.translation().z() = config_.waist_height;
+      grids_marker.pose = OmgCore::toPoseMsg(pose);
+      grids_marker.id = marker_arr_msg.markers.size();
       marker_arr_msg.markers.push_back(grids_marker);
     }
   }
