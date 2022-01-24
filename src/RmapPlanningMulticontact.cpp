@@ -270,7 +270,7 @@ void RmapPlanningMulticontact::runOnce(bool publish)
   qp_coeff_.obj_vec_.template head<foot_vel_dim_>() = config_.start_foot_weight * start_sample_error;
   qp_coeff_.obj_vec_.template segment<foot_vel_dim_>((foot_num_ - 1) * foot_vel_dim_) = target_sample_error;
   Eigen::VectorXd current_config(config_dim_);
-  // The implementation of adjacent regularization is not strict because the error between samples is not a simple subtraction
+  // This implementation of adjacent regularization is not exact because the error between samples is not a simple subtraction
   for (int i = 0; i < foot_num_; i++) {
     current_config.template segment<foot_vel_dim_>(i * foot_vel_dim_) =
         sampleError<FootSamplingSpaceType>(identity_foot_sample_, current_foot_sample_seq_[i]);
@@ -324,8 +324,26 @@ void RmapPlanningMulticontact::runOnce(bool publish)
     std::shared_ptr<RmapPlanning<HandSamplingSpaceType>> rmap_planning = rmapPlanning<Limb::LeftHand>();
 
     if (i != 0) {
-      // \todo pre2
       const FootSampleType& pre2_foot_sample = current_foot_sample_seq_[2 * i - 1];
+      const FootSampleType& pre12_foot_sample =
+          midSample<FootSamplingSpaceType>(pre1_foot_sample, pre2_foot_sample);
+      const HandSampleType& pre12_rel_sample =
+          relSampleHandFromFoot(pre12_foot_sample, hand_sample, config_.waist_height);
+      const HandVelType& pre12_rel_svm_grad =
+          calcSVMGradWithRmapPlanning<HandSamplingSpaceType>(pre12_rel_sample, rmap_planning);
+      // The implementation of gradient of mean sample is not exact because the mean of two samples is not a simple arithmetic mean
+      Eigen::MatrixXd pre12_foot_ineq_mat =
+          -1 * pre12_rel_svm_grad.transpose() *
+          relSampleGradHandFromFoot(pre12_foot_sample, hand_sample, false) / 2;
+      qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(start_ineq_idx + 0, (2 * i - 1) * foot_vel_dim_) =
+          pre12_foot_ineq_mat;
+      qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(start_ineq_idx + 0, (2 * i) * foot_vel_dim_) =
+          pre12_foot_ineq_mat;
+      qp_coeff_.ineq_mat_.template block<1, hand_vel_dim_>(start_ineq_idx + 0, hand_start_config_idx_ + i * hand_vel_dim_) =
+          -1 * pre12_rel_svm_grad.transpose() *
+          relSampleGradHandFromFoot(pre12_foot_sample, hand_sample, true);
+      qp_coeff_.ineq_vec_.template segment<1>(start_ineq_idx + 0) <<
+          calcSVMValueWithRmapPlanning<HandSamplingSpaceType>(pre12_rel_sample, rmap_planning) - config_.svm_thre;
     }
 
     const HandSampleType& pre1_rel_sample =
@@ -354,7 +372,24 @@ void RmapPlanningMulticontact::runOnce(bool publish)
     qp_coeff_.ineq_vec_.template segment<1>(start_ineq_idx + 2) <<
         calcSVMValueWithRmapPlanning<HandSamplingSpaceType>(suc1_rel_sample, rmap_planning) - config_.svm_thre;
 
-    // \todo suc2
+    const FootSampleType& suc12_foot_sample =
+        midSample<FootSamplingSpaceType>(suc1_foot_sample, suc2_foot_sample);
+    const HandSampleType& suc12_rel_sample =
+        relSampleHandFromFoot(suc12_foot_sample, hand_sample, config_.waist_height);
+    const HandVelType& suc12_rel_svm_grad =
+        calcSVMGradWithRmapPlanning<HandSamplingSpaceType>(suc12_rel_sample, rmap_planning);
+    Eigen::MatrixXd suc12_foot_ineq_mat =
+        -1 * suc12_rel_svm_grad.transpose() *
+        relSampleGradHandFromFoot(suc12_foot_sample, hand_sample, false) / 2;
+    qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(start_ineq_idx + 3, (2 * i + 1) * foot_vel_dim_) =
+        suc12_foot_ineq_mat;
+    qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(start_ineq_idx + 3, (2 * i + 2) * foot_vel_dim_) =
+        suc12_foot_ineq_mat;
+    qp_coeff_.ineq_mat_.template block<1, hand_vel_dim_>(start_ineq_idx + 3, hand_start_config_idx_ + i * hand_vel_dim_) =
+        -1 * suc12_rel_svm_grad.transpose() *
+        relSampleGradHandFromFoot(suc12_foot_sample, hand_sample, true);
+    qp_coeff_.ineq_vec_.template segment<1>(start_ineq_idx + 3) <<
+        calcSVMValueWithRmapPlanning<HandSamplingSpaceType>(suc12_rel_sample, rmap_planning) - config_.svm_thre;
   }
   qp_coeff_.ineq_mat_.rightCols(
       svm_ineq_dim_ + collision_ineq_dim_).diagonal().head(svm_ineq_dim_).setConstant(-1);
