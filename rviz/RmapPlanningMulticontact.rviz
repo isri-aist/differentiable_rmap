@@ -3,8 +3,7 @@ Panels:
     Help Height: 110
     Name: Displays
     Property Tree Widget:
-      Expanded:
-        - /MarkerArray1/Namespaces1
+      Expanded: ~
       Splitter Ratio: 0.6277258396148682
     Tree Height: 725
   - Class: rviz/Selection
@@ -25,7 +24,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: HandPositionCloud
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -77,7 +76,18 @@ Visualization Manager:
       Marker Topic: /marker_arr
       Name: MarkerArray
       Namespaces:
-        {}
+        foot_reachable_grids_1: true
+        foot_reachable_grids_2: true
+        foot_reachable_grids_3: true
+        foot_reachable_grids_4: true
+        foot_reachable_grids_5: true
+        foot_reachable_grids_6: true
+        foot_reachable_grids_7: true
+        foot_reachable_grids_8: true
+        hand_reachable_grids_1: true
+        hand_reachable_grids_3: true
+        hand_reachable_grids_5: true
+        hand_reachable_grids_7: true
       Queue Size: 100
       Value: true
     - Class: rviz/InteractiveMarkers
@@ -95,7 +105,7 @@ Visualization Manager:
       Axes Radius: 0.019999999552965164
       Class: rviz/PoseArray
       Color: 255; 25; 0
-      Enabled: true
+      Enabled: false
       Head Length: 0.07000000029802322
       Head Radius: 0.029999999329447746
       Name: PoseArray
@@ -104,20 +114,61 @@ Visualization Manager:
       Shape: Axes
       Topic: /current_pose_arr
       Unreliable: false
-      Value: true
+      Value: false
     - Alpha: 1
       Class: jsk_rviz_plugin/PolygonArray
       Color: 164; 0; 0
       Enabled: true
-      Name: PolygonArray
-      Topic: /current_poly_arr
+      Name: LeftFootPolygonArray
+      Topic: /current_left_poly_arr
       Unreliable: false
       Value: true
-      coloring: Auto
+      coloring: Flat color
       enable lighting: false
       normal length: 0.10000000149011612
       only border: false
-      show normal: true
+      show normal: false
+    - Alpha: 1
+      Class: jsk_rviz_plugin/PolygonArray
+      Color: 78; 154; 6
+      Enabled: true
+      Name: RightFootPolygonArray
+      Topic: /current_right_poly_arr
+      Unreliable: false
+      Value: true
+      coloring: Flat color
+      enable lighting: false
+      normal length: 0.10000000149011612
+      only border: false
+      show normal: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud
+      Color: 32; 74; 135
+      Color Transformer: FlatColor
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Min Color: 0; 0; 0
+      Name: HandPositionCloud
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.05000000074505806
+      Style: Spheres
+      Topic: /current_cloud
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 255; 255; 255
@@ -146,25 +197,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 2.457087993621826
+      Distance: 4.134628772735596
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.5144695043563843
-        Y: 0.2049524188041687
-        Z: 0.33711710572242737
+        X: 0.8500964641571045
+        Y: 0.26313528418540955
+        Z: 0.6486163139343262
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5803984999656677
+      Pitch: 0.25039905309677124
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.0953917503356934
+      Yaw: 1.8121992349624634
     Saved: ~
 Window Geometry:
   Displays:

@@ -300,5 +300,10 @@ class RmapPlanningMulticontact
   ros::Publisher marker_arr_pub_;
   ros::Publisher current_pose_arr_pub_;
   ros::Publisher current_poly_arr_pub_;
+  // Separate topics to change the marker colors on the right and left feet
+  ros::Publisher current_left_poly_arr_pub_;
+  ros::Publisher current_right_poly_arr_pub_;
+  // Use cloud message to visualize sphere at hand position
+  ros::Publisher current_cloud_pub_;
 };
 }

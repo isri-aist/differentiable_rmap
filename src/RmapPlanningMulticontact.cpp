@@ -5,6 +5,7 @@
 #include <mc_rtc/constants.h>
 
 #include <geometry_msgs/PoseArray.h>
+#include <sensor_msgs/PointCloud.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <jsk_recognition_msgs/PolygonArray.h>
 
@@ -145,6 +146,12 @@ RmapPlanningMulticontact::RmapPlanningMulticontact(
       "current_pose_arr", 1, true);
   current_poly_arr_pub_ = nh_.template advertise<jsk_recognition_msgs::PolygonArray>(
       "current_poly_arr", 1, true);
+  current_left_poly_arr_pub_ = nh_.template advertise<jsk_recognition_msgs::PolygonArray>(
+      "current_left_poly_arr", 1, true);
+  current_right_poly_arr_pub_ = nh_.template advertise<jsk_recognition_msgs::PolygonArray>(
+      "current_right_poly_arr", 1, true);
+  current_cloud_pub_ = nh_.template advertise<sensor_msgs::PointCloud>(
+      "current_cloud", 1, true);
 
   rmap_planning_list_[Limb::LeftFoot] =
       std::make_shared<RmapPlanning<FootSamplingSpaceType>>(
@@ -472,7 +479,7 @@ void RmapPlanningMulticontact::publishMarkerArray() const
     visualization_msgs::Marker grids_marker;
     grids_marker.header = header_msg;
     grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
-    grids_marker.color = OmgCore::toColorRGBAMsg({0.0, 0.0, 0.8, 0.3});
+    grids_marker.color = OmgCore::toColorRGBAMsg({0.0, 0.0, 0.8, 0.1});
     grids_marker.scale = OmgCore::toVector3Msg(
         calcGridCubeScale<HandSamplingSpaceType>(grid_set_msg->divide_nums, sample_range));
     loopGrid<HandSamplingSpaceType>(
@@ -486,6 +493,10 @@ void RmapPlanningMulticontact::publishMarkerArray() const
           }
         });
     for (int i = 0; i < foot_num_ - 1; i++) {
+      // Publish only the grid set at the timing of hand transition
+      if (i % 2 == 0) {
+        continue;
+      }
       grids_marker.ns = "hand_reachable_grids_" + std::to_string(i);
       sva::PTransformd pose = sampleToPose<FootSamplingSpaceType>(
           midSample<FootSamplingSpaceType>(current_foot_sample_seq_[i], current_foot_sample_seq_[i + 1]));
@@ -505,7 +516,7 @@ void RmapPlanningMulticontact::publishCurrentState() const
   header_msg.frame_id = "world";
   header_msg.stamp = ros::Time::now();
 
-  // Publish pose array
+  // Publish pose array for foot and hand
   geometry_msgs::PoseArray pose_arr_msg;
   pose_arr_msg.header = header_msg;
   pose_arr_msg.poses.resize(foot_num_ + hand_num_);
@@ -519,9 +530,13 @@ void RmapPlanningMulticontact::publishCurrentState() const
   }
   current_pose_arr_pub_.publish(pose_arr_msg);
 
-  // Publish polygon array
+  // Publish polygon array for foot
   jsk_recognition_msgs::PolygonArray poly_arr_msg;
+  jsk_recognition_msgs::PolygonArray left_poly_arr_msg;
+  jsk_recognition_msgs::PolygonArray right_poly_arr_msg;
   poly_arr_msg.header = header_msg;
+  left_poly_arr_msg.header = header_msg;
+  right_poly_arr_msg.header = header_msg;
   poly_arr_msg.polygons.resize(foot_num_);
   for (int i = 0; i < foot_num_; i++) {
     poly_arr_msg.polygons[i].header = header_msg;
@@ -531,8 +546,24 @@ void RmapPlanningMulticontact::publishCurrentState() const
       poly_arr_msg.polygons[i].polygon.points[j] =
           OmgCore::toPoint32Msg(foot_pose.rotation().transpose() * config_.foot_vertices[j] + foot_pose.translation());
     }
+    if (i % 2 == 0) {
+      left_poly_arr_msg.polygons.push_back(poly_arr_msg.polygons[i]);
+    } else {
+      right_poly_arr_msg.polygons.push_back(poly_arr_msg.polygons[i]);
+    }
   }
   current_poly_arr_pub_.publish(poly_arr_msg);
+  current_left_poly_arr_pub_.publish(left_poly_arr_msg);
+  current_right_poly_arr_pub_.publish(right_poly_arr_msg);
+
+  // Publish cloud for hand
+  sensor_msgs::PointCloud cloud_msg;
+  cloud_msg.header = header_msg;
+  for (int i = 0; i < hand_num_; i++) {
+    cloud_msg.points.push_back(OmgCore::toPoint32Msg(
+        sampleToCloudPos<HandSamplingSpaceType>(current_hand_sample_seq_[i])));
+  }
+  current_cloud_pub_.publish(cloud_msg);
 }
 
 void RmapPlanningMulticontact::transCallback(
