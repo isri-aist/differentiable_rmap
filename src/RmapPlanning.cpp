@@ -89,10 +89,8 @@ void RmapPlanning<SamplingSpaceType>::runOnce(bool publish)
   qp_coeff_.obj_vec_ = sampleError<SamplingSpaceType>(target_sample_, current_sample_);
   double lambda = qp_coeff_.obj_vec_.squaredNorm() + 1e-3;
   qp_coeff_.obj_mat_.diagonal().setConstant(1.0 + lambda);
-  qp_coeff_.ineq_mat_ = -1 * calcSVMGrad<SamplingSpaceType>(
-      current_sample_, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_).transpose();
-  qp_coeff_.ineq_vec_ << calcSVMValue<SamplingSpaceType>(
-      current_sample_, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_) - config_.svm_thre;
+  qp_coeff_.ineq_mat_ = -1 * calcSVMGrad(current_sample_).transpose();
+  qp_coeff_.ineq_vec_ << calcSVMValue(current_sample_) - config_.svm_thre;
 
   // Solve QP
   const VelType& vel = qp_solver_->solve(qp_coeff_);
@@ -126,6 +124,30 @@ void RmapPlanning<SamplingSpaceType>::runLoop()
     ros::spinOnce();
     loop_idx++;
   }
+}
+
+template <SamplingSpace SamplingSpaceType>
+double RmapPlanning<SamplingSpaceType>::calcSVMValue(
+    const SampleType& sample) const
+{
+  return DiffRmap::calcSVMValue<SamplingSpaceType>(
+      sample,
+      svm_mo_->param,
+      svm_mo_,
+      svm_coeff_vec_,
+      svm_sv_mat_);
+}
+
+template <SamplingSpace SamplingSpaceType>
+Vel<SamplingSpaceType> RmapPlanning<SamplingSpaceType>::calcSVMGrad(
+    const SampleType& sample) const
+{
+  return DiffRmap::calcSVMGrad<SamplingSpaceType>(
+      sample,
+      svm_mo_->param,
+      svm_mo_,
+      svm_coeff_vec_,
+      svm_sv_mat_);
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -194,12 +216,7 @@ void RmapPlanning<SamplingSpaceType>::predictOnSlicePlane()
         }
 
       // Calculate SVM value
-      double svm_value = calcSVMValue<SamplingSpaceType>(
-          sample,
-          svm_mo_->param,
-          svm_mo_,
-          svm_coeff_vec_,
-          svm_sv_mat_);
+      double svm_value = calcSVMValue(sample);
       grid_map_->at("svm_value", *it) = config_.grid_map_height_scale * svm_value;
 
       grid_idx++;

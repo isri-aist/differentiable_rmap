@@ -149,6 +149,16 @@ class RmapPlanning: public RmapPlanningBase
   /** \brief Setup and run planning loop. */
   virtual void runLoop() override;
 
+  /** \brief Calculate SVM value.
+      \param sample sample
+  */
+  double calcSVMValue(const SampleType& sample) const;
+
+  /** \brief Calculate gradient of SVM value.
+      \param sample sample
+  */
+  VelType calcSVMGrad(const SampleType& sample) const;
+
  protected:
   /** \brief Setup grid map. */
   void setupGridMap();
