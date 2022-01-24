@@ -22,7 +22,7 @@
       interactive_markers:
         - name: target
           initial_pose:
-            pos: [0, 0.1, 0.1]
+            pos: [0, 0.1, 0.0]
           axis_controls: [tx, ty, rz]
           markers:
             - type: 0 # ARROW
