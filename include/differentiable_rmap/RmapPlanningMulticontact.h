@@ -94,6 +94,16 @@ class RmapPlanningMulticontact
     //! QP objective weight for SVM inequality error
     double svm_ineq_weight = 1e6;
 
+    //! Lower and upper limit of hand position [m]
+    std::pair<Eigen::Vector3d, Eigen::Vector3d> foot_pos_limits = {
+      Eigen::Vector3d(-1e20, -1e20, -1e20), Eigen::Vector3d(1e20, 1e20, 1e20)
+    };
+
+    //! Lower and upper limit of foot position [m]
+    std::pair<Eigen::Vector3d, Eigen::Vector3d> hand_pos_limits = {
+      Eigen::Vector3d(-1e20, -1e20, -1e20), Eigen::Vector3d(1e20, 1e20, 1e20)
+    };
+
     //! Waist height [m]
     double waist_height = 0.8;
 
@@ -128,6 +138,8 @@ class RmapPlanningMulticontact
       mc_rtc_config("rel_hand_foot_weight", rel_hand_foot_weight);
       mc_rtc_config("start_foot_weight", start_foot_weight);
       mc_rtc_config("svm_ineq_weight", svm_ineq_weight);
+      mc_rtc_config("foot_pos_limits", foot_pos_limits);
+      mc_rtc_config("hand_pos_limits", hand_pos_limits);
       mc_rtc_config("waist_height", waist_height);
       mc_rtc_config("hand_lateral_pos", hand_lateral_pos);
       mc_rtc_config("foot_vertices", foot_vertices);

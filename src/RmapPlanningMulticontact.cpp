@@ -359,12 +359,28 @@ void RmapPlanningMulticontact::runOnce(bool publish)
   qp_coeff_.ineq_mat_.rightCols(
       svm_ineq_dim_ + collision_ineq_dim_).diagonal().head(svm_ineq_dim_).setConstant(-1);
 
+  // Set QP variables limit
+  for (int i = 0; i < foot_num_; i++) {
+    qp_coeff_.x_min_.segment(i * foot_vel_dim_, foot_vel_dim_) =
+        (config_.foot_pos_limits.first - current_foot_sample_seq_[i]).cwiseMax(-config_.delta_config_limit);
+    qp_coeff_.x_max_.segment(i * foot_vel_dim_, foot_vel_dim_) =
+        (config_.foot_pos_limits.second - current_foot_sample_seq_[i]).cwiseMin(config_.delta_config_limit);
+  }
+  for (int i = 0; i < hand_num_; i++) {
+    qp_coeff_.x_min_.segment(hand_start_config_idx_ + i * hand_vel_dim_, hand_vel_dim_) =
+        (config_.hand_pos_limits.first - current_hand_sample_seq_[i]).cwiseMax(-config_.delta_config_limit);
+    qp_coeff_.x_max_.segment(hand_start_config_idx_ + i * hand_vel_dim_, hand_vel_dim_) =
+        (config_.hand_pos_limits.second - current_hand_sample_seq_[i]).cwiseMin(config_.delta_config_limit);
+  }
+
   // ROS_INFO_STREAM("qp_coeff_.obj_mat_:\n" << qp_coeff_.obj_mat_);
   // ROS_INFO_STREAM("qp_coeff_.obj_vec_:\n" << qp_coeff_.obj_vec_.transpose());
   // ROS_INFO_STREAM("qp_coeff_.eq_mat_:\n" << qp_coeff_.eq_mat_);
   // ROS_INFO_STREAM("qp_coeff_.eq_vec_:\n" << qp_coeff_.eq_vec_.transpose());
   // ROS_INFO_STREAM("qp_coeff_.ineq_mat_:\n" << qp_coeff_.ineq_mat_);
   // ROS_INFO_STREAM("qp_coeff_.ineq_vec_:\n" << qp_coeff_.ineq_vec_.transpose());
+  // ROS_INFO_STREAM("qp_coeff_.x_min_:\n" << qp_coeff_.x_min_.transpose());
+  // ROS_INFO_STREAM("qp_coeff_.x_max_:\n" << qp_coeff_.x_max_.transpose());
 
   // Solve QP
   Eigen::VectorXd vel_all = qp_solver_->solve(qp_coeff_);

@@ -17,7 +17,7 @@ initial_sample_pose_list:
   RightFoot:
     translation: [0.0, -0.1, 0.0]
   LeftHand:
-    translation: [0.0, 0.6, 0.7]
+    translation: [0.0, 0.6, 0.8]
 
 # Number of footsteps
 motion_len: 8
@@ -36,6 +36,12 @@ start_foot_weight: 1e3
 
 # QP objective weight for SVM inequality error
 svm_ineq_weight: 1e6
+
+# Lower and upper limit of hand position [m]
+foot_pos_limits: [[-1e20, -1e20, -1e20], [1e20, 1e20, 1e20]]
+
+# Lower and upper limit of foot position [m]
+hand_pos_limits: [[-1e20, -1e20, 0.7], [1e20, 1e20, 0.9]]
 
 # Waist height [m]
 waist_height: 0.7
