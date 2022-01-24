@@ -115,22 +115,6 @@ relSampleGradHandFromFoot(
 }
 }
 
-Limb DiffRmap::strToLimb(const std::string& limb_str)
-{
-  if (limb_str == "LeftFoot") {
-    return Limb::LeftFoot;
-  } else if (limb_str == "RightFoot") {
-    return Limb::RightFoot;
-  } else if (limb_str == "LeftHand") {
-    return Limb::LeftHand;
-  } else if (limb_str == "RightHand") {
-    return Limb::RightHand;
-  } else {
-    mc_rtc::log::error_and_throw<std::runtime_error>(
-        "[strToLimb] Unsupported Limb name: {}", limb_str);
-  }
-}
-
 RmapPlanningMulticontact::RmapPlanningMulticontact(
     const std::unordered_map<Limb, std::string>& svm_path_list,
     const std::unordered_map<Limb, std::string>& bag_path_list)

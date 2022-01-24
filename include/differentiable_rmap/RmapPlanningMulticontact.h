@@ -6,43 +6,8 @@
 #include <unordered_map>
 
 #include <differentiable_rmap/RmapPlanning.h>
+#include <differentiable_rmap/RobotUtils.h>
 
-
-namespace DiffRmap
-{
-/** \brief Limb. */
-enum class Limb
-{
-  LeftFoot = 0,
-  RightFoot,
-  LeftHand,
-  RightHand
-};
-
-/** \brief Convert string to limb. */
-Limb strToLimb(const std::string& limb_str);
-}
-
-namespace std
-{
-using DiffRmap::Limb;
-
-inline string to_string(Limb limb)
-{
-  if (limb == Limb::LeftFoot) {
-    return std::string("LeftFoot");
-  } else if (limb == Limb::RightFoot) {
-    return std::string("RightFoot");
-  } else if (limb == Limb::LeftHand) {
-    return std::string("LeftHand");
-  } else if (limb == Limb::RightHand) {
-    return std::string("RightHand");
-  } else {
-    mc_rtc::log::error_and_throw<std::runtime_error>(
-        "[to_string] Unsupported Limb: {}", static_cast<int>(limb));
-  }
-}
-}
 
 namespace DiffRmap
 {
