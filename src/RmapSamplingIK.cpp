@@ -72,7 +72,8 @@ void RmapSamplingIK<SamplingSpaceType>::setupSampling()
       std::make_shared<OmgCore::BodyFunc>(
           rb_arr_,
           0,
-          body_name_),
+          body_name_,
+          config_.body_pose_offset),
       sva::PTransformd::Identity(),
       "BodyPoseTask",
       getSelectIdxs(ik_constraint_space));

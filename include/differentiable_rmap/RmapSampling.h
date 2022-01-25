@@ -49,11 +49,15 @@ class RmapSampling: public RmapSamplingBase
     //! Robot root pose
     sva::PTransformd root_pose = sva::PTransformd::Identity();
 
+    //! Body pose offset
+    sva::PTransformd body_pose_offset = sva::PTransformd::Identity();
+
     /*! \brief Load mc_rtc configuration. */
     inline virtual void load(const mc_rtc::Configuration& mc_rtc_config)
     {
       mc_rtc_config("publish_loop_interval", publish_loop_interval);
       mc_rtc_config("root_pose", root_pose);
+      mc_rtc_config("body_pose_offset", body_pose_offset);
     }
   };
 

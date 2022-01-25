@@ -121,7 +121,7 @@ void RmapSampling<SamplingSpaceType>::sampleOnce(int sample_idx)
   rbd::forwardKinematics(*rb, *rbc);
 
   // Append new sample to sample list
-  const auto& body_pose = rbc->bodyPosW[body_idx_];
+  const auto& body_pose = config_.body_pose_offset * rbc->bodyPosW[body_idx_];
   const SampleType& sample = poseToSample<SamplingSpaceType>(body_pose);
   sample_list_[sample_idx] = sample;
   reachability_list_[sample_idx] = true;
