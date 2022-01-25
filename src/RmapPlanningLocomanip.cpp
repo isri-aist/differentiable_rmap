@@ -195,77 +195,57 @@ void RmapPlanningLocomanip::runOnce(bool publish)
     qp_coeff_.ineq_vec_.template segment<1>(i) <<
         rmap_planning->calcSVMValue(rel_sample) - config_.svm_thre;
   }
-  // //// Set for reachability from foot to hand
-  // for (int i = 0; i < config_.motion_len; i++) {
-  //   int start_ineq_idx = config_.motion_len - 1 + 4 * i - 1;
-  //   const SampleType& pre1_foot_sample = current_foot_sample_seq_[2 * i];
-  //   const SampleType& suc1_foot_sample = current_foot_sample_seq_[2 * i + 1];
-  //   const SampleType& suc2_foot_sample = current_foot_sample_seq_[2 * i + 2];
-  //   const SampleType& hand_sample = current_hand_sample_seq_[i];
-  //   std::shared_ptr<RmapPlanning<SamplingSpaceType>> rmap_planning = rmapPlanning(Limb::LeftHand);
+  //// Set for reachability from foot to hand
+  for (int i = 0; i < config_.motion_len; i++) {
+    int start_ineq_idx = config_.motion_len + 2 * i - 1;
+    const SampleType& pre_foot_sample =
+        i == 0 ? start_sample_list_.at(Limb::RightFoot) : current_foot_sample_seq_[i - 1];
+    const SampleType& suc_foot_sample = current_foot_sample_seq_[i];
+    const SampleType& pre_hand_sample =
+        i == 0 ? start_sample_list_.at(Limb::LeftHand) : current_hand_sample_seq_[i - 1];
+    const SampleType& suc_hand_sample = current_hand_sample_seq_[i];
+    std::shared_ptr<RmapPlanning<SamplingSpaceType>> rmap_planning = rmapPlanning(Limb::LeftHand);
 
-  //   if (i != 0) {
-  //     const SampleType& pre2_foot_sample = current_foot_sample_seq_[2 * i - 1];
-  //     const SampleType& pre12_foot_sample =
-  //         midSample<SamplingSpaceType>(pre1_foot_sample, pre2_foot_sample);
-  //     const SampleType& pre12_rel_sample =
-  //         relSampleHandFromFoot(pre12_foot_sample, hand_sample, config_.waist_height);
-  //     const VelType& pre12_rel_svm_grad = rmap_planning->calcSVMGrad(pre12_rel_sample);
-  //     // The implementation of gradient of mean sample is not exact because the mean of two samples is not a simple arithmetic mean
-  //     Eigen::MatrixXd pre12_foot_ineq_mat =
-  //         -1 * pre12_rel_svm_grad.transpose() * relSampleGradHandFromFoot(pre12_foot_sample, hand_sample, false) / 2;
-  //     qp_coeff_.ineq_mat_.template block<1, vel_dim_>(start_ineq_idx + 0, (2 * i - 1) * vel_dim_) =
-  //         pre12_foot_ineq_mat;
-  //     qp_coeff_.ineq_mat_.template block<1, vel_dim_>(start_ineq_idx + 0, (2 * i) * vel_dim_) =
-  //         pre12_foot_ineq_mat;
-  //     qp_coeff_.ineq_mat_.template block<1, vel_dim_>(start_ineq_idx + 0, hand_start_config_idx_ + i * vel_dim_) =
-  //         -1 * pre12_rel_svm_grad.transpose() *
-  //         relSampleGradHandFromFoot(pre12_foot_sample, hand_sample, true);
-  //     qp_coeff_.ineq_vec_.template segment<1>(start_ineq_idx + 0) <<
-  //         rmap_planning->calcSVMValue(pre12_rel_sample) - config_.svm_thre;
-  //   }
+    if (i > 0) {
+      const SampleType& mid_hand_sample = midSample<SamplingSpaceType>(pre_hand_sample, suc_hand_sample);
+      const SampleType& rel_sample = relSample<SamplingSpaceType>(pre_foot_sample, mid_hand_sample);
+      const VelType& rel_svm_grad = rmap_planning->calcSVMGrad(rel_sample);
+      qp_coeff_.ineq_mat_.template block<1, vel_dim_>(start_ineq_idx + 0, (i - 1) * vel_dim_) =
+          -1 * rel_svm_grad.transpose() *
+          relVelToVelMat<SamplingSpaceType>(pre_foot_sample, mid_hand_sample, false);
+      double mid_hand_ineq_mat =
+          -1 * rel_svm_grad.transpose().dot(
+              relVelToVelMat<SamplingSpaceType>(pre_foot_sample, mid_hand_sample, true) *
+              calcSampleGradFromHandTraj(current_hand_traj_angle_seq_[i])) / 2;
+      qp_coeff_.ineq_mat_(start_ineq_idx + 0, hand_start_config_idx_ + (i - 1)) =
+          mid_hand_ineq_mat;
+      qp_coeff_.ineq_mat_(start_ineq_idx + 0, hand_start_config_idx_ + i) =
+          mid_hand_ineq_mat;
+      qp_coeff_.ineq_vec_.template segment<1>(start_ineq_idx + 0) <<
+          rmap_planning->calcSVMValue(rel_sample) - config_.svm_thre;
+    }
 
-  //   const SampleType& pre1_rel_sample =
-  //       relSampleHandFromFoot(pre1_foot_sample, hand_sample, config_.waist_height);
-  //   const VelType& pre1_rel_svm_grad = rmap_planning->calcSVMGrad(pre1_rel_sample);
-  //   qp_coeff_.ineq_mat_.template block<1, vel_dim_>(start_ineq_idx + 1, (2 * i) * vel_dim_) =
-  //       -1 * pre1_rel_svm_grad.transpose() *
-  //       relSampleGradHandFromFoot(pre1_foot_sample, hand_sample, false);
-  //   qp_coeff_.ineq_mat_.template block<1, vel_dim_>(start_ineq_idx + 1, hand_start_config_idx_ + i * vel_dim_) =
-  //       -1 * pre1_rel_svm_grad.transpose() *
-  //       relSampleGradHandFromFoot(pre1_foot_sample, hand_sample, true);
-  //   qp_coeff_.ineq_vec_.template segment<1>(start_ineq_idx + 1) <<
-  //       rmap_planning->calcSVMValue(pre1_rel_sample) - config_.svm_thre;
-
-  //   const SampleType& suc1_rel_sample =
-  //       relSampleHandFromFoot(suc1_foot_sample, hand_sample, config_.waist_height);
-  //   const VelType& suc1_rel_svm_grad = rmap_planning->calcSVMGrad(suc1_rel_sample);
-  //   qp_coeff_.ineq_mat_.template block<1, vel_dim_>(start_ineq_idx + 2, (2 * i + 1) * vel_dim_) =
-  //       -1 * suc1_rel_svm_grad.transpose() *
-  //       relSampleGradHandFromFoot(suc1_foot_sample, hand_sample, false);
-  //   qp_coeff_.ineq_mat_.template block<1, vel_dim_>(start_ineq_idx + 2, hand_start_config_idx_ + i * vel_dim_) =
-  //       -1 * suc1_rel_svm_grad.transpose() *
-  //       relSampleGradHandFromFoot(suc1_foot_sample, hand_sample, true);
-  //   qp_coeff_.ineq_vec_.template segment<1>(start_ineq_idx + 2) <<
-  //       rmap_planning->calcSVMValue(suc1_rel_sample) - config_.svm_thre;
-
-  //   const SampleType& suc12_foot_sample =
-  //       midSample<SamplingSpaceType>(suc1_foot_sample, suc2_foot_sample);
-  //   const SampleType& suc12_rel_sample =
-  //       relSampleHandFromFoot(suc12_foot_sample, hand_sample, config_.waist_height);
-  //   const VelType& suc12_rel_svm_grad = rmap_planning->calcSVMGrad(suc12_rel_sample);
-  //   Eigen::MatrixXd suc12_foot_ineq_mat =
-  //       -1 * suc12_rel_svm_grad.transpose() * relSampleGradHandFromFoot(suc12_foot_sample, hand_sample, false) / 2;
-  //   qp_coeff_.ineq_mat_.template block<1, vel_dim_>(start_ineq_idx + 3, (2 * i + 1) * vel_dim_) =
-  //       suc12_foot_ineq_mat;
-  //   qp_coeff_.ineq_mat_.template block<1, vel_dim_>(start_ineq_idx + 3, (2 * i + 2) * vel_dim_) =
-  //       suc12_foot_ineq_mat;
-  //   qp_coeff_.ineq_mat_.template block<1, vel_dim_>(start_ineq_idx + 3, hand_start_config_idx_ + i * vel_dim_) =
-  //       -1 * suc12_rel_svm_grad.transpose() *
-  //       relSampleGradHandFromFoot(suc12_foot_sample, hand_sample, true);
-  //   qp_coeff_.ineq_vec_.template segment<1>(start_ineq_idx + 3) <<
-  //       rmap_planning->calcSVMValue(suc12_rel_sample) - config_.svm_thre;
-  // }
+    {
+      const SampleType& mid_foot_sample = midSample<SamplingSpaceType>(pre_foot_sample, suc_foot_sample);
+      const SampleType& rel_sample = relSample<SamplingSpaceType>(mid_foot_sample, suc_hand_sample);
+      const VelType& rel_svm_grad = rmap_planning->calcSVMGrad(rel_sample);
+      Eigen::MatrixXd mid_foot_ineq_mat =
+          -1 * rel_svm_grad.transpose() *
+          relVelToVelMat<SamplingSpaceType>(mid_foot_sample, suc_hand_sample, false) / 2;
+      if (i > 0) {
+        qp_coeff_.ineq_mat_.template block<1, vel_dim_>(start_ineq_idx + 1, (i - 1) * vel_dim_) =
+            mid_foot_ineq_mat;
+      }
+      qp_coeff_.ineq_mat_.template block<1, vel_dim_>(start_ineq_idx + 1, i * vel_dim_) =
+          mid_foot_ineq_mat;
+      qp_coeff_.ineq_mat_(start_ineq_idx + 1, hand_start_config_idx_ + i) =
+          -1 * rel_svm_grad.transpose() *
+          relVelToVelMat<SamplingSpaceType>(mid_foot_sample, suc_hand_sample, true) *
+          calcSampleGradFromHandTraj(current_hand_traj_angle_seq_[i]);
+      qp_coeff_.ineq_vec_.template segment<1>(start_ineq_idx + 1) <<
+          rmap_planning->calcSVMValue(rel_sample) - config_.svm_thre;
+    }
+  }
   qp_coeff_.ineq_mat_.rightCols(
       svm_ineq_dim_ + collision_ineq_dim_).diagonal().head(svm_ineq_dim_).setConstant(-1);
 

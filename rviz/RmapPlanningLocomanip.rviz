@@ -80,6 +80,8 @@ Visualization Manager:
         foot_reachable_grids_1: true
         foot_reachable_grids_2: true
         foot_reachable_grids_3: true
+        foot_reachable_grids_4: true
+        foot_reachable_grids_5: true
       Queue Size: 100
       Value: true
     - Class: rviz/InteractiveMarkers
@@ -188,26 +190,21 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Class: rviz/Orbit
-      Distance: 4.134628772735596
+      Angle: -1.5700000524520874
+      Class: rviz/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
-      Focal Point:
-        X: 0.8500964641571045
-        Y: 0.26313528418540955
-        Z: 0.6486163139343262
-      Focal Shape Fixed Size: false
-      Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.8053986430168152
+      Scale: 436.6571044921875
       Target Frame: <Fixed Frame>
-      Value: Orbit (rviz)
-      Yaw: 1.6221994161605835
+      Value: TopDownOrtho (rviz)
+      X: 0.4071793556213379
+      Y: 0.5820170044898987
     Saved: ~
 Window Geometry:
   Displays:
