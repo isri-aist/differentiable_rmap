@@ -22,12 +22,14 @@
       interactive_markers:
         - name: target
           initial_pose:
-            pos: [0.75, 0.9, 0.0]
+            pos: [0.65, 0.9, 0.0]
           axis_controls: [rz]
           markers:
-            - type: 0 # ARROW
-              scale: [0.15, 0.05, 0.05]
-              color: [1.0, 1.0, 0.0, 0.5]
+            - type: 1 # CUBE
+              scale: [0.03, 0.45, 0.1]
+              color: [0.0, 0.0, 0.8, 1.0]
+              pose:
+                pos: [0.0, -0.225, 0.0]
     </rosparam>
   </node>
 

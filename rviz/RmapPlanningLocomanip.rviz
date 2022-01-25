@@ -156,7 +156,7 @@ Visualization Manager:
       Queue Size: 10
       Selectable: true
       Size (Pixels): 3
-      Size (m): 0.05000000074505806
+      Size (m): 0.05999999865889549
       Style: Spheres
       Topic: /current_cloud
       Unreliable: false
