@@ -59,12 +59,25 @@ int main(int argc, char **argv)
   // Add collision tasks
   std::string robot_convex_path;
   nh.getParam("robot/convex_path", robot_convex_path);
-  std::vector<OmgCore::Twin<std::string>> collision_body_names_list = {
-    {"Lleg_Link2", "Rleg_Link2"},
-    {"Lleg_Link3", "Rleg_Link3"},
-    {"Lleg_Link5", "Rleg_Link5"},
-  };
-
+  std::vector<OmgCore::Twin<std::string>> collision_body_names_list;
+  if (pnh.hasParam("config_path")) {
+    std::string config_path;
+    pnh.getParam("config_path", config_path);
+    mc_rtc::Configuration mc_rtc_config(config_path);
+    if (mc_rtc_config.has("collision_body_names_list")) {
+      std::vector<std::string> collision_body_names_list_flatten = mc_rtc_config("collision_body_names_list");
+      if (collision_body_names_list_flatten.size() % 2 != 0) {
+        mc_rtc::log::error_and_throw<std::runtime_error>(
+            "[NodeRmapSamplingFootstep] collision_body_names_list size must be a multiple of 2, but is {}",
+            collision_body_names_list_flatten.size());
+      }
+      for (size_t i = 0; i < collision_body_names_list_flatten.size() / 2; i++) {
+        collision_body_names_list.push_back(OmgCore::Twin<std::string>(
+            collision_body_names_list_flatten[2 * i],
+            collision_body_names_list_flatten[2 * i + 1]));
+      }
+    }
+  }
   std::vector<std::shared_ptr<OmgCore::TaskBase>> additional_task_list;
   for (const auto& body_names : collision_body_names_list) {
     OmgCore::Twin<int> rb_idxs;

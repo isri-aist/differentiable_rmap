@@ -15,3 +15,10 @@ lower_footstep_pos: [-0.5, -0.1, -60]
 
 # Waist height [m]
 waist_height: 0.7
+
+# Body name list for collision avoidance
+# This configuration is not loaded in sampling class but directly loaded in node
+collision_body_names_list:
+  ["Lleg_Link2", "Rleg_Link2",
+  "Lleg_Link3", "Rleg_Link3",
+  "Lleg_Link5", "Rleg_Link5"]
