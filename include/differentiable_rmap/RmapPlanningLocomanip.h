@@ -79,13 +79,13 @@ class RmapPlanningLocomanip
       mc_rtc_config("publish_interval", publish_interval);
       mc_rtc_config("svm_thre", svm_thre);
       mc_rtc_config("delta_config_limit", delta_config_limit);
-
-      std::map<std::string, sva::PTransformd> tmp_initial_sample_pose_list;
-      mc_rtc_config("initial_sample_pose_list", tmp_initial_sample_pose_list);
-      for (const auto& tmp_initial_sample_pose_kv : tmp_initial_sample_pose_list) {
-        initial_sample_pose_list[strToLimb(tmp_initial_sample_pose_kv.first)] = tmp_initial_sample_pose_kv.second;
+      if (mc_rtc_config.has("initial_sample_pose_list")) {
+        std::map<std::string, sva::PTransformd> tmp_initial_sample_pose_list;
+        mc_rtc_config("initial_sample_pose_list", tmp_initial_sample_pose_list);
+        for (const auto& tmp_initial_sample_pose_kv : tmp_initial_sample_pose_list) {
+          initial_sample_pose_list[strToLimb(tmp_initial_sample_pose_kv.first)] = tmp_initial_sample_pose_kv.second;
+        }
       }
-
       mc_rtc_config("motion_len", motion_len);
       mc_rtc_config("reg_weight", reg_weight);
       mc_rtc_config("adjacent_reg_weight", adjacent_reg_weight);
