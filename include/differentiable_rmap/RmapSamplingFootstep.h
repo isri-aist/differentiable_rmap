@@ -32,6 +32,9 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
     //! Waist height [m]
     double waist_height = 0.8;
 
+    //! Initial posture (list of joint name and angle [deg])
+    std::map<std::string, double> initial_posture;
+
     /*! \brief Load mc_rtc configuration. */
     inline virtual void load(const mc_rtc::Configuration& mc_rtc_config) override
     {
@@ -46,6 +49,7 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
         lower_footstep_pos.z() = mc_rtc::constants::toRad(lower_footstep_pos.z());
       }
       mc_rtc_config("waist_height", waist_height);
+      mc_rtc_config("initial_posture", initial_posture);
     }
   };
 

@@ -117,6 +117,10 @@ void RmapSamplingFootstep<SamplingSpaceType>::sampleOnce(int sample_idx)
 
     // Set zero configuration
     rbc->zero(*rb);
+    for (const auto& initial_posture_kv : config_.initial_posture) {
+      rbc->q[rb->jointIndexByName(initial_posture_kv.first)][0] =
+          mc_rtc::constants::toRad(initial_posture_kv.second);
+    }
     rbd::forwardKinematics(*rb, *rbc);
 
     // Solve IK

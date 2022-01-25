@@ -16,7 +16,7 @@
       support_foot_body_name: Rleg_Link5
       swing_foot_body_name: Lleg_Link5
       waist_body_name: Body
-      config_path: $(find differentiable_rmap)/config/RmapSamplingFootstep.yaml
+      config_path: $(find differentiable_rmap)/config/RmapSamplingHRP5PFootstep.yaml
       bag_path: /tmp/rmap_sample_set_$(arg sampling_space).bag
       sample_num: 10000
       sleep_rate: 2000
