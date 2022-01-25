@@ -71,7 +71,7 @@ void RmapPlanningLocomanip::configure(const mc_rtc::Configuration& mc_rtc_config
 void RmapPlanningLocomanip::setup()
 {
   // Setup dimensions
-  config_dim_ = 2 * config_.motion_len * vel_dim_;
+  config_dim_ = config_.motion_len * vel_dim_ + config_.motion_len;
   svm_ineq_dim_ = 3 * config_.motion_len - 1;
   collision_ineq_dim_ = 0;
   hand_start_config_idx_ = config_.motion_len * vel_dim_;
@@ -89,7 +89,7 @@ void RmapPlanningLocomanip::setup()
 
   qp_solver_ = OmgCore::allocateQpSolver(OmgCore::QpSolverType::JRLQP);
 
-  // Setup current sample sequence
+  // Setup start sample list
   for (const Limb& limb : Limbs::all) {
     start_sample_list_.emplace(
         limb,
@@ -98,12 +98,16 @@ void RmapPlanningLocomanip::setup()
             config_.initial_sample_pose_list.at(limb) :
             sva::PTransformd::Identity()));
   }
+  //// Overwrite based on hand trajectory for left hand
+  start_sample_list_.at(Limb::LeftHand) = calcSampleFromHandTraj(config_.target_hand_traj_angles.first);
+
+  // Setup current sample sequence
   current_foot_sample_seq_.resize(config_.motion_len);
-  current_hand_sample_seq_.resize(config_.motion_len);
   for (int i = 0; i < config_.motion_len; i++) {
     current_foot_sample_seq_[i] = start_sample_list_.at(i % 2 == 0 ? Limb::LeftFoot : Limb::RightFoot);
-    current_hand_sample_seq_[i] = start_sample_list_.at(Limb::LeftHand);
   }
+  current_hand_traj_angle_seq_.assign(config_.motion_len, config_.target_hand_traj_angles.first);
+  current_hand_sample_seq_.assign(config_.motion_len, start_sample_list_.at(Limb::LeftHand));
 
   // Setup adjacent regularization
   adjacent_reg_mat_.setZero(config_dim_, config_dim_);
@@ -123,16 +127,13 @@ void RmapPlanningLocomanip::setup()
   }
   //// Set for adjacent hand
   for (int i = 0; i < config_.motion_len; i++) {
-    adjacent_reg_mat_.block<vel_dim_, vel_dim_>(
-        hand_start_config_idx_ + i * vel_dim_, hand_start_config_idx_ + i * vel_dim_).diagonal().setConstant(
-            (i == config_.motion_len - 1 ? 1 : 2) * config_.adjacent_reg_weight);
+    adjacent_reg_mat_(hand_start_config_idx_ + i, hand_start_config_idx_ + i) =
+        (i == config_.motion_len - 1 ? 1 : 2) * config_.adjacent_reg_weight;
     if (i != config_.motion_len - 1) {
-      adjacent_reg_mat_.block<vel_dim_, vel_dim_>(
-          hand_start_config_idx_ + (i + 1) * vel_dim_, hand_start_config_idx_ + i * vel_dim_).diagonal().setConstant(
-              -config_.adjacent_reg_weight);
-      adjacent_reg_mat_.block<vel_dim_, vel_dim_>(
-          hand_start_config_idx_ + i * vel_dim_, hand_start_config_idx_ + (i + 1) * vel_dim_).diagonal().setConstant(
-              -config_.adjacent_reg_weight);
+      adjacent_reg_mat_(hand_start_config_idx_ + (i + 1), hand_start_config_idx_ + i) =
+          -config_.adjacent_reg_weight;
+      adjacent_reg_mat_(hand_start_config_idx_ + i, hand_start_config_idx_ + (i + 1)) =
+          -config_.adjacent_reg_weight;
     }
   }
   // ROS_INFO_STREAM("adjacent_reg_mat_:\n" << adjacent_reg_mat_);
@@ -143,32 +144,30 @@ void RmapPlanningLocomanip::runOnce(bool publish)
   // Set QP objective matrices
   qp_coeff_.obj_mat_.setZero();
   qp_coeff_.obj_vec_.setZero();
-  const VelType& target_sample_error =
-      sampleError<SamplingSpaceType>(target_hand_sample_, current_hand_sample_seq_.back());
-  qp_coeff_.obj_mat_.diagonal().template segment<vel_dim_>(config_dim_ - vel_dim_).setConstant(1.0);
+  double target_hand_traj_angle_error =
+      current_hand_traj_angle_seq_.back() - config_.target_hand_traj_angles.second;
+  qp_coeff_.obj_mat_.diagonal()(config_dim_ - 1) = 1.0;
   qp_coeff_.obj_mat_.diagonal().head(config_dim_).array() +=
-      target_sample_error.squaredNorm() + config_.reg_weight;
+      std::pow(target_hand_traj_angle_error, 2) + config_.reg_weight;
   qp_coeff_.obj_mat_.diagonal().tail(svm_ineq_dim_ + collision_ineq_dim_).head(
       svm_ineq_dim_).setConstant(config_.svm_ineq_weight);
   // qp_coeff_.obj_mat_.diagonal().tail(svm_ineq_dim_ + collision_ineq_dim_).tail(
   //     collision_ineq_dim_).setConstant(config_.collision_ineq_weight);
-  qp_coeff_.obj_vec_.template segment<vel_dim_>(config_dim_ - vel_dim_) = target_sample_error;
+  qp_coeff_.obj_vec_(config_dim_ - 1) = target_hand_traj_angle_error;
   Eigen::VectorXd current_config(config_dim_);
   // This implementation of adjacent regularization is not exact because the error between samples is not a simple subtraction
   for (int i = 0; i < config_.motion_len; i++) {
     current_config.template segment<vel_dim_>(i * vel_dim_) =
         sampleError<SamplingSpaceType>(identity_sample_, current_foot_sample_seq_[i]);
-    current_config.template segment<vel_dim_>(hand_start_config_idx_ + i * vel_dim_) =
-        sampleError<SamplingSpaceType>(identity_sample_, current_hand_sample_seq_[i]);
+    current_config(hand_start_config_idx_ + i) = current_hand_traj_angle_seq_[i];
   }
   // ROS_INFO_STREAM("current_config:\n" << current_config.transpose());
   qp_coeff_.obj_vec_.head(config_dim_) += adjacent_reg_mat_ * current_config;
   qp_coeff_.obj_vec_.head(vel_dim_) -=
       config_.adjacent_reg_weight * sampleError<SamplingSpaceType>(
           identity_sample_, start_sample_list_.at(Limb::LeftFoot));
-  qp_coeff_.obj_vec_.segment(hand_start_config_idx_, vel_dim_) -=
-      config_.adjacent_reg_weight * sampleError<SamplingSpaceType>(
-          identity_sample_, start_sample_list_.at(Limb::LeftHand));
+  qp_coeff_.obj_vec_(hand_start_config_idx_) -=
+      config_.adjacent_reg_weight * config_.target_hand_traj_angles.first;
   qp_coeff_.obj_mat_.topLeftCorner(config_dim_, config_dim_) += adjacent_reg_mat_;
 
   // Set QP inequality matrices of reachability
@@ -285,8 +284,9 @@ void RmapPlanningLocomanip::runOnce(bool publish)
   for (int i = 0; i < config_.motion_len; i++) {
     integrateVelToSample<SamplingSpaceType>(
         current_foot_sample_seq_[i], vel_all.template segment<vel_dim_>(i * vel_dim_));
-    integrateVelToSample<SamplingSpaceType>(
-        current_hand_sample_seq_[i], vel_all.template segment<vel_dim_>(hand_start_config_idx_ + i * vel_dim_));
+
+    current_hand_traj_angle_seq_[i] += vel_all(hand_start_config_idx_ + i);
+    current_hand_sample_seq_[i] = calcSampleFromHandTraj(current_hand_traj_angle_seq_[i]);
   }
 
   if (publish) {
@@ -309,6 +309,25 @@ void RmapPlanningLocomanip::runLoop()
     ros::spinOnce();
     loop_idx++;
   }
+}
+
+RmapPlanningLocomanip::SampleType RmapPlanningLocomanip::calcSampleFromHandTraj(
+    double angle) const
+{
+  SampleType sample;
+  sample.head<2>() =
+      config_.hand_traj_center + config_.hand_traj_radius * Eigen::Vector2d(std::sin(angle), -std::cos(angle));
+  sample.z() = angle;
+  return sample;
+}
+
+RmapPlanningLocomanip::SampleType RmapPlanningLocomanip::calcSampleGradFromHandTraj(
+    double angle) const
+{
+  SampleType grad;
+  grad.head<2>() = config_.hand_traj_radius * Eigen::Vector2d(std::cos(angle), std::sin(angle));
+  grad.z() = 1;
+  return grad;
 }
 
 void RmapPlanningLocomanip::publishMarkerArray() const
@@ -481,6 +500,7 @@ void RmapPlanningLocomanip::transCallback(
     const geometry_msgs::TransformStamped::ConstPtr& trans_st_msg)
 {
   if (trans_st_msg->child_frame_id == "target") {
-    target_hand_sample_ = poseToSample<SamplingSpaceType>(OmgCore::toSvaPTransform(trans_st_msg->transform));
+    config_.target_hand_traj_angles.second =
+        calcYawAngle(OmgCore::toSvaPTransform(trans_st_msg->transform).rotation().transpose());
   }
 }

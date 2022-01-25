@@ -5,6 +5,8 @@
 #include <map>
 #include <unordered_map>
 
+#include <mc_rtc/constants.h>
+
 #include <differentiable_rmap/RmapPlanning.h>
 #include <differentiable_rmap/RobotUtils.h>
 
@@ -53,6 +55,15 @@ class RmapPlanningLocomanip
     //! QP objective weight for SVM inequality error
     double svm_ineq_weight = 1e6;
 
+    //! Center of hand arc trajectory [m]
+    Eigen::Vector2d hand_traj_center = Eigen::Vector2d::Zero();
+
+    //! Radius of hand arc trajectory [m]
+    double hand_traj_radius = 1.0;
+
+    //! Target angles of start and goal in hand arc trajectory [deg]
+    std::pair<double, double> target_hand_traj_angles = {0, -10};
+
     //! Vertices of foot marker
     std::vector<Eigen::Vector3d> foot_vertices = {
       Eigen::Vector3d(-0.1, -0.05, 0.0),
@@ -79,6 +90,13 @@ class RmapPlanningLocomanip
       mc_rtc_config("reg_weight", reg_weight);
       mc_rtc_config("adjacent_reg_weight", adjacent_reg_weight);
       mc_rtc_config("svm_ineq_weight", svm_ineq_weight);
+      mc_rtc_config("hand_traj_center", hand_traj_center);
+      mc_rtc_config("hand_traj_radius", hand_traj_radius);
+      if (mc_rtc_config.has("target_hand_traj_angles")) {
+        mc_rtc_config("target_hand_traj_angles", target_hand_traj_angles);
+        target_hand_traj_angles.first = mc_rtc::constants::toRad(target_hand_traj_angles.first);
+        target_hand_traj_angles.second = mc_rtc::constants::toRad(target_hand_traj_angles.second);
+      }
       mc_rtc_config("foot_vertices", foot_vertices);
     }
   };
@@ -141,6 +159,12 @@ class RmapPlanningLocomanip
         rmap_planning_list_.at(limb));
   }
 
+  /** \brief Calculate sample from hand trajectory. */
+  SampleType calcSampleFromHandTraj(double angle) const;
+
+  /** \brief Calculate sample gradient from hand trajectory. */
+  SampleType calcSampleGradFromHandTraj(double angle) const;
+
   /** \brief Publish marker array. */
   void publishMarkerArray() const;
 
@@ -174,14 +198,14 @@ class RmapPlanningLocomanip
   //! Current sample sequence for foot
   std::vector<Sample<SamplingSpaceType>> current_foot_sample_seq_;
 
+  //! Current angle sequence in hand trajectory
+  std::vector<double> current_hand_traj_angle_seq_;
+
   //! Current sample sequence for hand
   std::vector<Sample<SamplingSpaceType>> current_hand_sample_seq_;
 
   //! Start sample
   std::unordered_map<Limb, Sample<SamplingSpaceType>> start_sample_list_;
-
-  //! Target sample
-  Sample<SamplingSpaceType> target_hand_sample_ = poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
 
   //! Adjacent regularization matrix
   Eigen::MatrixXd adjacent_reg_mat_;
