@@ -426,11 +426,20 @@ void RmapPlanningLocomanip::publishCurrentState() const
   // Publish pose array for foot and hand
   geometry_msgs::PoseArray pose_arr_msg;
   pose_arr_msg.header = header_msg;
-  pose_arr_msg.poses.resize(2 * config_.motion_len);
-  for (int i = 0; i < config_.motion_len; i++) {
-    pose_arr_msg.poses[i] =
+  pose_arr_msg.poses.resize(2 * config_.motion_len + 3);
+  size_t pose_idx = 0;
+  pose_arr_msg.poses[pose_idx++] =
+      OmgCore::toPoseMsg(sampleToPose<SamplingSpaceType>(start_sample_list_.at(Limb::LeftFoot)));
+  pose_arr_msg.poses[pose_idx++] =
+      OmgCore::toPoseMsg(sampleToPose<SamplingSpaceType>(start_sample_list_.at(Limb::RightFoot)));
+  for (int i = 0; i < config_.motion_len; i++, pose_idx++) {
+    pose_arr_msg.poses[pose_idx] =
         OmgCore::toPoseMsg(sampleToPose<SamplingSpaceType>(current_foot_sample_seq_[i]));
-    pose_arr_msg.poses[config_.motion_len + i] =
+  }
+  pose_arr_msg.poses[pose_idx++] =
+      OmgCore::toPoseMsg(sampleToPose<SamplingSpaceType>(start_sample_list_.at(Limb::LeftHand)));
+  for (int i = 0; i < config_.motion_len; i++, pose_idx++) {
+    pose_arr_msg.poses[pose_idx] =
         OmgCore::toPoseMsg(sampleToPose<SamplingSpaceType>(current_hand_sample_seq_[i]));
   }
   current_pose_arr_pub_.publish(pose_arr_msg);
