@@ -17,7 +17,7 @@ bbox_sample_num: 1000
 bbox_padding_rate: 1.2
 
 # Number of IK trial
-ik_trial_num: 3
+ik_trial_num: 5
 
 # Number of IK loop
 ik_loop_num: 50
