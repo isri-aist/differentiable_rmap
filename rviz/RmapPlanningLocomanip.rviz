@@ -24,7 +24,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: HandPositionCloud
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -99,7 +99,7 @@ Visualization Manager:
       Axes Radius: 0.019999999552965164
       Class: rviz/PoseArray
       Color: 255; 25; 0
-      Enabled: true
+      Enabled: false
       Head Length: 0.07000000029802322
       Head Radius: 0.029999999329447746
       Name: PoseArray
@@ -108,7 +108,7 @@ Visualization Manager:
       Shape: Axes
       Topic: /current_pose_arr
       Unreliable: false
-      Value: true
+      Value: false
     - Alpha: 1
       Class: jsk_rviz_plugin/PolygonArray
       Color: 164; 0; 0

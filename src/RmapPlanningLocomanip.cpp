@@ -475,14 +475,15 @@ void RmapPlanningLocomanip::publishCurrentState() const
   current_left_poly_arr_pub_.publish(left_poly_arr_msg);
   current_right_poly_arr_pub_.publish(right_poly_arr_msg);
 
-  // // Publish cloud for hand
-  // sensor_msgs::PointCloud cloud_msg;
-  // cloud_msg.header = header_msg;
-  // for (int i = 0; i < config_.motion_len; i++) {
-  //   cloud_msg.points.push_back(OmgCore::toPoint32Msg(
-  //       sampleToCloudPos<SamplingSpaceType>(current_hand_sample_seq_[i])));
-  // }
-  // current_cloud_pub_.publish(cloud_msg);
+  // Publish cloud for hand
+  sensor_msgs::PointCloud cloud_msg;
+  cloud_msg.header = header_msg;
+  cloud_msg.points.resize(config_.motion_len + 1);
+  for (int i = 0; i < cloud_msg.points.size(); i++) {
+    cloud_msg.points[i] = OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(
+        i < config_.motion_len ? current_hand_sample_seq_[i] : start_sample_list_.at(Limb::LeftHand)));
+  }
+  current_cloud_pub_.publish(cloud_msg);
 }
 
 void RmapPlanningLocomanip::transCallback(

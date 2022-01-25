@@ -550,9 +550,10 @@ void RmapPlanningMulticontact::publishCurrentState() const
   // Publish cloud for hand
   sensor_msgs::PointCloud cloud_msg;
   cloud_msg.header = header_msg;
+  cloud_msg.points.resize(hand_num_);
   for (int i = 0; i < hand_num_; i++) {
-    cloud_msg.points.push_back(OmgCore::toPoint32Msg(
-        sampleToCloudPos<HandSamplingSpaceType>(current_hand_sample_seq_[i])));
+    cloud_msg.points[i] = OmgCore::toPoint32Msg(
+        sampleToCloudPos<HandSamplingSpaceType>(current_hand_sample_seq_[i]));
   }
   current_cloud_pub_.publish(cloud_msg);
 }
