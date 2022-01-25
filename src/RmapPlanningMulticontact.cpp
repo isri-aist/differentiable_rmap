@@ -417,7 +417,6 @@ void RmapPlanningMulticontact::publishMarkerArray() const
     visualization_msgs::Marker grids_marker;
     grids_marker.header = header_msg;
     grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
-    grids_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.0, 0.0, 0.3});
 
     for (int i = 1; i < foot_num_; i++) {
       std::shared_ptr<RmapPlanning<FootSamplingSpaceType>> rmap_planning =

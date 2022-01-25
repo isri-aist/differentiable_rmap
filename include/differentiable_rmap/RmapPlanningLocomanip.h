@@ -11,7 +11,7 @@
 
 namespace DiffRmap
 {
-/** \brief Class to plan multi-contact motion based on differentiable reachability map.
+/** \brief Class to plan loco-manipulation motion based on differentiable reachability map.
 
     This class does not inherit RmapPlanning because it has many differences from RmapPlanning (e.g., it holds multiple SVM models).
  */
@@ -53,27 +53,11 @@ class RmapPlanningLocomanip
     //! Weight for relative sagittal position between hand and foot
     double rel_hand_foot_weight = 1e-3;
 
-    //! Start foot weight
-    double start_foot_weight = 1e3;
-
     //! QP objective weight for SVM inequality error
     double svm_ineq_weight = 1e6;
 
-    //! Lower and upper limit of hand position [m]
-    std::pair<Eigen::Vector3d, Eigen::Vector3d> foot_pos_limits = {
-      Eigen::Vector3d(-1e20, -1e20, -1e20), Eigen::Vector3d(1e20, 1e20, 1e20)
-    };
-
-    //! Lower and upper limit of foot position [m]
-    std::pair<Eigen::Vector3d, Eigen::Vector3d> hand_pos_limits = {
-      Eigen::Vector3d(-1e20, -1e20, -1e20), Eigen::Vector3d(1e20, 1e20, 1e20)
-    };
-
     //! Waist height [m]
     double waist_height = 0.8;
-
-    //! Hand lateral position [m]
-    double hand_lateral_pos = 0.5;
 
     //! Vertices of foot marker
     std::vector<Eigen::Vector3d> foot_vertices = {
@@ -101,75 +85,34 @@ class RmapPlanningLocomanip
       mc_rtc_config("reg_weight", reg_weight);
       mc_rtc_config("adjacent_reg_weight", adjacent_reg_weight);
       mc_rtc_config("rel_hand_foot_weight", rel_hand_foot_weight);
-      mc_rtc_config("start_foot_weight", start_foot_weight);
       mc_rtc_config("svm_ineq_weight", svm_ineq_weight);
-      mc_rtc_config("foot_pos_limits", foot_pos_limits);
-      mc_rtc_config("hand_pos_limits", hand_pos_limits);
       mc_rtc_config("waist_height", waist_height);
-      mc_rtc_config("hand_lateral_pos", hand_lateral_pos);
       mc_rtc_config("foot_vertices", foot_vertices);
     }
   };
 
  public:
-  /*! \brief Sampling space for foot. */
-  static constexpr SamplingSpace FootSamplingSpaceType = SamplingSpace::SE2;
+  /*! \brief Sampling space. */
+  static constexpr SamplingSpace SamplingSpaceType = SamplingSpace::SE2;
 
-  /*! \brief Sampling space for hand. */
-  static constexpr SamplingSpace HandSamplingSpaceType = SamplingSpace::R3;
+  /*! \brief Dimension of sample. */
+  static constexpr int sample_dim_ = sampleDim<SamplingSpaceType>();
 
-  /*! \brief Get sampling space for specified limb.
-      \tparam limb limb
-   */
-  template <Limb limb>
-  static inline constexpr SamplingSpace samplingSpaceType()
-  {
-    if constexpr (limb == Limb::LeftFoot || limb == Limb::RightFoot) {
-        return FootSamplingSpaceType;
-      } else if constexpr (limb == Limb::LeftHand || limb == Limb::RightHand) {
-        return HandSamplingSpaceType;
-      } else {
-      static_assert(static_cast<bool>(static_cast<int>(limb)) && false,
-                    "[samplingSpaceType] unsupported limb.");
-    }
-  }
+  /*! \brief Dimension of SVM input. */
+  static constexpr int input_dim_ = inputDim<SamplingSpaceType>();
 
-  /*! \brief Dimension of sample for foot. */
-  static constexpr int foot_sample_dim_ = sampleDim<FootSamplingSpaceType>();
-
-  /*! \brief Dimension of SVM input for foot. */
-  static constexpr int foot_input_dim_ = inputDim<FootSamplingSpaceType>();
-
-  /*! \brief Dimension of velocity for foot. */
-  static constexpr int foot_vel_dim_ = velDim<FootSamplingSpaceType>();
-
-  /*! \brief Dimension of sample for hand. */
-  static constexpr int hand_sample_dim_ = sampleDim<HandSamplingSpaceType>();
-
-  /*! \brief Dimension of SVM input for hand. */
-  static constexpr int hand_input_dim_ = inputDim<HandSamplingSpaceType>();
-
-  /*! \brief Dimension of velocity for hand. */
-  static constexpr int hand_vel_dim_ = velDim<HandSamplingSpaceType>();
+  /*! \brief Dimension of velocity. */
+  static constexpr int vel_dim_ = velDim<SamplingSpaceType>();
 
  public:
-  /*! \brief Type of sample vector for foot. */
-  using FootSampleType = Sample<FootSamplingSpaceType>;
+  /*! \brief Type of sample vector. */
+  using SampleType = Sample<SamplingSpaceType>;
 
-  /*! \brief Type of input vector for foot. */
-  using FootInputType = Input<FootSamplingSpaceType>;
+  /*! \brief Type of input vector. */
+  using InputType = Input<SamplingSpaceType>;
 
-  /*! \brief Type of velocity vector for foot. */
-  using FootVelType = Vel<FootSamplingSpaceType>;
-
-  /*! \brief Type of sample vector for hand. */
-  using HandSampleType = Sample<HandSamplingSpaceType>;
-
-  /*! \brief Type of input vector for hand. */
-  using HandInputType = Input<HandSamplingSpaceType>;
-
-  /*! \brief Type of velocity vector for hand. */
-  using HandVelType = Vel<HandSamplingSpaceType>;
+  /*! \brief Type of velocity vector. */
+  using VelType = Vel<SamplingSpaceType>;
 
  public:
   /** \brief Constructor.
@@ -177,7 +120,7 @@ class RmapPlanningLocomanip
       \param bag_path_list path list of ROS bag file of grid set (empty for no grid set)
    */
   RmapPlanningLocomanip(const std::unordered_map<Limb, std::string>& svm_path_list,
-                           const std::unordered_map<Limb, std::string>& bag_path_list);
+                        const std::unordered_map<Limb, std::string>& bag_path_list);
 
   /** \brief Destructor. */
   ~RmapPlanningLocomanip();
@@ -199,13 +142,10 @@ class RmapPlanningLocomanip
   void runLoop();
 
  protected:
-  /** \brief Get rmap planning for specified limb.
-      \tparam limb limb
-   */
-  template <Limb limb>
-  inline std::shared_ptr<RmapPlanning<samplingSpaceType<limb>()>> rmapPlanning() const
+  /** \brief Get rmap planning for specified limb. */
+  inline std::shared_ptr<RmapPlanning<SamplingSpaceType>> rmapPlanning(Limb limb) const
   {
-    return std::dynamic_pointer_cast<RmapPlanning<samplingSpaceType<limb>()>>(
+    return std::dynamic_pointer_cast<RmapPlanning<SamplingSpaceType>>(
         rmap_planning_list_.at(limb));
   }
 
@@ -219,13 +159,9 @@ class RmapPlanningLocomanip
   void transCallback(const geometry_msgs::TransformStamped::ConstPtr& trans_st_msg);
 
  protected:
-  //! Sample corresponding to identity pose for foot
-  static inline const Sample<FootSamplingSpaceType> identity_foot_sample_ =
-      poseToSample<FootSamplingSpaceType>(sva::PTransformd::Identity());
-
-  //! Sample corresponding to identity pose for hand
-  static inline const Sample<HandSamplingSpaceType> identity_hand_sample_ =
-      poseToSample<HandSamplingSpaceType>(sva::PTransformd::Identity());
+  //! Sample corresponding to identity pose
+  static inline const Sample<SamplingSpaceType> identity_sample_ =
+      poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
 
  protected:
   //! mc_rtc Configuration
@@ -244,23 +180,19 @@ class RmapPlanningLocomanip
   std::shared_ptr<OmgCore::QpSolver> qp_solver_;
 
   //! Current sample sequence for foot
-  std::vector<Sample<FootSamplingSpaceType>> current_foot_sample_seq_;
+  std::vector<Sample<SamplingSpaceType>> current_foot_sample_seq_;
 
   //! Current sample sequence for hand
-  std::vector<Sample<HandSamplingSpaceType>> current_hand_sample_seq_;
+  std::vector<Sample<SamplingSpaceType>> current_hand_sample_seq_;
 
   //! Start sample
-  Sample<FootSamplingSpaceType> start_foot_sample_ = poseToSample<FootSamplingSpaceType>(sva::PTransformd::Identity());
+  std::unordered_map<Limb, Sample<SamplingSpaceType>> start_sample_list_;
 
   //! Target sample
-  Sample<FootSamplingSpaceType> target_foot_sample_ = poseToSample<FootSamplingSpaceType>(sva::PTransformd::Identity());
+  Sample<SamplingSpaceType> target_hand_sample_ = poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
 
   //! Adjacent regularization matrix
   Eigen::MatrixXd adjacent_reg_mat_;
-
-  //! Number of foot and hand
-  int foot_num_ = 0;
-  int hand_num_ = 0;
 
   //! Dimensions of configuration, SVM inequality, and collision inequality
   int config_dim_ = 0;

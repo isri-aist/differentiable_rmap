@@ -16,6 +16,16 @@ enum class Limb
   RightHand
 };
 
+namespace Limbs
+{
+//! All limbs
+const std::set<Limb> all = {Limb::LeftFoot, Limb::RightFoot, Limb::LeftHand, Limb::RightHand};
+//! Feet
+const std::set<Limb> feet = {Limb::LeftFoot, Limb::RightFoot};
+//! Hands
+const std::set<Limb> hands = {Limb::LeftHand, Limb::RightHand};
+}
+
 /** \brief Convert string to limb. */
 inline Limb strToLimb(const std::string& limb_str)
 {
