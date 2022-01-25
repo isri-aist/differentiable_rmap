@@ -326,6 +326,29 @@ void RmapPlanningLocomanip::publishMarkerArray() const
   del_marker.id = marker_arr_msg.markers.size();
   marker_arr_msg.markers.push_back(del_marker);
 
+  // Hand trajectory marker
+  {
+    visualization_msgs::Marker traj_marker;
+    traj_marker.header = header_msg;
+    traj_marker.ns = "hand_traj";
+    traj_marker.id = marker_arr_msg.markers.size();
+    traj_marker.type = visualization_msgs::Marker::LINE_STRIP;
+    traj_marker.pose = OmgCore::toPoseMsg(sva::PTransformd::Identity());
+    traj_marker.scale.x = 0.02;
+    traj_marker.color = OmgCore::toColorRGBAMsg({0.0, 0.0, 0.8, 0.5});
+    size_t points_num = 100;
+    traj_marker.points.resize(points_num);
+    for (size_t i = 0; i < points_num; i++) {
+      double ratio = static_cast<double>(i) / (points_num - 1);
+      Eigen::Vector3d pos =
+          sampleToCloudPos<SamplingSpaceType>(calcSampleFromHandTraj(
+              (1 - ratio) * config_.target_hand_traj_angles.first + ratio * config_.target_hand_traj_angles.second));
+      pos.z() = 0;
+      traj_marker.points[i] = OmgCore::toPointMsg(pos);
+    }
+    marker_arr_msg.markers.push_back(traj_marker);
+  }
+
   // Foot reachable grids marker
   {
     visualization_msgs::Marker grids_marker;
