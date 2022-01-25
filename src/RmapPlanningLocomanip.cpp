@@ -90,14 +90,6 @@ void RmapPlanningLocomanip::setup()
   qp_solver_ = OmgCore::allocateQpSolver(OmgCore::QpSolverType::JRLQP);
 
   // Setup current sample sequence
-  current_foot_sample_seq_.resize(config_.motion_len);
-  current_hand_sample_seq_.resize(config_.motion_len);
-  for (int i = 0; i < config_.motion_len; i++) {
-    current_foot_sample_seq_[i] = poseToSample<SamplingSpaceType>(
-        config_.initial_sample_pose_list.at(i % 2 == 0 ? Limb::LeftFoot : Limb::RightFoot));
-    current_hand_sample_seq_[i] = poseToSample<SamplingSpaceType>(
-        config_.initial_sample_pose_list.at(Limb::LeftHand));
-  }
   for (const Limb& limb : Limbs::all) {
     start_sample_list_.emplace(
         limb,
@@ -105,6 +97,12 @@ void RmapPlanningLocomanip::setup()
             config_.initial_sample_pose_list.count(limb) > 0 ?
             config_.initial_sample_pose_list.at(limb) :
             sva::PTransformd::Identity()));
+  }
+  current_foot_sample_seq_.resize(config_.motion_len);
+  current_hand_sample_seq_.resize(config_.motion_len);
+  for (int i = 0; i < config_.motion_len; i++) {
+    current_foot_sample_seq_[i] = start_sample_list_.at(i % 2 == 0 ? Limb::LeftFoot : Limb::RightFoot);
+    current_hand_sample_seq_[i] = start_sample_list_.at(Limb::LeftHand);
   }
 
   // Setup adjacent regularization
@@ -167,12 +165,10 @@ void RmapPlanningLocomanip::runOnce(bool publish)
   qp_coeff_.obj_vec_.head(config_dim_) += adjacent_reg_mat_ * current_config;
   qp_coeff_.obj_vec_.head(vel_dim_) -=
       config_.adjacent_reg_weight * sampleError<SamplingSpaceType>(
-          start_sample_list_.at(Limb::LeftFoot),
-          current_foot_sample_seq_.front());
+          identity_sample_, start_sample_list_.at(Limb::LeftFoot));
   qp_coeff_.obj_vec_.segment(hand_start_config_idx_, vel_dim_) -=
       config_.adjacent_reg_weight * sampleError<SamplingSpaceType>(
-          start_sample_list_.at(Limb::LeftHand),
-          current_hand_sample_seq_.front());
+          identity_sample_, start_sample_list_.at(Limb::LeftHand));
   qp_coeff_.obj_mat_.topLeftCorner(config_dim_, config_dim_) += adjacent_reg_mat_;
 
   // Set QP inequality matrices of reachability
@@ -189,10 +185,12 @@ void RmapPlanningLocomanip::runOnce(bool publish)
     const SampleType& rel_sample =
         relSample<SamplingSpaceType>(pre_foot_sample, suc_foot_sample);
     const VelType& rel_svm_grad = rmap_planning->calcSVMGrad(rel_sample);
+    if (i > 0) {
+      qp_coeff_.ineq_mat_.template block<1, vel_dim_>(i, (i - 1) * vel_dim_) =
+          -1 * rel_svm_grad.transpose() *
+          relVelToVelMat<SamplingSpaceType>(pre_foot_sample, suc_foot_sample, false);
+    }
     qp_coeff_.ineq_mat_.template block<1, vel_dim_>(i, i * vel_dim_) =
-        -1 * rel_svm_grad.transpose() *
-        relVelToVelMat<SamplingSpaceType>(pre_foot_sample, suc_foot_sample, false);
-    qp_coeff_.ineq_mat_.template block<1, vel_dim_>(i, (i + 1) * vel_dim_) =
         -1 * rel_svm_grad.transpose() *
         relVelToVelMat<SamplingSpaceType>(pre_foot_sample, suc_foot_sample, true);
     qp_coeff_.ineq_vec_.template segment<1>(i) <<
@@ -276,8 +274,6 @@ void RmapPlanningLocomanip::runOnce(bool publish)
   // ROS_INFO_STREAM("qp_coeff_.obj_vec_:\n" << qp_coeff_.obj_vec_.transpose());
   // ROS_INFO_STREAM("qp_coeff_.ineq_mat_:\n" << qp_coeff_.ineq_mat_);
   // ROS_INFO_STREAM("qp_coeff_.ineq_vec_:\n" << qp_coeff_.ineq_vec_.transpose());
-  // ROS_INFO_STREAM("qp_coeff_.x_min_:\n" << qp_coeff_.x_min_.transpose());
-  // ROS_INFO_STREAM("qp_coeff_.x_max_:\n" << qp_coeff_.x_max_.transpose());
 
   // Solve QP
   Eigen::VectorXd vel_all = qp_solver_->solve(qp_coeff_);

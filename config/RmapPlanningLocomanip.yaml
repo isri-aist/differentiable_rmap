@@ -17,7 +17,7 @@ initial_sample_pose_list:
   RightFoot:
     translation: [0.0, -0.1, 0.0]
   LeftHand:
-    translation: [0.0, 0.0, 0.0]
+    translation: [0.5, 0.2, 0.0]
 
 # Number of footsteps
 motion_len: 4
