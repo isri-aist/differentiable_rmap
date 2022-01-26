@@ -30,13 +30,16 @@ adjacent_reg_weight: 1e-3
 svm_ineq_weight: 1e6
 
 # Center of hand arc trajectory [m]
-hand_traj_center: [0.5, 0.75] # [0.75, 0.9]
+hand_traj_center: [0.5, 1.0] # [0.75, 0.9]
 
 # Radius of hand arc trajectory [m]
-hand_traj_radius: 0.4
+hand_traj_radius: 0.75
+
+# Radius of object arc trajectory [m] (used only in DumpHwmPlannerLocomanipCommands.py)
+obj_traj_radius: 0.4
 
 # Target angles of start and goal in hand arc trajectory [deg]
-target_hand_traj_angles: [0, -150] # [0, -120]
+target_hand_traj_angles: [0, -100] # [0, -120]
 
 # Vertices of foot marker
 foot_vertices: [

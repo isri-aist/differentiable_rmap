@@ -26,8 +26,8 @@ class DumpHwmPlannerLocomanipCommands(object):
         config_path = rospkg.RosPack().get_path("differentiable_rmap") + "/config/RmapPlanningLocomanip.yaml"
         self.config = mc_rtc.Configuration(config_path)
         self.hand_traj_center = np.array(self.config("hand_traj_center", [float]))
-        self.hand_traj_radius = self.config("hand_traj_radius", float)
-        # rospy.loginfo("hand_traj_center: {}, hand_traj_radius: {}".format(self.hand_traj_center, self.hand_traj_radius))
+        self.obj_traj_radius = self.config("obj_traj_radius", float)
+        # rospy.loginfo("hand_traj_center: {}, obj_traj_radius: {}".format(self.hand_traj_center, self.obj_traj_radius))
 
         self.sub = rospy.Subscriber("current_pose_arr", PoseArray, self.callback, queue_size=1)
         self.pub = rospy.Publisher("footstep_sequence", LocomanipFootstepSequence2DStamped, queue_size=1, latch=True)
@@ -70,16 +70,16 @@ class DumpHwmPlannerLocomanipCommands(object):
                     ratio = float(j) / (path_segment_divide_num - 1)
                     theta = (1 - ratio) * start_theta + ratio * end_theta
                     obj_pose_msg = Pose2D()
-                    obj_pose_msg.x = self.hand_traj_center[0] + self.hand_traj_radius * np.sin(theta)
-                    obj_pose_msg.y = self.hand_traj_center[1] - self.hand_traj_radius * np.cos(theta)
+                    obj_pose_msg.x = self.hand_traj_center[0] + self.obj_traj_radius * np.sin(theta)
+                    obj_pose_msg.y = self.hand_traj_center[1] - self.obj_traj_radius * np.cos(theta)
                     obj_pose_msg.theta = theta
                     path_segment_msg.poses.append(obj_pose_msg)
                     if j == 0:
                         path_segment_msg.lengths.append(0)
                     else:
                         path_segment_msg.lengths.append(
-                            self.hand_traj_radius * np.abs(end_theta - start_theta) / (path_segment_divide_num - 1))
-                path_segment_msg.length = self.hand_traj_radius * np.abs(end_theta - start_theta)
+                            self.obj_traj_radius * np.abs(end_theta - start_theta) / (path_segment_divide_num - 1))
+                path_segment_msg.length = self.obj_traj_radius * np.abs(end_theta - start_theta)
 
             if i <= 1:
                 locomanip_footstep_seq_msg.sequence.obj_path.poses += path_segment_msg.poses

@@ -7,7 +7,7 @@ root_pose:
 
 # Body pose offset
 body_pose_offset:
-  translation: [0, 0, 0]
+  translation: [0, 0, -0.275]
   rotation: [0, 1.57, 0]
 
 # Number of samples to make bounding box
