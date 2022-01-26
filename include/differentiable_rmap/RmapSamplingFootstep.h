@@ -78,23 +78,12 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
    */
   virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
 
-  /** \brief Set additional task list in IK
-      \param additional_task_list additional task list in IK
-  */
-  inline void setAdditionalTaskList(const std::vector<std::shared_ptr<OmgCore::TaskBase>>& additional_task_list)
-  {
-    additional_task_list_ = additional_task_list;
-  }
-
  protected:
   /** \brief Setup sampling. */
   virtual void setupSampling() override;
 
   /** \brief Generate one sample. */
   virtual void sampleOnce(int sample_idx) override;
-
-  /** \brief Publish ROS message. */
-  virtual void publish() override;
 
  protected:
   //! Configuration
@@ -108,9 +97,6 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
   //! Taskset list for IK
   std::vector<OmgCore::Taskset> taskset_list_;
 
-  //! Additional task list in IK
-  std::vector<std::shared_ptr<OmgCore::TaskBase>> additional_task_list_;
-
   //! Name of bodies used in IK
   std::string support_foot_body_name_;
   std::string swing_foot_body_name_;
@@ -120,9 +106,6 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
   FootstepPos footstep_pos_coeff_;
   //! Footstep position offset to make sample from [-1:1] random value
   FootstepPos footstep_pos_offset_;
-
-  //! ROS related members
-  ros::Publisher collision_marker_pub_;
 
  protected:
   // See https://stackoverflow.com/a/6592617
@@ -147,6 +130,8 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
   using RmapSamplingIK<SamplingSpaceType>::unreachable_cloud_msg_;
 
   using RmapSamplingIK<SamplingSpaceType>::taskset_;
+
+  using RmapSamplingIK<SamplingSpaceType>::additional_task_list_;
 
   using RmapSamplingIK<SamplingSpaceType>::aux_rb_arr_;
 

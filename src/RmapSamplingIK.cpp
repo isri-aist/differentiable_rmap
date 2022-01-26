@@ -3,6 +3,7 @@
 #include <optmotiongen_msgs/RobotStateArray.h>
 
 #include <optmotiongen/Utils/RosUtils.h>
+#include <optmotiongen/Task/CollisionTask.h>
 
 #include <differentiable_rmap/RmapSamplingIK.h>
 
@@ -39,6 +40,8 @@ RmapSamplingIK<SamplingSpaceType>::RmapSamplingIK(
     const std::shared_ptr<OmgCore::Robot>& rb):
     RmapSampling<SamplingSpaceType>(rb)
 {
+  collision_marker_pub_ =
+      nh_.template advertise<visualization_msgs::MarkerArray>("collision_marker", 1, true);
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -48,6 +51,8 @@ RmapSamplingIK<SamplingSpaceType>::RmapSamplingIK(
     const std::vector<std::string>& joint_name_list):
     RmapSampling<SamplingSpaceType>(rb, body_name, joint_name_list)
 {
+  collision_marker_pub_ =
+      nh_.template advertise<visualization_msgs::MarkerArray>("collision_marker", 1, true);
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -80,6 +85,10 @@ void RmapSamplingIK<SamplingSpaceType>::setupSampling()
 
   // Setup problem
   taskset_.addTask(body_task_);
+
+  for (const auto& additional_task : additional_task_list_) {
+    taskset_.addTask(additional_task);
+  }
 
   problem_ = std::make_shared<OmgCore::IterativeQpProblem>(rb_arr_);
   // JRLQP is superior to other QP solvers in terms of computational time and solvability
@@ -184,6 +193,53 @@ void RmapSamplingIK<SamplingSpaceType>::sampleOnce(int sample_idx)
   } else {
     unreachable_cloud_msg_.points.push_back(OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample)));
   }
+}
+
+template <SamplingSpace SamplingSpaceType>
+void RmapSamplingIK<SamplingSpaceType>::publish()
+{
+  RmapSampling<SamplingSpaceType>::publish();
+
+  // Publish collision marker
+  visualization_msgs::MarkerArray marker_arr_msg;
+
+  // delete marker
+  visualization_msgs::Marker del_marker;
+  del_marker.action = visualization_msgs::Marker::DELETEALL;
+  del_marker.header.frame_id = "world";
+  del_marker.id = marker_arr_msg.markers.size();
+  marker_arr_msg.markers.push_back(del_marker);
+
+  // point and line list marker connecting the closest points
+  visualization_msgs::Marker closest_points_marker;
+  closest_points_marker.header.frame_id = "world";
+  closest_points_marker.ns = "closest_points";
+  closest_points_marker.id = marker_arr_msg.markers.size();
+  closest_points_marker.type = visualization_msgs::Marker::SPHERE_LIST;
+  closest_points_marker.color = OmgCore::toColorRGBAMsg({1, 0, 0, 1});
+  closest_points_marker.scale = OmgCore::toVector3Msg({0.02, 0.02, 0.02}); // sphere size
+  closest_points_marker.pose.orientation = OmgCore::toQuaternionMsg({0, 0, 0, 1});
+  visualization_msgs::Marker closest_lines_marker;
+  closest_lines_marker.header.frame_id = "world";
+  closest_lines_marker.ns = "closest_lines";
+  closest_lines_marker.id = marker_arr_msg.markers.size();
+  closest_lines_marker.type = visualization_msgs::Marker::LINE_LIST;
+  closest_lines_marker.color = OmgCore::toColorRGBAMsg({1, 0, 0, 1});
+  closest_lines_marker.scale.x = 0.01; // line width
+  closest_lines_marker.pose.orientation = OmgCore::toQuaternionMsg({0, 0, 0, 1});
+  for (const auto& task : additional_task_list_) {
+    if (auto collision_task = std::dynamic_pointer_cast<OmgCore::CollisionTask>(task)) {
+      for (auto i : {0, 1}) {
+        closest_points_marker.points.push_back(
+            OmgCore::toPointMsg(collision_task->func()->closest_points_[i]));
+        closest_lines_marker.points.push_back(
+            OmgCore::toPointMsg(collision_task->func()->closest_points_[i]));
+      }
+    }
+  }
+  marker_arr_msg.markers.push_back(closest_points_marker);
+  marker_arr_msg.markers.push_back(closest_lines_marker);
+  collision_marker_pub_.publish(marker_arr_msg);
 }
 
 std::shared_ptr<RmapSamplingBase> DiffRmap::createRmapSamplingIK(

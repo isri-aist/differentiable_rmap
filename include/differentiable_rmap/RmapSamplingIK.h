@@ -75,6 +75,14 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
    */
   virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
 
+  /** \brief Set additional task list in IK
+      \param additional_task_list additional task list in IK
+  */
+  inline void setAdditionalTaskList(const std::vector<std::shared_ptr<OmgCore::TaskBase>>& additional_task_list)
+  {
+    additional_task_list_ = additional_task_list;
+  }
+
  protected:
   /** \brief Constructor.
       \param rb robot
@@ -87,12 +95,18 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
   /** \brief Generate one sample. */
   virtual void sampleOnce(int sample_idx) override;
 
+  /** \brief Publish ROS message. */
+  virtual void publish() override;
+
  protected:
   //! Configuration
   Configuration config_;
 
   //! Taskset for IK
   OmgCore::Taskset taskset_;
+
+  //! Additional task list in IK
+  std::vector<std::shared_ptr<OmgCore::TaskBase>> additional_task_list_;
 
   //! Auxiliary robot array (always empty)
   OmgCore::AuxRobotArray aux_rb_arr_;
@@ -107,6 +121,9 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
   Eigen::Vector3d body_pos_coeff_;
   //! Body position offset to make sample from [-1:1] random value
   Eigen::Vector3d body_pos_offset_;
+
+  //! ROS related members
+  ros::Publisher collision_marker_pub_;
 
  protected:
   // See https://stackoverflow.com/a/6592617
