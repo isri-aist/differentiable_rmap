@@ -1,5 +1,8 @@
 /* Author: Masaki Murooka */
 
+#include <sch/S_Polyhedron/S_Polyhedron.h>
+#include <sch/S_Object/S_Box.h>
+
 #include <differentiable_rmap/RmapSamplingIK.h>
 
 using namespace DiffRmap;
@@ -48,6 +51,37 @@ int main(int argc, char **argv)
     std::string config_path;
     pnh.getParam("config_path", config_path);
     rmap_sampling->configure(mc_rtc::Configuration(config_path));
+  }
+
+  // Set additional task list
+  if (pnh.hasParam("config_path")) {
+    std::string config_path;
+    pnh.getParam("config_path", config_path);
+    mc_rtc::Configuration mc_rtc_config(config_path);
+
+    std::vector<std::string> door_collision_body_names_list = mc_rtc_config("door_collision_body_names_list");
+    Eigen::Vector3d door_collision_box_scale = mc_rtc_config("door_collision_box_scale");
+    double collision_task_weight = mc_rtc_config("collision_task_weight", 1.0);
+    std::string robot_convex_path;
+    nh.getParam("robot_convex_path", robot_convex_path);
+
+    std::vector<std::shared_ptr<OmgCore::TaskBase>> additional_task_list;
+    for (const auto& body_name : door_collision_body_names_list) {
+      OmgCore::Twin<std::shared_ptr<sch::S_Object>> sch_objs;
+      sch_objs[0] = OmgCore::loadSchPolyhedron(robot_convex_path + body_name + "_mesh-ch.txt");
+      sch_objs[1] = std::make_shared<sch::S_Box>(
+          door_collision_box_scale.x(), door_collision_box_scale.y(), door_collision_box_scale.z());
+      auto task = std::make_shared<OmgCore::CollisionTask>(
+          std::make_shared<OmgCore::CollisionFunc>(
+              rmap_sampling->rbArr(),
+              OmgCore::Twin<int>{0, 0},
+              OmgCore::Twin<std::string>{body_name, "door"},
+              sch_objs),
+          0.05);
+      task->setWeight(collision_task_weight);
+      additional_task_list.push_back(task);
+    }
+    rmap_sampling->setAdditionalTaskList(additional_task_list);
   }
 
   // Run

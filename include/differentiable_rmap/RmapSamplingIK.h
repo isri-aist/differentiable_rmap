@@ -42,6 +42,9 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
     //! Body name pair list for collision avoidance
     std::vector<OmgCore::Twin<std::string>> collision_body_names_list;
 
+    //! Weight of collision task
+    double collision_task_weight = 1.0;
+
     /*! \brief Load mc_rtc configuration. */
     inline virtual void load(const mc_rtc::Configuration& mc_rtc_config) override
     {
@@ -67,6 +70,7 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
               collision_body_names_list_flat[2 * i + 1]));
         }
       }
+      mc_rtc_config("collision_task_weight", collision_task_weight);
     }
   };
 

@@ -36,3 +36,17 @@ collision_body_names_list:
   "CHEST_LINK1", "LARM_LINK2",
   "CHEST_LINK1", "LARM_LINK3",
   "CHEST_LINK1", "LARM_LINK6"]
+
+# Weight of collision task
+collision_task_weight: 1e2
+
+####
+# The following configurations are not loaded in sampling class but directly loaded in node
+####
+
+# Body name list for collision avoidance with door
+door_collision_body_names_list:
+  ["BODY", "CHEST_LINK1", "LARM_LINK2", "LARM_LINK3"]
+
+# Scale of collision box for door [m]
+door_collision_box_scale: [0.05, 0.9, 1.8]

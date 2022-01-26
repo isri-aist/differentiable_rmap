@@ -154,14 +154,15 @@ void RmapSamplingIK<SamplingSpaceType>::setupCollisionTask()
     for (auto i : {0, 1}) {
       sch_objs[i] = OmgCore::loadSchPolyhedron(robot_convex_path + body_names[i] + "_mesh-ch.txt");
     }
-    collision_task_list_.push_back(
-        std::make_shared<OmgCore::CollisionTask>(
-            std::make_shared<OmgCore::CollisionFunc>(
-                rb_arr_,
-                OmgCore::Twin<int>{0, 0},
-                body_names,
-                sch_objs),
-            0.05));
+    auto task = std::make_shared<OmgCore::CollisionTask>(
+        std::make_shared<OmgCore::CollisionFunc>(
+            rb_arr_,
+            OmgCore::Twin<int>{0, 0},
+            body_names,
+            sch_objs),
+        0.05);
+    task->setWeight(config_.collision_task_weight);
+    collision_task_list_.push_back(task);
   }
 }
 
@@ -207,7 +208,7 @@ void RmapSamplingIK<SamplingSpaceType>::sampleOnce(int sample_idx)
     problem_->run(config_.ik_loop_num);
     taskset_.update(rb_arr_, rbc_arr_, aux_rb_arr_);
 
-    if (taskset_.errorSquaredNorm() < std::pow(config_.ik_error_thre, 2)) {
+    if (taskset_.errorSquaredNorm(false) < std::pow(config_.ik_error_thre, 2)) {
       reachability = true;
       break;
     }

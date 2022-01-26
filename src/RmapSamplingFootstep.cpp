@@ -131,7 +131,7 @@ void RmapSamplingFootstep<SamplingSpaceType>::sampleOnce(int sample_idx)
     // Check task error
     for (auto& taskset : taskset_list_) {
       taskset.update(rb_arr_, rbc_arr_, aux_rb_arr_);
-      if (taskset.errorSquaredNorm() > std::pow(config_.ik_error_thre, 2)) {
+      if (taskset.errorSquaredNorm(false) > std::pow(config_.ik_error_thre, 2)) {
         reachability = false;
         break;
       }

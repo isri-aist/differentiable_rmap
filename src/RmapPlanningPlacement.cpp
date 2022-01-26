@@ -402,12 +402,12 @@ bool RmapPlanningPlacement<SamplingSpaceType>::postureCallback(
       problem->run(config_.ik_loop_num);
       taskset.update(rb_arr, rbc_arr, aux_rb_arr);
 
-      if (taskset.errorSquaredNorm() < best_error) {
-        best_error = taskset.errorSquaredNorm();
+      if (taskset.errorSquaredNorm(false) < best_error) {
+        best_error = taskset.errorSquaredNorm(false);
         best_error_vec = body_task->weight().cwiseProduct(body_task->value());
         best_rbc = std::make_shared<rbd::MultiBodyConfig>(*rbc);
       }
-      if (taskset.errorSquaredNorm() < std::pow(config_.ik_error_thre, 2)) {
+      if (taskset.errorSquaredNorm(false) < std::pow(config_.ik_error_thre, 2)) {
         ik_solved = true;
         break;
       }
