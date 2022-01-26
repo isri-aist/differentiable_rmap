@@ -27,7 +27,7 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
     //! Padding rate of bounding box
     double bbox_padding_rate = 1.2;
 
-    //! Lower and upper limits of body Yaw angle [deg]
+    //! Lower and upper limits of body Yaw angle [rad] ([deg] in YAML file)
     std::pair<double, double> body_yaw_limits = {-M_PI, M_PI};
 
     //! Number of IK trial

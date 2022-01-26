@@ -18,7 +18,7 @@ initial_sample_pose_list:
     translation: [0.0, -0.1, 0.0]
 
 # Number of footsteps
-motion_len: 6
+motion_len: 8
 
 # Regularization weight
 reg_weight: 1e-6
@@ -30,7 +30,7 @@ adjacent_reg_weight: 1e-3
 svm_ineq_weight: 1e6
 
 # Center of hand arc trajectory [m]
-hand_traj_center: [0.5, 1.0] # [0.75, 0.9]
+hand_traj_center: [0.75, 0.9]
 
 # Radius of hand arc trajectory [m]
 hand_traj_radius: 0.75

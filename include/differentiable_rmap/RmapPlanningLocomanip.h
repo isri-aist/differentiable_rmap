@@ -61,7 +61,7 @@ class RmapPlanningLocomanip
     //! Radius of hand arc trajectory [m]
     double hand_traj_radius = 1.0;
 
-    //! Target angles of start and goal in hand arc trajectory [deg]
+    //! Target angles of start and goal in hand arc trajectory [rad] ([deg] in YAML file)
     std::pair<double, double> target_hand_traj_angles = {0, -10};
 
     //! Vertices of foot marker
