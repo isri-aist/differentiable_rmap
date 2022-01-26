@@ -6,7 +6,7 @@
   <arg name="robot_model_path" value="$(find hrp2_drc_description)/urdf/HRP2KAImain.urdf" />
   <param name="robot_description" command="$(find xacro)/xacro $(arg robot_model_path)" />
   <rosparam subst_value="true">
-    robot/convex_path: $(find hrp2_drc_description)/convex/HRP2KAImain/
+    robot_convex_path: $(find hrp2_drc_description)/convex/HRP2KAImain/
   </rosparam>
 
   <node pkg="differentiable_rmap" type="NodeRmapSamplingFootstep" name="rmap_sampling_footstep"

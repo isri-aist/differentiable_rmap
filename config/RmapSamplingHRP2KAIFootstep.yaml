@@ -7,6 +7,12 @@ ik_loop_num: 100
 # Threshold of IK [m], [rad]
 ik_error_thre: 5e-3
 
+# Body name list for collision avoidance
+collision_body_names_list:
+  ["LLEG_LINK2", "RLEG_LINK2",
+  "LLEG_LINK3", "RLEG_LINK3",
+  "LLEG_LINK5", "RLEG_LINK5"]
+
 # Upper limit of footstep sampling position [m], [deg]
 upper_footstep_pos: [0.5, 0.6, 60]
 
@@ -24,10 +30,3 @@ initial_posture:
   RLEG_JOINT2: -15
   RLEG_JOINT3: 30
   RLEG_JOINT4: -15
-
-# Body name list for collision avoidance
-# This configuration is not loaded in sampling class but directly loaded in node
-collision_body_names_list:
-  ["LLEG_LINK2", "RLEG_LINK2",
-  "LLEG_LINK3", "RLEG_LINK3",
-  "LLEG_LINK5", "RLEG_LINK5"]

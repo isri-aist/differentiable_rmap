@@ -56,14 +56,15 @@ void RmapSamplingFootstep<SamplingSpaceType>::setupSampling()
       sva::PTransformd::Identity(),
       "WaistBodyPoseTask");
 
+  this->setupCollisionTask();
+
   // Setup problem
   taskset_list_.resize(2);
   taskset_list_[0].addTask(support_foot_body_task_);
   taskset_list_[1].addTask(swing_foot_body_task_);
   taskset_list_[1].addTask(waist_body_task_);
-
-  for (const auto& additional_task : additional_task_list_) {
-    taskset_list_[1].addTask(additional_task);
+  for (const auto& collision_task : collision_task_list_) {
+    taskset_list_[1].addTask(collision_task);
   }
 
   problem_ = std::make_shared<OmgCore::IterativeQpProblem>(rb_arr_);

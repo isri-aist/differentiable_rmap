@@ -4,6 +4,7 @@
 
 #include <optmotiongen/Problem/IterativeQpProblem.h>
 #include <optmotiongen/Task/BodyTask.h>
+#include <optmotiongen/Task/CollisionTask.h>
 
 #include <differentiable_rmap/RmapSampling.h>
 
@@ -38,6 +39,9 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
     //! Constraint space of IK (default is same as template parameter SamplingSpaceType)
     std::string ik_constraint_space = "";
 
+    //! Body name pair list for collision avoidance
+    std::vector<OmgCore::Twin<std::string>> collision_body_names_list;
+
     /*! \brief Load mc_rtc configuration. */
     inline virtual void load(const mc_rtc::Configuration& mc_rtc_config) override
     {
@@ -49,6 +53,20 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
       mc_rtc_config("ik_loop_num", ik_loop_num);
       mc_rtc_config("ik_error_thre", ik_error_thre);
       mc_rtc_config("ik_constraint_space", ik_constraint_space);
+      if (mc_rtc_config.has("collision_body_names_list")) {
+        std::vector<std::string> collision_body_names_list_flat = mc_rtc_config("collision_body_names_list");
+        if (collision_body_names_list_flat.size() % 2 != 0) {
+          mc_rtc::log::error_and_throw<std::runtime_error>(
+              "collision_body_names_list size must be a multiple of 2, but is {}",
+              collision_body_names_list_flat.size());
+        }
+        collision_body_names_list.clear();
+        for (size_t i = 0; i < collision_body_names_list_flat.size() / 2; i++) {
+          collision_body_names_list.push_back(OmgCore::Twin<std::string>(
+              collision_body_names_list_flat[2 * i],
+              collision_body_names_list_flat[2 * i + 1]));
+        }
+      }
     }
   };
 
@@ -75,14 +93,6 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
    */
   virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
 
-  /** \brief Set additional task list in IK
-      \param additional_task_list additional task list in IK
-  */
-  inline void setAdditionalTaskList(const std::vector<std::shared_ptr<OmgCore::TaskBase>>& additional_task_list)
-  {
-    additional_task_list_ = additional_task_list;
-  }
-
  protected:
   /** \brief Constructor.
       \param rb robot
@@ -91,6 +101,9 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
 
   /** \brief Setup sampling. */
   virtual void setupSampling() override;
+
+  /** \brief Setup collision tasks. */
+  void setupCollisionTask();
 
   /** \brief Generate one sample. */
   virtual void sampleOnce(int sample_idx) override;
@@ -105,8 +118,8 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
   //! Taskset for IK
   OmgCore::Taskset taskset_;
 
-  //! Additional task list in IK
-  std::vector<std::shared_ptr<OmgCore::TaskBase>> additional_task_list_;
+  //! Collision task list in IK
+  std::vector<std::shared_ptr<OmgCore::CollisionTask>> collision_task_list_;
 
   //! Auxiliary robot array (always empty)
   OmgCore::AuxRobotArray aux_rb_arr_;

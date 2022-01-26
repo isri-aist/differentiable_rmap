@@ -1,9 +1,10 @@
 /* Author: Masaki Murooka */
 
+#include <sch/S_Polyhedron/S_Polyhedron.h>
+
 #include <optmotiongen_msgs/RobotStateArray.h>
 
 #include <optmotiongen/Utils/RosUtils.h>
-#include <optmotiongen/Task/CollisionTask.h>
 
 #include <differentiable_rmap/RmapSamplingIK.h>
 
@@ -83,11 +84,12 @@ void RmapSamplingIK<SamplingSpaceType>::setupSampling()
       "BodyPoseTask",
       getSelectIdxs(ik_constraint_space));
 
+  setupCollisionTask();
+
   // Setup problem
   taskset_.addTask(body_task_);
-
-  for (const auto& additional_task : additional_task_list_) {
-    taskset_.addTask(additional_task);
+  for (const auto& collision_task : collision_task_list_) {
+    taskset_.addTask(collision_task);
   }
 
   problem_ = std::make_shared<OmgCore::IterativeQpProblem>(rb_arr_);
@@ -134,6 +136,30 @@ void RmapSamplingIK<SamplingSpaceType>::setupSampling()
   // Calculate coefficient and offset to make random position
   body_pos_coeff_ = config_.bbox_padding_rate * (upper_body_pos - lower_body_pos) / 2;
   body_pos_offset_ = (upper_body_pos + lower_body_pos) / 2;
+}
+
+template <SamplingSpace SamplingSpaceType>
+void RmapSamplingIK<SamplingSpaceType>::setupCollisionTask()
+{
+  // Since robot_convex_path needs to resolve the ROS package path, it is obtained by rosparam instead of mc_rtc configuration
+  std::string robot_convex_path;
+  nh_.getParam("robot_convex_path", robot_convex_path);
+
+  collision_task_list_.clear();
+  for (const auto& body_names : config_.collision_body_names_list) {
+    OmgCore::Twin<std::shared_ptr<sch::S_Object>> sch_objs;
+    for (auto i : {0, 1}) {
+      sch_objs[i] = OmgCore::loadSchPolyhedron(robot_convex_path + body_names[i] + "_mesh-ch.txt");
+    }
+    collision_task_list_.push_back(
+        std::make_shared<OmgCore::CollisionTask>(
+            std::make_shared<OmgCore::CollisionFunc>(
+                rb_arr_,
+                OmgCore::Twin<int>{0, 0},
+                body_names,
+                sch_objs),
+            0.05));
+  }
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -227,14 +253,12 @@ void RmapSamplingIK<SamplingSpaceType>::publish()
   closest_lines_marker.color = OmgCore::toColorRGBAMsg({1, 0, 0, 1});
   closest_lines_marker.scale.x = 0.01; // line width
   closest_lines_marker.pose.orientation = OmgCore::toQuaternionMsg({0, 0, 0, 1});
-  for (const auto& task : additional_task_list_) {
-    if (auto collision_task = std::dynamic_pointer_cast<OmgCore::CollisionTask>(task)) {
-      for (auto i : {0, 1}) {
-        closest_points_marker.points.push_back(
-            OmgCore::toPointMsg(collision_task->func()->closest_points_[i]));
-        closest_lines_marker.points.push_back(
-            OmgCore::toPointMsg(collision_task->func()->closest_points_[i]));
-      }
+  for (const auto& collision_task : collision_task_list_) {
+    for (auto i : {0, 1}) {
+      closest_points_marker.points.push_back(
+          OmgCore::toPointMsg(collision_task->func()->closest_points_[i]));
+      closest_lines_marker.points.push_back(
+          OmgCore::toPointMsg(collision_task->func()->closest_points_[i]));
     }
   }
   marker_arr_msg.markers.push_back(closest_points_marker);
