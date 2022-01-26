@@ -156,4 +156,4 @@ if __name__ == "__main__":
     dump = DumpMotion6DoFMulticontactCommands()
     dump.spin()
     print("Run the following command to save ROS bag:")
-    print("  rosbag record /marker_arr /current_left_poly_arr /current_right_poly_arr -l 1 -O `rospack find differentiable_rmap`/data/bridge_rmap_planning_multicontact.bag")
+    print("  rosbag record /marker_arr /current_left_poly_arr /current_right_poly_arr /current_cloud -l 1 -O `rospack find differentiable_rmap`/data/bridge_rmap_planning_multicontact.bag")
