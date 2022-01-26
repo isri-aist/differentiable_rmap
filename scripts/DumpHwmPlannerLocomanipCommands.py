@@ -63,6 +63,7 @@ class DumpHwmPlannerLocomanipCommands(object):
             end_theta = locomanip_footstep_msg.obj_pose.theta
             if i == 0:
                 path_segment_msg.poses = []
+                path_segment_msg.lengths = []
                 path_segment_msg.length = 0
             else:
                 for j in range(path_segment_divide_num):
@@ -73,12 +74,19 @@ class DumpHwmPlannerLocomanipCommands(object):
                     obj_pose_msg.y = self.hand_traj_center[1] - self.hand_traj_radius * np.cos(theta)
                     obj_pose_msg.theta = theta
                     path_segment_msg.poses.append(obj_pose_msg)
+                    if j == 0:
+                        path_segment_msg.lengths.append(0)
+                    else:
+                        path_segment_msg.lengths.append(
+                            self.hand_traj_radius * np.abs(end_theta - start_theta) / (path_segment_divide_num - 1))
                 path_segment_msg.length = self.hand_traj_radius * np.abs(end_theta - start_theta)
 
             if i <= 1:
                 locomanip_footstep_seq_msg.sequence.obj_path.poses += path_segment_msg.poses
+                locomanip_footstep_seq_msg.sequence.obj_path.lengths += path_segment_msg.lengths
             else:
                 locomanip_footstep_seq_msg.sequence.obj_path.poses += path_segment_msg.poses[1:]
+                locomanip_footstep_seq_msg.sequence.obj_path.lengths += path_segment_msg.lengths[1:]
             locomanip_footstep_seq_msg.sequence.obj_path.length += path_segment_msg.length
 
             # Append
