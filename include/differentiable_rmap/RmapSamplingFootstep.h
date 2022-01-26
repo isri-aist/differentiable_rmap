@@ -131,8 +131,6 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
   using RmapSamplingIK<SamplingSpaceType>::reachable_cloud_msg_;
   using RmapSamplingIK<SamplingSpaceType>::unreachable_cloud_msg_;
 
-  using RmapSamplingIK<SamplingSpaceType>::taskset_;
-
   using RmapSamplingIK<SamplingSpaceType>::aux_rb_arr_;
 
   using RmapSamplingIK<SamplingSpaceType>::body_task_;
