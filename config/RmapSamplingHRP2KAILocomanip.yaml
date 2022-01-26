@@ -27,3 +27,12 @@ ik_error_thre: 5e-3
 
 # Constraint space of IK (default is same as template parameter SamplingSpaceType)
 ik_constraint_space: SE3
+
+# Body name list for collision avoidance
+collision_body_names_list:
+  ["BODY", "LARM_LINK2",
+  "BODY", "LARM_LINK3",
+  "BODY", "LARM_LINK6",
+  "CHEST_LINK1", "LARM_LINK2",
+  "CHEST_LINK1", "LARM_LINK3",
+  "CHEST_LINK1", "LARM_LINK6"]
