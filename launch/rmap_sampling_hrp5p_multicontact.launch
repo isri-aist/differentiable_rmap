@@ -1,6 +1,6 @@
 <launch>
   <!-- LeftFoot, RightFoot, LeftHand, RightHand are supported -->
-  <arg name="limb_name" default="LeftFoot" />
+  <arg name="limb_name" default="LeftHand" />
 
   <!-- load robot description -->
   <arg name="robot_model_path" value="$(find hrp5_p_description)/urdf/HRP5Pmain.urdf" />
@@ -16,7 +16,7 @@
         output="screen">
     <rosparam subst_value="true">
       sampling_space: $(arg sampling_space)
-      config_path: $(find differentiable_rmap)/config/RmapSamplingMulticontact.yaml
+      config_path: $(find differentiable_rmap)/config/RmapSamplingHRP5PMulticontact.yaml
       use_ik: true
       bag_path: /tmp/rmap_sample_set_$(arg sampling_space)_$(arg limb_name).bag
     </rosparam>
