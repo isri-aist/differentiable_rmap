@@ -1,6 +1,7 @@
 set(differentiable_rmap_node_list
   NodeRmapSampling
   NodeRmapSamplingFootstep
+  NodeRmapSamplingLocomanip
   NodeRmapTraining
   NodeRmapVisualization
   NodeRmapPlanning

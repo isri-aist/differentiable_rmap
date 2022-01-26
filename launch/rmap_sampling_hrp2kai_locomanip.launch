@@ -9,17 +9,11 @@
     robot_convex_path: $(find hrp2_drc_description)/convex/HRP2KAImain/
   </rosparam>
 
-  <!-- sampling_space is decided from limb_name -->
-  <arg name="sampling_space" value="SE2" if="$(eval arg('limb_name') == 'LeftHand')" />
-  <arg name="sampling_space" value="SE2" if="$(eval arg('limb_name') == 'RightHand')" />
-
-  <node pkg="differentiable_rmap" type="NodeRmapSampling" name="rmap_sampling"
+  <node pkg="differentiable_rmap" type="NodeRmapSamplingLocomanip" name="rmap_sampling_locomanip"
         output="screen">
     <rosparam subst_value="true">
-      sampling_space: $(arg sampling_space)
       config_path: $(find differentiable_rmap)/config/RmapSamplingHRP2KAILocomanip.yaml
-      use_ik: true
-      bag_path: /tmp/rmap_sample_set_$(arg sampling_space)_$(arg limb_name).bag
+      bag_path: /tmp/rmap_sample_set_SE2_$(arg limb_name).bag
     </rosparam>
 
     <rosparam subst_value="true" if="$(eval arg('limb_name') == 'LeftHand')">
