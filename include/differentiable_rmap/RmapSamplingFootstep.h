@@ -131,11 +131,13 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
 
   using RmapSamplingIK<SamplingSpaceType>::taskset_;
 
-  using RmapSamplingIK<SamplingSpaceType>::collision_task_list_;
-
   using RmapSamplingIK<SamplingSpaceType>::aux_rb_arr_;
 
   using RmapSamplingIK<SamplingSpaceType>::body_task_;
+
+  using RmapSamplingIK<SamplingSpaceType>::collision_task_list_;
+
+  using RmapSamplingIK<SamplingSpaceType>::additional_task_list_;
 
   using RmapSamplingIK<SamplingSpaceType>::problem_;
 

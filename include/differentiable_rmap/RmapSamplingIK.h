@@ -93,6 +93,14 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
    */
   virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
 
+  /** \brief Set additional task list in IK
+      \param additional_task_list additional task list in IK
+  */
+  inline void setAdditionalTaskList(const std::vector<std::shared_ptr<OmgCore::TaskBase>>& additional_task_list)
+  {
+    additional_task_list_ = additional_task_list;
+  }
+
  protected:
   /** \brief Constructor.
       \param rb robot
@@ -118,14 +126,17 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
   //! Taskset for IK
   OmgCore::Taskset taskset_;
 
-  //! Collision task list in IK
-  std::vector<std::shared_ptr<OmgCore::CollisionTask>> collision_task_list_;
-
   //! Auxiliary robot array (always empty)
   OmgCore::AuxRobotArray aux_rb_arr_;
 
   //! Body task for IK
   std::shared_ptr<OmgCore::BodyPoseTask> body_task_;
+
+  //! Collision task list in IK
+  std::vector<std::shared_ptr<OmgCore::CollisionTask>> collision_task_list_;
+
+  //! Additional task list in IK
+  std::vector<std::shared_ptr<OmgCore::TaskBase>> additional_task_list_;
 
   //! IK problem
   std::shared_ptr<OmgCore::IterativeQpProblem> problem_;

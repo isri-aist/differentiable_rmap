@@ -66,6 +66,9 @@ void RmapSamplingFootstep<SamplingSpaceType>::setupSampling()
   for (const auto& collision_task : collision_task_list_) {
     taskset_list_[1].addTask(collision_task);
   }
+  for (const auto& additional_task : additional_task_list_) {
+    taskset_list_[1].addTask(additional_task);
+  }
 
   problem_ = std::make_shared<OmgCore::IterativeQpProblem>(rb_arr_);
   problem_->setup(

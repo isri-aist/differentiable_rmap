@@ -91,6 +91,9 @@ void RmapSamplingIK<SamplingSpaceType>::setupSampling()
   for (const auto& collision_task : collision_task_list_) {
     taskset_.addTask(collision_task);
   }
+  for (const auto& additional_task : additional_task_list_) {
+    taskset_.addTask(additional_task);
+  }
 
   problem_ = std::make_shared<OmgCore::IterativeQpProblem>(rb_arr_);
   // JRLQP is superior to other QP solvers in terms of computational time and solvability
@@ -259,6 +262,16 @@ void RmapSamplingIK<SamplingSpaceType>::publish()
           OmgCore::toPointMsg(collision_task->func()->closest_points_[i]));
       closest_lines_marker.points.push_back(
           OmgCore::toPointMsg(collision_task->func()->closest_points_[i]));
+    }
+  }
+  for (const auto& task : additional_task_list_) {
+    if (auto collision_task = std::dynamic_pointer_cast<OmgCore::CollisionTask>(task)) {
+      for (auto i : {0, 1}) {
+        closest_points_marker.points.push_back(
+            OmgCore::toPointMsg(collision_task->func()->closest_points_[i]));
+        closest_lines_marker.points.push_back(
+            OmgCore::toPointMsg(collision_task->func()->closest_points_[i]));
+      }
     }
   }
   marker_arr_msg.markers.push_back(closest_points_marker);
