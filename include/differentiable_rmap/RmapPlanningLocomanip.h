@@ -64,6 +64,9 @@ class RmapPlanningLocomanip
     //! Target angles of start and goal in hand arc trajectory [rad] ([deg] in YAML file)
     std::pair<double, double> target_hand_traj_angles = {0, -10};
 
+    //! Height of hand markers [m]
+    double hand_marker_height = 0.0;
+
     //! Vertices of foot marker
     std::vector<Eigen::Vector3d> foot_vertices = {
       Eigen::Vector3d(-0.1, -0.05, 0.0),
@@ -97,6 +100,7 @@ class RmapPlanningLocomanip
         target_hand_traj_angles.first = mc_rtc::constants::toRad(target_hand_traj_angles.first);
         target_hand_traj_angles.second = mc_rtc::constants::toRad(target_hand_traj_angles.second);
       }
+      mc_rtc_config("hand_marker_height", hand_marker_height);
       mc_rtc_config("foot_vertices", foot_vertices);
     }
   };

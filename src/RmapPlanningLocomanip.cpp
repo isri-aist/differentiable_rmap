@@ -343,7 +343,7 @@ void RmapPlanningLocomanip::publishMarkerArray() const
       Eigen::Vector3d pos =
           sampleToCloudPos<SamplingSpaceType>(calcSampleFromHandTraj(
               (1 - ratio) * config_.target_hand_traj_angles.first + ratio * config_.target_hand_traj_angles.second));
-      pos.z() = 0;
+      pos.z() = config_.hand_marker_height;
       traj_marker.points[i] = OmgCore::toPointMsg(pos);
     }
     marker_arr_msg.markers.push_back(traj_marker);
@@ -445,7 +445,7 @@ void RmapPlanningLocomanip::publishMarkerArray() const
           [&](int grid_idx, const SampleType& sample) {
             if (grid_set_msg->values[grid_idx] > config_.svm_thre) {
               Eigen::Vector3d pos = sampleToCloudPos<SamplingSpaceType>(sample);
-              pos.z() = 0;
+              pos.z() = config_.hand_marker_height;
               grids_marker.points.push_back(OmgCore::toPointMsg(pos));
             }
           },
@@ -524,7 +524,7 @@ void RmapPlanningLocomanip::publishCurrentState() const
     Eigen::Vector3d pos =
         sampleToCloudPos<SamplingSpaceType>(
             i < config_.motion_len ? current_hand_sample_seq_[i] : start_sample_list_.at(Limb::LeftHand));
-    pos.z() = 0;
+    pos.z() = config_.hand_marker_height;
     cloud_msg.points[i] = OmgCore::toPoint32Msg(pos);
   }
   current_cloud_pub_.publish(cloud_msg);

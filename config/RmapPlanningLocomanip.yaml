@@ -41,6 +41,9 @@ obj_traj_radius: 0.4
 # Target angles of start and goal in hand arc trajectory [deg]
 target_hand_traj_angles: [0, -100] # [0, -120]
 
+# Height of hand markers [m]
+hand_marker_height: 0.9
+
 # Vertices of foot marker
 foot_vertices: [
   [-0.07, -0.035, 0.01],
