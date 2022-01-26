@@ -5,6 +5,9 @@
   <!-- load robot description -->
   <arg name="robot_model_path" value="$(find hrp5_p_description)/urdf/HRP5Pmain.urdf" />
   <param name="robot_description" command="$(find xacro)/xacro $(arg robot_model_path)" />
+  <rosparam subst_value="true">
+    robot_convex_path: $(find hrp5_p_description)/convex/HRP5Pmain/
+  </rosparam>
 
   <!-- sampling_space is decided from limb_name -->
   <arg name="sampling_space" value="SE2" if="$(eval arg('limb_name') == 'LeftFoot')" />
@@ -17,11 +20,11 @@
     <rosparam subst_value="true">
       sampling_space: $(arg sampling_space)
       config_path: $(find differentiable_rmap)/config/RmapSamplingHRP5PMulticontact.yaml
-      use_ik: true
       bag_path: /tmp/rmap_sample_set_$(arg sampling_space)_$(arg limb_name).bag
     </rosparam>
 
     <rosparam subst_value="true" if="$(eval arg('limb_name') == 'LeftFoot')">
+      use_ik: true
       body_name: Lleg_Link5
       joint_name_list: [LCY, LCR, LCP, LKP, LAP, LAR]
       sample_num: 10000
@@ -29,6 +32,7 @@
     </rosparam>
 
     <rosparam subst_value="true" if="$(eval arg('limb_name') == 'RightFoot')">
+      use_ik: true
       body_name: Rleg_Link5
       joint_name_list: [RCY, RCR, RCP, RKP, RAP, RAR]
       sample_num: 10000
@@ -36,6 +40,7 @@
     </rosparam>
 
     <rosparam subst_value="true" if="$(eval arg('limb_name') == 'LeftHand')">
+      use_ik: false
       body_name: Lhand_Link0_Plan2
       joint_name_list: [LSC, LSP, LSR, LSY, LEP, LWRY, LWRR, LWRP, LHDY]
       sample_num: 10000
@@ -43,6 +48,7 @@
     </rosparam>
 
     <rosparam subst_value="true" if="$(eval arg('limb_name') == 'RightHand')">
+      use_ik: false
       body_name: Rhand_Link0_Plan2
       joint_name_list: [RSC, RSP, RSR, RSY, REP, RWRY, RWRR, RWRP, RHDY]
       sample_num: 10000

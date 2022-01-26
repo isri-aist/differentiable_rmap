@@ -1,8 +1,11 @@
 /* Author: Masaki Murooka */
 
 #include <rosbag/bag.h>
+#include <visualization_msgs/MarkerArray.h>
 #include <optmotiongen_msgs/RobotStateArray.h>
 #include <differentiable_rmap/RmapSampleSet.h>
+
+#include <sch/S_Polyhedron/S_Polyhedron.h>
 
 #include <optmotiongen/Utils/RosUtils.h>
 
@@ -24,6 +27,7 @@ RmapSampling<SamplingSpaceType>::RmapSampling(
   rs_arr_pub_ = nh_.advertise<optmotiongen_msgs::RobotStateArray>("robot_state_arr", 1, true);
   reachable_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("reachable_cloud", 1, true);
   unreachable_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("unreachable_cloud", 1, true);
+  collision_marker_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("collision_marker", 1, true);
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -67,7 +71,7 @@ void RmapSampling<SamplingSpaceType>::run(
     }
 
     // Sample once
-    sampleOnce(loop_idx);
+    while (!sampleOnce(loop_idx));
 
     if(loop_idx % config_.publish_loop_interval == 0) {
       publish();
@@ -104,10 +108,38 @@ void RmapSampling<SamplingSpaceType>::setupSampling()
       joint_pos_offset_[i] = (upper_joint_pos + lower_joint_pos) / 2;
     }
   }
+
+  // Setup collision task
+  setupCollisionTask();
 }
 
 template <SamplingSpace SamplingSpaceType>
-void RmapSampling<SamplingSpaceType>::sampleOnce(int sample_idx)
+void RmapSampling<SamplingSpaceType>::setupCollisionTask()
+{
+  // Since robot_convex_path needs to resolve the ROS package path, it is obtained by rosparam instead of mc_rtc configuration
+  std::string robot_convex_path;
+  nh_.getParam("robot_convex_path", robot_convex_path);
+
+  collision_task_list_.clear();
+  for (const auto& body_names : config_.collision_body_names_list) {
+    OmgCore::Twin<std::shared_ptr<sch::S_Object>> sch_objs;
+    for (auto i : {0, 1}) {
+      sch_objs[i] = OmgCore::loadSchPolyhedron(robot_convex_path + body_names[i] + "_mesh-ch.txt");
+    }
+    auto task = std::make_shared<OmgCore::CollisionTask>(
+        std::make_shared<OmgCore::CollisionFunc>(
+            rb_arr_,
+            OmgCore::Twin<int>{0, 0},
+            body_names,
+            sch_objs),
+        0.05);
+    task->setWeight(config_.collision_task_weight);
+    collision_task_list_.push_back(task);
+  }
+}
+
+template <SamplingSpace SamplingSpaceType>
+bool RmapSampling<SamplingSpaceType>::sampleOnce(int sample_idx)
 {
   const auto& rb = rb_arr_[0];
   const auto& rbc = rbc_arr_[0];
@@ -120,12 +152,26 @@ void RmapSampling<SamplingSpaceType>::sampleOnce(int sample_idx)
   }
   rbd::forwardKinematics(*rb, *rbc);
 
+  // Check collision task
+  bool has_collision = false;
+  for (const auto& task : collision_task_list_) {
+    task->update(rb_arr_, rbc_arr_, aux_rb_arr_);
+    if (task->value().cwiseMax(0).squaredNorm() > 1e-6) {
+      has_collision = true;
+      break;
+    }
+  }
+
   // Append new sample to sample list
-  const auto& body_pose = config_.body_pose_offset * rbc->bodyPosW[body_idx_];
-  const SampleType& sample = poseToSample<SamplingSpaceType>(body_pose);
-  sample_list_[sample_idx] = sample;
-  reachability_list_[sample_idx] = true;
-  reachable_cloud_msg_.points.push_back(OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample)));
+  if (!has_collision) {
+    const auto& body_pose = config_.body_pose_offset * rbc->bodyPosW[body_idx_];
+    const SampleType& sample = poseToSample<SamplingSpaceType>(body_pose);
+    sample_list_[sample_idx] = sample;
+    reachability_list_[sample_idx] = true;
+    reachable_cloud_msg_.points.push_back(OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample)));
+  }
+
+  return !has_collision;
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -142,6 +188,53 @@ void RmapSampling<SamplingSpaceType>::publish()
   unreachable_cloud_msg_.header.frame_id = "world";
   unreachable_cloud_msg_.header.stamp = time_now;
   unreachable_cloud_pub_.publish(unreachable_cloud_msg_);
+
+  // Publish collision marker
+  publishCollisionMarker(collision_task_list_);
+}
+
+template <SamplingSpace SamplingSpaceType>
+void RmapSampling<SamplingSpaceType>::publishCollisionMarker(
+    const std::vector<std::shared_ptr<OmgCore::CollisionTask>>& collision_task_list)
+{
+  visualization_msgs::MarkerArray marker_arr_msg;
+
+  // delete marker
+  visualization_msgs::Marker del_marker;
+  del_marker.action = visualization_msgs::Marker::DELETEALL;
+  del_marker.header.frame_id = "world";
+  del_marker.id = marker_arr_msg.markers.size();
+  marker_arr_msg.markers.push_back(del_marker);
+
+  // point and line list marker connecting the closest points
+  visualization_msgs::Marker closest_points_marker;
+  closest_points_marker.header.frame_id = "world";
+  closest_points_marker.ns = "closest_points";
+  closest_points_marker.id = marker_arr_msg.markers.size();
+  closest_points_marker.type = visualization_msgs::Marker::SPHERE_LIST;
+  closest_points_marker.color = OmgCore::toColorRGBAMsg({1, 0, 0, 1});
+  closest_points_marker.scale = OmgCore::toVector3Msg({0.02, 0.02, 0.02}); // sphere size
+  closest_points_marker.pose.orientation = OmgCore::toQuaternionMsg({0, 0, 0, 1});
+  visualization_msgs::Marker closest_lines_marker;
+  closest_lines_marker.header.frame_id = "world";
+  closest_lines_marker.ns = "closest_lines";
+  closest_lines_marker.id = marker_arr_msg.markers.size();
+  closest_lines_marker.type = visualization_msgs::Marker::LINE_LIST;
+  closest_lines_marker.color = OmgCore::toColorRGBAMsg({1, 0, 0, 1});
+  closest_lines_marker.scale.x = 0.01; // line width
+  closest_lines_marker.pose.orientation = OmgCore::toQuaternionMsg({0, 0, 0, 1});
+  for (const auto& collision_task : collision_task_list) {
+    for (auto i : {0, 1}) {
+      closest_points_marker.points.push_back(
+          OmgCore::toPointMsg(collision_task->func()->closest_points_[i]));
+      closest_lines_marker.points.push_back(
+          OmgCore::toPointMsg(collision_task->func()->closest_points_[i]));
+    }
+  }
+  marker_arr_msg.markers.push_back(closest_points_marker);
+  marker_arr_msg.markers.push_back(closest_lines_marker);
+
+  collision_marker_pub_.publish(marker_arr_msg);
 }
 
 template <SamplingSpace SamplingSpaceType>

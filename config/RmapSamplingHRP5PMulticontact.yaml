@@ -6,6 +6,20 @@ root_pose:
   # translation: [0, 0, 0.7] # Foot
   translation: [0, 0, 0.0] # Hand
 
+# Body name list for collision avoidance
+collision_body_names_list:
+  ["Body", "Larm_Link2",
+  "Body", "Larm_Link3",
+  "Body", "Larm_Link4",
+  "Body", "Lhand_Link0_Plan2",
+  "Chest_Link2", "Larm_Link2",
+  "Chest_Link2", "Larm_Link3",
+  "Chest_Link2", "Larm_Link4",
+  "Chest_Link2", "Lhand_Link0_Plan2"]
+
+# Weight of collision task
+collision_task_weight: 1
+
 # Number of samples to make bounding box
 bbox_sample_num: 1000
 

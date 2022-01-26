@@ -4,7 +4,6 @@
 
 #include <optmotiongen/Problem/IterativeQpProblem.h>
 #include <optmotiongen/Task/BodyTask.h>
-#include <optmotiongen/Task/CollisionTask.h>
 
 #include <differentiable_rmap/RmapSampling.h>
 
@@ -42,12 +41,6 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
     //! Constraint space of IK (default is same as template parameter SamplingSpaceType)
     std::string ik_constraint_space = "";
 
-    //! Body name pair list for collision avoidance
-    std::vector<OmgCore::Twin<std::string>> collision_body_names_list;
-
-    //! Weight of collision task
-    double collision_task_weight = 1.0;
-
     /*! \brief Load mc_rtc configuration. */
     inline virtual void load(const mc_rtc::Configuration& mc_rtc_config) override
     {
@@ -64,21 +57,6 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
       mc_rtc_config("ik_loop_num", ik_loop_num);
       mc_rtc_config("ik_error_thre", ik_error_thre);
       mc_rtc_config("ik_constraint_space", ik_constraint_space);
-      if (mc_rtc_config.has("collision_body_names_list")) {
-        std::vector<std::string> collision_body_names_list_flat = mc_rtc_config("collision_body_names_list");
-        if (collision_body_names_list_flat.size() % 2 != 0) {
-          mc_rtc::log::error_and_throw<std::runtime_error>(
-              "collision_body_names_list size must be a multiple of 2, but is {}",
-              collision_body_names_list_flat.size());
-        }
-        collision_body_names_list.clear();
-        for (size_t i = 0; i < collision_body_names_list_flat.size() / 2; i++) {
-          collision_body_names_list.push_back(OmgCore::Twin<std::string>(
-              collision_body_names_list_flat[2 * i],
-              collision_body_names_list_flat[2 * i + 1]));
-        }
-      }
-      mc_rtc_config("collision_task_weight", collision_task_weight);
     }
   };
 
@@ -122,11 +100,10 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
   /** \brief Setup sampling. */
   virtual void setupSampling() override;
 
-  /** \brief Setup collision tasks. */
-  void setupCollisionTask();
-
-  /** \brief Generate one sample. */
-  virtual void sampleOnce(int sample_idx) override;
+  /** \brief Generate one sample.
+      \return true if succeeded to generate sample
+  */
+  virtual bool sampleOnce(int sample_idx) override;
 
   /** \brief Publish ROS message. */
   virtual void publish() override;
@@ -138,14 +115,8 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
   //! Taskset for IK
   OmgCore::Taskset taskset_;
 
-  //! Auxiliary robot array (always empty)
-  OmgCore::AuxRobotArray aux_rb_arr_;
-
   //! Body task for IK
   std::shared_ptr<OmgCore::BodyPoseTask> body_task_;
-
-  //! Collision task list in IK
-  std::vector<std::shared_ptr<OmgCore::CollisionTask>> collision_task_list_;
 
   //! Additional task list in IK
   std::vector<std::shared_ptr<OmgCore::TaskBase>> additional_task_list_;
@@ -162,13 +133,11 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
   //! Body Yaw angle offset to make sample from [-1:1] random value
   double body_yaw_offset_;
 
-  //! ROS related members
-  ros::Publisher collision_marker_pub_;
-
  protected:
   // See https://stackoverflow.com/a/6592617
   using RmapSampling<SamplingSpaceType>::rb_arr_;
   using RmapSampling<SamplingSpaceType>::rbc_arr_;
+  using RmapSampling<SamplingSpaceType>::aux_rb_arr_;
 
   using RmapSampling<SamplingSpaceType>::body_name_;
   using RmapSampling<SamplingSpaceType>::body_idx_;
@@ -182,7 +151,14 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
 
   using RmapSampling<SamplingSpaceType>::reachability_list_;
 
+  using RmapSampling<SamplingSpaceType>::collision_task_list_;
+
   using RmapSampling<SamplingSpaceType>::nh_;
+
+  using RmapSampling<SamplingSpaceType>::rs_arr_pub_;
+  using RmapSampling<SamplingSpaceType>::reachable_cloud_pub_;
+  using RmapSampling<SamplingSpaceType>::unreachable_cloud_pub_;
+  using RmapSampling<SamplingSpaceType>::collision_marker_pub_;
 
   using RmapSampling<SamplingSpaceType>::reachable_cloud_msg_;
   using RmapSampling<SamplingSpaceType>::unreachable_cloud_msg_;

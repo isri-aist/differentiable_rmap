@@ -82,8 +82,10 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
   /** \brief Setup sampling. */
   virtual void setupSampling() override;
 
-  /** \brief Generate one sample. */
-  virtual void sampleOnce(int sample_idx) override;
+  /** \brief Generate one sample.
+      \return true if succeeded to generate sample
+  */
+  virtual bool sampleOnce(int sample_idx) override;
 
  protected:
   //! Configuration

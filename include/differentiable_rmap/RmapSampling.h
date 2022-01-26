@@ -8,6 +8,7 @@
 #include <sensor_msgs/PointCloud.h>
 
 #include <optmotiongen/Utils/RobotUtils.h>
+#include <optmotiongen/Task/CollisionTask.h>
 
 #include <differentiable_rmap/SamplingUtils.h>
 
@@ -52,12 +53,33 @@ class RmapSampling: public RmapSamplingBase
     //! Body pose offset
     sva::PTransformd body_pose_offset = sva::PTransformd::Identity();
 
+    //! Body name pair list for collision avoidance
+    std::vector<OmgCore::Twin<std::string>> collision_body_names_list;
+
+    //! Weight of collision task
+    double collision_task_weight = 1.0;
+
     /*! \brief Load mc_rtc configuration. */
     inline virtual void load(const mc_rtc::Configuration& mc_rtc_config)
     {
       mc_rtc_config("publish_loop_interval", publish_loop_interval);
       mc_rtc_config("root_pose", root_pose);
       mc_rtc_config("body_pose_offset", body_pose_offset);
+      if (mc_rtc_config.has("collision_body_names_list")) {
+        std::vector<std::string> collision_body_names_list_flat = mc_rtc_config("collision_body_names_list");
+        if (collision_body_names_list_flat.size() % 2 != 0) {
+          mc_rtc::log::error_and_throw<std::runtime_error>(
+              "collision_body_names_list size must be a multiple of 2, but is {}",
+              collision_body_names_list_flat.size());
+        }
+        collision_body_names_list.clear();
+        for (size_t i = 0; i < collision_body_names_list_flat.size() / 2; i++) {
+          collision_body_names_list.push_back(OmgCore::Twin<std::string>(
+              collision_body_names_list_flat[2 * i],
+              collision_body_names_list_flat[2 * i + 1]));
+        }
+      }
+      mc_rtc_config("collision_task_weight", collision_task_weight);
     }
   };
 
@@ -108,11 +130,20 @@ class RmapSampling: public RmapSamplingBase
   /** \brief Setup sampling. */
   virtual void setupSampling();
 
-  /** \brief Generate one sample. */
-  virtual void sampleOnce(int sample_idx);
+  /** \brief Setup collision tasks. */
+  void setupCollisionTask();
+
+  /** \brief Generate one sample.
+      \return true if succeeded to generate sample
+  */
+  virtual bool sampleOnce(int sample_idx);
 
   /** \brief Publish ROS message. */
   virtual void publish();
+
+  /** \brief Publish collision marker. */
+  void publishCollisionMarker(
+      const std::vector<std::shared_ptr<OmgCore::CollisionTask>>& collision_task_list);
 
   /** \brief Dump generated sample set to ROS bag. */
   void dumpSampleSet(const std::string& bag_path) const;
@@ -128,6 +159,8 @@ class RmapSampling: public RmapSamplingBase
   OmgCore::RobotArray rb_arr_;
   //! Robot configuration array (single robot configuration is stored)
   OmgCore::RobotConfigArray rbc_arr_;
+  //! Auxiliary robot array (always empty)
+  OmgCore::AuxRobotArray aux_rb_arr_;
 
   //! Name of body whose pose is sampled
   std::string body_name_;
@@ -149,12 +182,16 @@ class RmapSampling: public RmapSamplingBase
   //! Reachability list
   std::vector<bool> reachability_list_;
 
+  //! Collision task list in IK
+  std::vector<std::shared_ptr<OmgCore::CollisionTask>> collision_task_list_;
+
   //! ROS related members
   ros::NodeHandle nh_;
 
   ros::Publisher rs_arr_pub_;
   ros::Publisher reachable_cloud_pub_;
   ros::Publisher unreachable_cloud_pub_;
+  ros::Publisher collision_marker_pub_;
 
   sensor_msgs::PointCloud reachable_cloud_msg_;
   sensor_msgs::PointCloud unreachable_cloud_msg_;

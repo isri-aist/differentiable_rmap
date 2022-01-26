@@ -84,7 +84,7 @@ void RmapSamplingFootstep<SamplingSpaceType>::setupSampling()
 }
 
 template <SamplingSpace SamplingSpaceType>
-void RmapSamplingFootstep<SamplingSpaceType>::sampleOnce(int sample_idx)
+bool RmapSamplingFootstep<SamplingSpaceType>::sampleOnce(int sample_idx)
 {
   // Set IK target of foot
   support_foot_body_task_->target() = sva::PTransformd::Identity();
@@ -150,6 +150,8 @@ void RmapSamplingFootstep<SamplingSpaceType>::sampleOnce(int sample_idx)
   } else {
     unreachable_cloud_msg_.points.push_back(OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample)));
   }
+
+  return true;
 }
 
 std::shared_ptr<RmapSamplingBase> DiffRmap::createRmapSamplingFootstep(
