@@ -139,6 +139,8 @@ void RmapSamplingIK<SamplingSpaceType>::setupSampling()
   // Calculate coefficient and offset to make random position
   body_pos_coeff_ = config_.bbox_padding_rate * (upper_body_pos - lower_body_pos) / 2;
   body_pos_offset_ = (upper_body_pos + lower_body_pos) / 2;
+  body_yaw_coeff_ = (config_.body_yaw_limits.second - config_.body_yaw_limits.first) / 2;
+  body_yaw_offset_ = (config_.body_yaw_limits.second + config_.body_yaw_limits.first) / 2;
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -177,7 +179,7 @@ void RmapSamplingIK<SamplingSpaceType>::sampleOnce(int sample_idx)
           body_pos_coeff_.head<2>().cwiseProduct(Eigen::Vector2d::Random()) + body_pos_offset_.head<2>();
       body_task_->target().translation().z() = 0;
       body_task_->target().rotation() = Eigen::AngleAxisd(
-          M_PI * Eigen::Matrix<double, 1, 1>::Random()[0],
+          body_yaw_coeff_ * Eigen::Matrix<double, 1, 1>::Random()[0] + body_yaw_offset_,
           Eigen::Vector3d::UnitZ()).toRotationMatrix();
     } else {
     body_task_->target().translation() =

@@ -19,14 +19,14 @@
     <rosparam subst_value="true" if="$(eval arg('limb_name') == 'LeftHand')">
       body_name: LARM_LINK6
       joint_name_list: [LARM_JOINT0, LARM_JOINT1, LARM_JOINT2, LARM_JOINT3, LARM_JOINT4, LARM_JOINT5, LARM_JOINT6]
-      sample_num: 20000
+      sample_num: 10000
       sleep_rate: 2000
     </rosparam>
 
     <rosparam subst_value="true" if="$(eval arg('limb_name') == 'RightHand')">
       body_name: RARM_LINK6
       joint_name_list: [RARM_JOINT0, RARM_JOINT1, RARM_JOINT2, RARM_JOINT3, RARM_JOINT4, RARM_JOINT5, RARM_JOINT6]
-      sample_num: 20000
+      sample_num: 10000
       sleep_rate: 2000
     </rosparam>
   </node>

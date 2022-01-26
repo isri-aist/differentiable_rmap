@@ -14,7 +14,10 @@ body_pose_offset:
 bbox_sample_num: 1000
 
 # Padding rate of bounding box
-bbox_padding_rate: 1.2
+bbox_padding_rate: 1.0
+
+# Lower and upper limits of body Yaw angle [deg]
+body_yaw_limits: [-45, 45]
 
 # Number of IK trial
 ik_trial_num: 5

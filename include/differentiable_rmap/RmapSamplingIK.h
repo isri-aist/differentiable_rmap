@@ -27,6 +27,9 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
     //! Padding rate of bounding box
     double bbox_padding_rate = 1.2;
 
+    //! Lower and upper limits of body Yaw angle [deg]
+    std::pair<double, double> body_yaw_limits = {-M_PI, M_PI};
+
     //! Number of IK trial
     int ik_trial_num = 10;
 
@@ -52,6 +55,11 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
 
       mc_rtc_config("bbox_sample_num", bbox_sample_num);
       mc_rtc_config("bbox_padding_rate", bbox_padding_rate);
+      if (mc_rtc_config.has("body_yaw_limits")) {
+        mc_rtc_config("body_yaw_limits", body_yaw_limits);
+        body_yaw_limits.first = mc_rtc::constants::toRad(body_yaw_limits.first);
+        body_yaw_limits.second = mc_rtc::constants::toRad(body_yaw_limits.second);
+      }
       mc_rtc_config("ik_trial_num", ik_trial_num);
       mc_rtc_config("ik_loop_num", ik_loop_num);
       mc_rtc_config("ik_error_thre", ik_error_thre);
@@ -149,6 +157,10 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
   Eigen::Vector3d body_pos_coeff_;
   //! Body position offset to make sample from [-1:1] random value
   Eigen::Vector3d body_pos_offset_;
+  //! Body Yaw angle coefficient to make sample from [-1:1] random value
+  double body_yaw_coeff_;
+  //! Body Yaw angle offset to make sample from [-1:1] random value
+  double body_yaw_offset_;
 
   //! ROS related members
   ros::Publisher collision_marker_pub_;
