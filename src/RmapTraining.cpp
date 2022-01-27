@@ -274,7 +274,7 @@ void RmapTraining<SamplingSpaceType>::loadSampleSet(const std::string& bag_path)
 
     if (sample_set_msg->type != static_cast<size_t>(SamplingSpaceType)) {
       mc_rtc::log::error_and_throw<std::runtime_error>(
-          "SamplingSpace does not match with message: {} != {}",
+          "[RmapTraining::loadSampleSet] SamplingSpace does not match with message: {} != {}",
           sample_set_msg->type, static_cast<size_t>(SamplingSpaceType));
     }
 
@@ -396,6 +396,30 @@ void RmapTraining<SamplingSpaceType>::trainSVM()
 }
 
 template <SamplingSpace SamplingSpaceType>
+double RmapTraining<SamplingSpaceType>::calcSVMValue(
+    const SampleType& sample) const
+{
+  return DiffRmap::calcSVMValue<SamplingSpaceType>(
+      sample,
+      svm_mo_->param,
+      svm_mo_,
+      svm_coeff_vec_,
+      svm_sv_mat_);
+}
+
+template <SamplingSpace SamplingSpaceType>
+Vel<SamplingSpaceType> RmapTraining<SamplingSpaceType>::calcSVMGrad(
+    const SampleType& sample) const
+{
+  return DiffRmap::calcSVMGrad<SamplingSpaceType>(
+      sample,
+      svm_mo_->param,
+      svm_mo_,
+      svm_coeff_vec_,
+      svm_sv_mat_);
+}
+
+template <SamplingSpace SamplingSpaceType>
 void RmapTraining<SamplingSpaceType>::predictOnSlicePlane()
 {
   // Predict
@@ -425,12 +449,7 @@ void RmapTraining<SamplingSpaceType>::predictOnSlicePlane()
           setInputNodeOnlyValue<SamplingSpaceType>(input_node, sampleToInput<SamplingSpaceType>(sample));
           svm_predict_values(svm_mo_, input_node, &svm_value);
         } else {
-        svm_value = calcSVMValue<SamplingSpaceType>(
-            sample,
-            svm_mo_->param,
-            svm_mo_,
-            svm_coeff_vec_,
-            svm_sv_mat_);
+        svm_value = calcSVMValue(sample);
       }
       grid_map_->at("svm_value", *it) = config_.grid_map_height_scale * svm_value;
 
@@ -553,12 +572,7 @@ void RmapTraining<SamplingSpaceType>::testCalcSVMValue(
   setInputNode<SamplingSpaceType>(input_node, sampleToInput<SamplingSpaceType>(sample));
   svm_predict_values(svm_mo_, input_node, &svm_value_libsvm);
 
-  svm_value_eigen = calcSVMValue<SamplingSpaceType>(
-      sample,
-      svm_mo_->param,
-      svm_mo_,
-      svm_coeff_vec_,
-      svm_sv_mat_);
+  svm_value_eigen = calcSVMValue(sample);
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -567,12 +581,7 @@ void RmapTraining<SamplingSpaceType>::testCalcSVMGrad(
     Eigen::Ref<Vel<SamplingSpaceType>> svm_grad_numerical,
     const SampleType& sample) const
 {
-  svm_grad_analytical = calcSVMGrad<SamplingSpaceType>(
-      sample,
-      svm_mo_->param,
-      svm_mo_,
-      svm_coeff_vec_,
-      svm_sv_mat_);
+  svm_grad_analytical = calcSVMGrad(sample);
 
   double eps = 1e-6;
   for (int i = 0; i < velDim<SamplingSpaceType>(); i++) {
@@ -583,21 +592,7 @@ void RmapTraining<SamplingSpaceType>::testCalcSVMGrad(
     integrateVelToSample<SamplingSpaceType>(sample_minus, -vel);
 
     svm_grad_numerical[i] =
-        (
-            calcSVMValue<SamplingSpaceType>(
-                sample_plus,
-                svm_mo_->param,
-                svm_mo_,
-                svm_coeff_vec_,
-                svm_sv_mat_)
-            -
-            calcSVMValue<SamplingSpaceType>(
-                sample_minus,
-                svm_mo_->param,
-                svm_mo_,
-                svm_coeff_vec_,
-                svm_sv_mat_)
-         ) / (2 * eps);
+        (calcSVMValue(sample_plus) - calcSVMValue(sample_minus)) / (2 * eps);
   }
 }
 
@@ -611,8 +606,7 @@ void RmapTraining<SamplingSpaceType>::testCalcSVMGradRel(
     const SampleType& suc_sample) const
 {
   SampleType rel_sample = relSample<SamplingSpaceType>(pre_sample, suc_sample);
-  const VelType& svm_grad = calcSVMGrad<SamplingSpaceType>(
-      rel_sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_);
+  const VelType& svm_grad = calcSVMGrad(rel_sample);
 
   pre_grad_analytical = relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, false).transpose() * svm_grad;
   suc_grad_analytical = relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, true).transpose() * svm_grad;
@@ -637,13 +631,7 @@ void RmapTraining<SamplingSpaceType>::testCalcSVMGradRel(
       }
 
       double numerical_value =
-          (
-              calcSVMValue<SamplingSpaceType>(
-                  rel_sample_plus, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_)
-              -
-              calcSVMValue<SamplingSpaceType>(
-                  rel_sample_minus, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_)
-           ) / (2 * eps);
+          (calcSVMValue(rel_sample_plus) - calcSVMValue(rel_sample_minus)) / (2 * eps);
       if (wrt_suc) {
         suc_grad_numerical[i] = numerical_value;
       } else {

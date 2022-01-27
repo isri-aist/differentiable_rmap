@@ -185,6 +185,16 @@ class RmapTraining: public RmapTrainingBase
   /** \brief Train SVM. */
   void trainSVM();
 
+  /** \brief Calculate SVM value.
+      \param sample sample
+  */
+  double calcSVMValue(const SampleType& sample) const;
+
+  /** \brief Calculate gradient of SVM value.
+      \param sample sample
+  */
+  VelType calcSVMGrad(const SampleType& sample) const;
+
   /** \brief Predict SVM on grid map. */
   void predictOnSlicePlane();
 
