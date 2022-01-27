@@ -184,6 +184,7 @@ void RmapTraining<SamplingSpaceType>::evaluateAccuracy(const std::string& bag_pa
 
   int sample_num = sample_set_msg->samples.size();
   SampleType sample;
+  int correct_num = 0;
   for (size_t i = 0; i < sample_num; i++) {
     for (int j = 0; j < sample_dim_; j++) {
       sample[j] = sample_set_msg->samples[i].position[j];
@@ -192,11 +193,10 @@ void RmapTraining<SamplingSpaceType>::evaluateAccuracy(const std::string& bag_pa
     bool reachability_gt = sample_set_msg->samples[i].is_reachable;
     bool reachability_pred = (calcSVMValue(sample) >= svm_thre_manager_->value());
     if (reachability_gt == reachability_pred) {
-      ROS_INFO("success");
-    } else {
-      ROS_WARN("fail");
+      correct_num++;
     }
   }
+  ROS_INFO_STREAM("accuracy: " << static_cast<double>(correct_num) / sample_num * 100 << " %");
 }
 
 template <SamplingSpace SamplingSpaceType>
