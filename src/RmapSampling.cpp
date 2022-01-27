@@ -1,5 +1,7 @@
 /* Author: Masaki Murooka */
 
+#include <stdlib.h>
+
 #include <rosbag/bag.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <optmotiongen_msgs/RobotStateArray.h>
@@ -98,6 +100,9 @@ void RmapSampling<SamplingSpaceType>::setup()
 template <SamplingSpace SamplingSpaceType>
 void RmapSampling<SamplingSpaceType>::setupSampling()
 {
+  // Eigen's random seed can be set by srand
+  srand(config_.random_seed);
+
   // Set robot root pose
   rb_arr_[0]->rootPose(config_.root_pose);
 

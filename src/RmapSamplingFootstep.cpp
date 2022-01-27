@@ -33,6 +33,9 @@ void RmapSamplingFootstep<SamplingSpaceType>::configure(const mc_rtc::Configurat
 template <SamplingSpace SamplingSpaceType>
 void RmapSamplingFootstep<SamplingSpaceType>::setupSampling()
 {
+  // Eigen's random seed can be set by srand
+  srand(config_.random_seed);
+
   // Setup task
   support_foot_body_task_ = std::make_shared<OmgCore::BodyPoseTask>(
       std::make_shared<OmgCore::BodyFunc>(

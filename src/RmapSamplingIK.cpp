@@ -67,6 +67,9 @@ void RmapSamplingIK<SamplingSpaceType>::setup()
 template <SamplingSpace SamplingSpaceType>
 void RmapSamplingIK<SamplingSpaceType>::setupSampling()
 {
+  // Eigen's random seed can be set by srand
+  srand(config_.random_seed);
+
   // Set robot root pose
   rb_arr_[0]->rootPose(config_.root_pose);
 

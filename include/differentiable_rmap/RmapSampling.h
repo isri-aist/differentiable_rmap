@@ -44,6 +44,9 @@ class RmapSampling: public RmapSamplingBase
   /*! \brief Configuration. */
   struct Configuration
   {
+    //! Random seed
+    size_t random_seed = 1;
+
     //! Interval of loop counts to publish ROS message
     int publish_loop_interval = 100;
 
@@ -62,6 +65,7 @@ class RmapSampling: public RmapSamplingBase
     /*! \brief Load mc_rtc configuration. */
     inline virtual void load(const mc_rtc::Configuration& mc_rtc_config)
     {
+      mc_rtc_config("random_seed", random_seed);
       mc_rtc_config("publish_loop_interval", publish_loop_interval);
       mc_rtc_config("root_pose", root_pose);
       mc_rtc_config("body_pose_offset", body_pose_offset);
