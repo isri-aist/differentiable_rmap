@@ -56,7 +56,7 @@ void RmapSampling<SamplingSpaceType>::run(
     int sample_num,
     double sleep_rate)
 {
-  setupSampling();
+  setup();
 
   sample_list_.resize(sample_num);
   reachability_list_.resize(sample_num);
@@ -89,6 +89,13 @@ void RmapSampling<SamplingSpaceType>::run(
 }
 
 template <SamplingSpace SamplingSpaceType>
+void RmapSampling<SamplingSpaceType>::setup()
+{
+  setupSampling();
+  setupCollisionTask();
+}
+
+template <SamplingSpace SamplingSpaceType>
 void RmapSampling<SamplingSpaceType>::setupSampling()
 {
   // Set robot root pose
@@ -108,9 +115,6 @@ void RmapSampling<SamplingSpaceType>::setupSampling()
       joint_pos_offset_[i] = (upper_joint_pos + lower_joint_pos) / 2;
     }
   }
-
-  // Setup collision task
-  setupCollisionTask();
 }
 
 template <SamplingSpace SamplingSpaceType>

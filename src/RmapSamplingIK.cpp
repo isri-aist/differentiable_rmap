@@ -58,6 +58,13 @@ void RmapSamplingIK<SamplingSpaceType>::configure(const mc_rtc::Configuration& m
 }
 
 template <SamplingSpace SamplingSpaceType>
+void RmapSamplingIK<SamplingSpaceType>::setup()
+{
+  // setupCollisionTask is called from setupSampling()
+  setupSampling();
+}
+
+template <SamplingSpace SamplingSpaceType>
 void RmapSamplingIK<SamplingSpaceType>::setupSampling()
 {
   // Set robot root pose

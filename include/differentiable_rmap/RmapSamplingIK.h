@@ -97,6 +97,9 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
   */
   RmapSamplingIK(const std::shared_ptr<OmgCore::Robot>& rb);
 
+  /** \brief Setup. */
+  virtual void setup() override;
+
   /** \brief Setup sampling. */
   virtual void setupSampling() override;
 

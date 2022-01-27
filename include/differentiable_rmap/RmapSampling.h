@@ -127,6 +127,9 @@ class RmapSampling: public RmapSamplingBase
   */
   RmapSampling(const std::shared_ptr<OmgCore::Robot>& rb);
 
+  /** \brief Setup. */
+  virtual void setup();
+
   /** \brief Setup sampling. */
   virtual void setupSampling();
 
