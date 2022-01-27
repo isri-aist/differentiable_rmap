@@ -33,7 +33,13 @@ int main(int argc, char **argv)
   if (pnh.hasParam("config_path")) {
     std::string config_path;
     pnh.getParam("config_path", config_path);
-    rmap_training->configure(mc_rtc::Configuration(config_path));
+    mc_rtc::Configuration mc_rtc_config(config_path);
+
+    std::string eval_bag_path = "/tmp/rmap_sample_set.bag";
+    pnh.param<std::string>("eval_bag_path", eval_bag_path, eval_bag_path);
+    mc_rtc_config.add("eval_bag_path", eval_bag_path);
+
+    rmap_training->configure(mc_rtc_config);
   }
 
   rmap_training->runLoop();

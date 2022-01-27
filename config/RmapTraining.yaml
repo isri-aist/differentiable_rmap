@@ -20,7 +20,7 @@ slice_se3_z_thre: 0.1
 slice_se3_theta_thre: 20
 
 # ROS bag path of sample set for evaluation
-eval_bag_path: ""
+eval_bag_path: "" # Set by rosparam since it contains ROS package path
 
 # Height of xy plane marker
 svm_thre: -0.1
