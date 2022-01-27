@@ -57,10 +57,10 @@ RmapPlanningPlacement<SamplingSpaceType>::RmapPlanningPlacement(
       "current_pose_arr", 1, true);
   rs_arr_pub_ = nh_.template advertise<optmotiongen_msgs::RobotStateArray>(
       "robot_state_arr", 1, true);
-  posture_srv_ = nh_.advertiseService
-      ("generate_posture",
-       &RmapPlanningPlacement<SamplingSpaceType>::postureCallback,
-       this);
+  posture_srv_ = nh_.advertiseService(
+      "generate_posture",
+      &RmapPlanningPlacement<SamplingSpaceType>::postureCallback,
+      this);
 }
 
 template <SamplingSpace SamplingSpaceType>

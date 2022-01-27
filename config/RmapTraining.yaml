@@ -19,6 +19,9 @@ slice_se3_z_thre: 0.1
 # Theta threshold for slicing SE3 sample [deg]
 slice_se3_theta_thre: 20
 
+# ROS bag path of sample set for evaluation
+eval_bag_path: ""
+
 # Height of xy plane marker
 svm_thre: -0.1
 

@@ -32,6 +32,10 @@ RmapTraining<SamplingSpaceType>::RmapTraining(const std::string& bag_path,
   sliced_unreachable_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("unreachable_cloud_sliced", 1, true);
   marker_arr_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("marker_arr", 1, true);
   grid_map_pub_ = nh_.advertise<grid_map_msgs::GridMap>("grid_map", 1, true);
+  eval_srv_ = nh_.advertiseService(
+      "evaluate",
+      &RmapTraining<SamplingSpaceType>::evaluateCallback,
+      this);
 
   // Load ROS bag
   loadSampleSet(bag_path);
@@ -161,6 +165,37 @@ void RmapTraining<SamplingSpaceType>::runLoop()
 
     rate.sleep();
     ros::spinOnce();
+  }
+}
+
+template <SamplingSpace SamplingSpaceType>
+void RmapTraining<SamplingSpaceType>::evaluateAccuracy(const std::string& bag_path)
+{
+  ROS_INFO_STREAM("Load evaluation sample set from " << bag_path);
+
+  differentiable_rmap::RmapSampleSet::ConstPtr sample_set_msg =
+      loadBag<differentiable_rmap::RmapSampleSet>(bag_path);
+
+  if (sample_set_msg->type != static_cast<size_t>(SamplingSpaceType)) {
+    mc_rtc::log::error_and_throw<std::runtime_error>(
+        "[RmapTraining::evaluateAccuracy] SamplingSpace does not match with message: {} != {}",
+        sample_set_msg->type, static_cast<size_t>(SamplingSpaceType));
+  }
+
+  int sample_num = sample_set_msg->samples.size();
+  SampleType sample;
+  for (size_t i = 0; i < sample_num; i++) {
+    for (int j = 0; j < sample_dim_; j++) {
+      sample[j] = sample_set_msg->samples[i].position[j];
+    }
+
+    bool reachability_gt = sample_set_msg->samples[i].is_reachable;
+    bool reachability_pred = (calcSVMValue(sample) >= svm_thre_manager_->value());
+    if (reachability_gt == reachability_pred) {
+      ROS_INFO("success");
+    } else {
+      ROS_WARN("fail");
+    }
   }
 }
 
@@ -560,6 +595,15 @@ void RmapTraining<SamplingSpaceType>::publishMarkerArray() const
   marker_arr_msg.markers.push_back(xy_plane_marker);
 
   marker_arr_pub_.publish(marker_arr_msg);
+}
+
+template <SamplingSpace SamplingSpaceType>
+bool RmapTraining<SamplingSpaceType>::evaluateCallback(
+    std_srvs::Empty::Request& req,
+    std_srvs::Empty::Response& res)
+{
+  evaluateAccuracy(config_.eval_bag_path);
+  return true;
 }
 
 template <SamplingSpace SamplingSpaceType>

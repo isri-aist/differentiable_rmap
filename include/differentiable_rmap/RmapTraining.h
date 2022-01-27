@@ -5,6 +5,7 @@
 #include <mc_rtc/Configuration.h>
 
 #include <ros/ros.h>
+#include <std_srvs/Empty.h>
 #include <std_msgs/Float64.h>
 #include <grid_map_ros/grid_map_ros.hpp>
 #include <grid_map_msgs/GridMap.h>
@@ -67,6 +68,9 @@ class RmapTraining: public RmapTrainingBase
     //! Theta threshold for slicing SE3 sample [deg]
     double slice_se3_theta_thre = 20;
 
+    //! ROS bag path of sample set for evaluation
+    std::string eval_bag_path;
+
     /*! \brief Load mc_rtc configuration. */
     inline void load(const mc_rtc::Configuration& mc_rtc_config)
     {
@@ -77,6 +81,7 @@ class RmapTraining: public RmapTrainingBase
       mc_rtc_config("slice_r3_z_thre", slice_r3_z_thre);
       mc_rtc_config("slice_se3_z_thre", slice_se3_z_thre);
       mc_rtc_config("slice_se3_theta_thre", slice_se3_theta_thre);
+      mc_rtc_config("eval_bag_path", eval_bag_path);
     }
   };
 
@@ -129,6 +134,11 @@ class RmapTraining: public RmapTrainingBase
 
   /** \brief Setup and run SVM training loop. */
   virtual void runLoop() override;
+
+  /** \brief Evaluate accuracy
+      \param bag_path ROS bag path of sample set for evaluation
+   */
+  void evaluateAccuracy(const std::string& bag_path);
 
   /** \brief Test SVM value calculation.
       \param[out] svm_value_libsvm SVM value calculated by libsvm
@@ -204,6 +214,10 @@ class RmapTraining: public RmapTrainingBase
   /** \brief Publish marker array. */
   void publishMarkerArray() const;
 
+  /** \brief Callback to evaluate SVM. */
+  bool evaluateCallback(std_srvs::Empty::Request& req,
+                        std_srvs::Empty::Response& res);
+
  protected:
   //! mc_rtc Configuration
   mc_rtc::Configuration mc_rtc_config_;
@@ -264,6 +278,7 @@ class RmapTraining: public RmapTrainingBase
   ros::Publisher sliced_unreachable_cloud_pub_;
   ros::Publisher marker_arr_pub_;
   ros::Publisher grid_map_pub_;
+  ros::ServiceServer eval_srv_;
 
   std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> svm_thre_manager_;
   std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> svm_gamma_manager_;
@@ -276,7 +291,7 @@ class RmapTraining: public RmapTrainingBase
 
 /** \brief Create RmapTraining instance.
     \param sampling_space sampling space
-    \param bag_path path of ROS bag file (empty for loading trained SVM model directly)
+    \param bag_path path of ROS bag file
     \param svm_path path of SVM model file (file for output if load_svm is false, input otherwise)
     \param load_svm whether to load SVM model from file
 */
