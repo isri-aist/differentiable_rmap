@@ -1,5 +1,6 @@
 /* Author: Masaki Murooka */
 
+#include <chrono>
 #include <stdlib.h>
 
 #include <rosbag/bag.h>
@@ -65,6 +66,8 @@ void RmapSampling<SamplingSpaceType>::run(
   reachable_cloud_msg_.points.clear();
   unreachable_cloud_msg_.points.clear();
 
+  auto start_time = std::chrono::system_clock::now();
+
   ros::Rate rate(sleep_rate > 0 ? sleep_rate : 1000);
   int loop_idx = 0;
   while (ros::ok()) {
@@ -85,6 +88,10 @@ void RmapSampling<SamplingSpaceType>::run(
     ros::spinOnce();
     loop_idx++;
   }
+
+  double duration = 1e3 * std::chrono::duration_cast<std::chrono::duration<double>>(
+      std::chrono::system_clock::now() - start_time).count();
+  ROS_INFO_STREAM("Sample generation duration: " << duration << " [ms]");
 
   // Dump sample set
   dumpSampleSet(bag_path);
