@@ -677,6 +677,13 @@ bool RmapTraining<SamplingSpaceType>::evaluateCallback(
 
   if (!contain_unreachable_sample_) {
     ROS_INFO("==== OCNN ====");
+    for (double dist_ratio_thre : std::vector<double>{1.0, 2.0, 3.0, 4.0}) {
+      ROS_INFO_STREAM("dist_ratio_thre: " << dist_ratio_thre);
+      evaluateAccuracy(
+          config_.eval_bag_path,
+          std::bind(&RmapTraining<SamplingSpaceType>::predictOnceOCNN,
+                    this, std::placeholders::_1, dist_ratio_thre));
+    }
   }
 
   if (contain_unreachable_sample_) {
