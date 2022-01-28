@@ -237,15 +237,7 @@ void RmapTraining<SamplingSpaceType>::evaluateAccuracy(const std::string& bag_pa
 template <SamplingSpace SamplingSpaceType>
 void RmapTraining<SamplingSpaceType>::setupSVMParam()
 {
-  bool contain_unreachable_sample = false;
-  for (bool reachability : reachability_list_) {
-    if (!reachability) {
-      contain_unreachable_sample = true;
-      break;
-    }
-  }
-
-  svm_param_.svm_type = contain_unreachable_sample ? NU_SVC : ONE_CLASS;
+  svm_param_.svm_type = contain_unreachable_sample_ ? NU_SVC : ONE_CLASS;
   svm_param_.kernel_type = RBF;
   svm_param_.degree = 3;
   svm_param_.gamma = 30; // smoothness (smaller is smoother)
@@ -401,6 +393,15 @@ void RmapTraining<SamplingSpaceType>::loadSampleSet(const std::string& bag_path)
       svm_prob_.y[i] = reachability_list_[i] ? 1 : -1;
     }
   }
+
+  // Check unreachable samples are contained
+  contain_unreachable_sample_ = false;
+  for (bool reachability : reachability_list_) {
+    if (!reachability) {
+      contain_unreachable_sample_ = true;
+      break;
+    }
+  }
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -498,10 +499,11 @@ bool RmapTraining<SamplingSpaceType>::predictOnceSVM(
 }
 
 template <SamplingSpace SamplingSpaceType>
-bool RmapTraining<SamplingSpaceType>::predictOnceDistance(
-    const SampleType& sample) const
+bool RmapTraining<SamplingSpaceType>::predictOnceOCNN(
+    const SampleType& sample,
+    double dist_ratio_thre) const
 {
-  return false;
+  return oneClassNearestNeighbor<sample_dim_>(sample, dist_ratio_thre, sample_list_);
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -673,13 +675,19 @@ bool RmapTraining<SamplingSpaceType>::evaluateCallback(
       std::bind(&RmapTraining<SamplingSpaceType>::predictOnceSVM,
                 this, std::placeholders::_1, svm_thre_manager_->value()));
 
-  ROS_INFO("==== KNN ====");
-  for (size_t K : std::vector<size_t>{1, 3, 5, 7, 9}) {
-    ROS_INFO_STREAM("K: " << K);
-    evaluateAccuracy(
-        config_.eval_bag_path,
-        std::bind(&RmapTraining<SamplingSpaceType>::predictOnceKNN,
-                  this, std::placeholders::_1, K));
+  if (!contain_unreachable_sample_) {
+    ROS_INFO("==== OCNN ====");
+  }
+
+  if (contain_unreachable_sample_) {
+    ROS_INFO("==== KNN ====");
+    for (size_t K : std::vector<size_t>{1, 3, 5, 7, 9}) {
+      ROS_INFO_STREAM("K: " << K);
+      evaluateAccuracy(
+          config_.eval_bag_path,
+          std::bind(&RmapTraining<SamplingSpaceType>::predictOnceKNN,
+                    this, std::placeholders::_1, K));
+    }
   }
 
   return true;

@@ -1,5 +1,6 @@
 /* Author: Masaki Murooka */
 
+#include <set>
 #include <limits>
 
 #include <mc_rtc/logging.h>
@@ -7,6 +8,57 @@
 
 namespace DiffRmap
 {
+namespace
+{
+/** \brief Get nearest sample index.
+    \tparam N sample dimension
+    \param focused_sample focused sample
+    \param sample_list sample list
+    \param exclude_idx_list indices of sample list to exclude
+*/
+template <size_t N>
+size_t getNearestSample(
+    const Eigen::Matrix<double, N, 1>& focused_sample,
+    const std::vector<Eigen::Matrix<double, N, 1>>& sample_list,
+    const std::set<size_t>& exclude_idx_list = {})
+{
+  size_t nearest_idx = 0;
+  double nearest_dist = std::numeric_limits<double>::max();
+  for (size_t i = 0; i < sample_list.size(); i++) {
+    if (exclude_idx_list.count(i) > 0) {
+      continue;
+    }
+    double dist = (sample_list[i] - focused_sample).squaredNorm();
+    if (dist < nearest_dist) {
+      nearest_idx = i;
+      nearest_dist = dist;
+    }
+  }
+  return nearest_idx;
+}
+}
+
+template <size_t N>
+bool oneClassNearestNeighbor(
+    const Eigen::Matrix<double, N, 1>& test_sample,
+    double dist_ratio_thre,
+    const std::vector<Eigen::Matrix<double, N, 1>>& train_sample_list)
+{
+  size_t nearest_sample_idx_to_test =
+      getNearestSample<N>(test_sample, train_sample_list);
+  size_t nearest_sample_idx_to_nearest =
+      getNearestSample<N>(train_sample_list[nearest_sample_idx_to_test],
+                          train_sample_list,
+                          std::set<size_t>{nearest_sample_idx_to_test});
+
+  double distance_test_nearest =
+      (train_sample_list[nearest_sample_idx_to_test] - test_sample).norm();
+  double distance_nearest_nearest =
+      (train_sample_list[nearest_sample_idx_to_test] - train_sample_list[nearest_sample_idx_to_nearest]).norm();
+
+  return distance_test_nearest / distance_nearest_nearest < dist_ratio_thre;
+}
+
 template <size_t N>
 bool kNearestNeighbor(
     const Eigen::Matrix<double, N, 1>& test_sample,

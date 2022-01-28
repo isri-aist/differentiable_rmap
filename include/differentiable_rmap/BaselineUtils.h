@@ -5,6 +5,21 @@
 
 namespace DiffRmap
 {
+/** \brief Run one-class nearest neightbor binary classification
+    \tparam N sample dimension
+    \param test_sample test sample
+    \param dist_ratio_thre threshold of distaice ratio
+    \param train_sample_list training sample list
+    \return true if test_sample is estimated to belong to the positive class
+
+    \note See https://arxiv.org/abs/1604.01686 for algorithm
+*/
+template <size_t N>
+bool oneClassNearestNeighbor(
+    const Eigen::Matrix<double, N, 1>& test_sample,
+    double dist_ratio_thre,
+    const std::vector<Eigen::Matrix<double, N, 1>>& train_sample_list);
+
 /** \brief Run k-nearest neightbor binary classification
     \tparam N sample dimension
     \param test_sample test sample

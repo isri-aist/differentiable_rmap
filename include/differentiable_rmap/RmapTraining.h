@@ -213,8 +213,8 @@ class RmapTraining: public RmapTrainingBase
   /** \brief Predict once by SVM. */
   bool predictOnceSVM(const SampleType& sample, double svm_thre) const;
 
-  /** \brief Predict once by distance to reachable samples. */
-  bool predictOnceDistance(const SampleType& sample) const;
+  /** \brief Predict once by one-class nearest neighbor to reachable samples. */
+  bool predictOnceOCNN(const SampleType& sample, double dist_ratio_thre) const;
 
   /** \brief Predict once by k-nearest neighbor method. */
   bool predictOnceKNN(const SampleType& sample, size_t K) const;
@@ -247,6 +247,9 @@ class RmapTraining: public RmapTrainingBase
 
   //! Reachability list
   std::vector<bool> reachability_list_;
+
+  //! Whether unreachable samples are contained
+  bool contain_unreachable_sample_ = false;
 
   //! Min/max position of samples
   SampleType sample_min_;
