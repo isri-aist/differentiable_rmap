@@ -177,6 +177,7 @@ void RmapTraining<SamplingSpaceType>::evaluateAccuracy(const std::string& bag_pa
 {
   ROS_INFO_STREAM("Load evaluation sample set from " << bag_path);
 
+  // Load ROS bag
   differentiable_rmap::RmapSampleSet::ConstPtr sample_set_msg =
       loadBag<differentiable_rmap::RmapSampleSet>(bag_path);
 
@@ -190,6 +191,9 @@ void RmapTraining<SamplingSpaceType>::evaluateAccuracy(const std::string& bag_pa
   for (const auto& result : PredictResults::all) {
     predict_result_table.emplace(result, 0);
   }
+
+  // Predict
+  auto start_time = std::chrono::system_clock::now();
 
   size_t sample_num = sample_set_msg->samples.size();
   SampleType sample;
@@ -216,6 +220,9 @@ void RmapTraining<SamplingSpaceType>::evaluateAccuracy(const std::string& bag_pa
     }
   }
 
+  double duration = 1e3 * std::chrono::duration_cast<std::chrono::duration<double>>(
+      std::chrono::system_clock::now() - start_time).count();
+
   double iou = static_cast<double>(predict_result_table.at(PredictResult::TrueReachable)) / (
       predict_result_table.at(PredictResult::TrueReachable) +
       predict_result_table.at(PredictResult::FalseReachable) +
@@ -224,6 +231,7 @@ void RmapTraining<SamplingSpaceType>::evaluateAccuracy(const std::string& bag_pa
   for (const auto& result : PredictResults::all) {
     ROS_INFO_STREAM("  - " << std::to_string(result) << ": " << predict_result_table.at(result));
   }
+  ROS_INFO_STREAM("Predict duration: " << duration << " [ms] (predict-one: " << duration / sample_num <<" [ms])");
 }
 
 template <SamplingSpace SamplingSpaceType>
