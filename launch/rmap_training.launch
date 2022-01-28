@@ -11,7 +11,7 @@
       bag_path: /tmp/rmap_sample_set_$(arg sampling_space).bag
       svm_path: /tmp/rmap_svm_model_$(arg sampling_space).libsvm
       load_svm: $(arg load_svm)
-      eval_bag_path: /tmp/rmap_sample_set_$(arg sampling_space).bag
+      eval_bag_path: /tmp/rmap_sample_set_eval_$(arg sampling_space).bag
     </rosparam>
   </node>
 

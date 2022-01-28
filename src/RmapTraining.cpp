@@ -13,6 +13,7 @@
 #include <differentiable_rmap/RmapTraining.h>
 #include <differentiable_rmap/SVMUtils.h>
 #include <differentiable_rmap/EvalUtils.h>
+#include <differentiable_rmap/BaselineUtils.h>
 #include <differentiable_rmap/libsvm_hotfix.h>
 
 using namespace DiffRmap;
@@ -196,7 +197,8 @@ void RmapTraining<SamplingSpaceType>::evaluateAccuracy(const std::string& bag_pa
     }
 
     bool reachability_gt = sample_set_msg->samples[i].is_reachable;
-    bool reachability_pred = (calcSVMValue(sample) >= svm_thre_manager_->value());
+    bool reachability_pred = predictOnceSVM(sample, svm_thre_manager_->value());
+
     if (reachability_pred) {
       if (reachability_gt) {
         predict_result_table.at(PredictResult::TrueReachable)++;
@@ -475,6 +477,36 @@ Vel<SamplingSpaceType> RmapTraining<SamplingSpaceType>::calcSVMGrad(
       svm_mo_,
       svm_coeff_vec_,
       svm_sv_mat_);
+}
+
+template <SamplingSpace SamplingSpaceType>
+bool RmapTraining<SamplingSpaceType>::predictOnceSVM(
+    const SampleType& sample,
+    double svm_thre) const
+{
+  return calcSVMValue(sample) >= svm_thre;
+}
+
+template <SamplingSpace SamplingSpaceType>
+bool RmapTraining<SamplingSpaceType>::predictOnceDistance(
+    const SampleType& sample) const
+{
+  return false;
+}
+
+template <SamplingSpace SamplingSpaceType>
+bool RmapTraining<SamplingSpaceType>::predictOnceNN(
+    const SampleType& sample,
+    size_t K) const
+{
+  return kNearestNeighbor<sample_dim_>(sample, K, sample_list_, reachability_list_);
+}
+
+template <SamplingSpace SamplingSpaceType>
+bool RmapTraining<SamplingSpaceType>::predictOnceConvex(
+    const SampleType& sample) const
+{
+  return false;
 }
 
 template <SamplingSpace SamplingSpaceType>

@@ -205,6 +205,18 @@ class RmapTraining: public RmapTrainingBase
   */
   VelType calcSVMGrad(const SampleType& sample) const;
 
+  /** \brief Predict once by SVM. */
+  bool predictOnceSVM(const SampleType& sample, double svm_thre) const;
+
+  /** \brief Predict once by distance to reachable samples. */
+  bool predictOnceDistance(const SampleType& sample) const;
+
+  /** \brief Predict once by k-nearest neighbor method. */
+  bool predictOnceNN(const SampleType& sample, size_t K) const;
+
+  /** \brief Predict once by SVM */
+  bool predictOnceConvex(const SampleType& sample) const;
+
   /** \brief Predict SVM on grid map. */
   void predictOnSlicePlane();
 
