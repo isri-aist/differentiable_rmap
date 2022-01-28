@@ -1,6 +1,7 @@
 /* Author: Masaki Murooka */
 
 #include <chrono>
+#include <functional>
 
 #include <mc_rtc/constants.h>
 
@@ -171,7 +172,8 @@ void RmapTraining<SamplingSpaceType>::runLoop()
 }
 
 template <SamplingSpace SamplingSpaceType>
-void RmapTraining<SamplingSpaceType>::evaluateAccuracy(const std::string& bag_path)
+void RmapTraining<SamplingSpaceType>::evaluateAccuracy(const std::string& bag_path,
+                                                       const PredictFuncType& predict_func)
 {
   ROS_INFO_STREAM("Load evaluation sample set from " << bag_path);
 
@@ -197,7 +199,7 @@ void RmapTraining<SamplingSpaceType>::evaluateAccuracy(const std::string& bag_pa
     }
 
     bool reachability_gt = sample_set_msg->samples[i].is_reachable;
-    bool reachability_pred = predictOnceSVM(sample, svm_thre_manager_->value());
+    bool reachability_pred = predict_func(sample);
 
     if (reachability_pred) {
       if (reachability_gt) {
@@ -657,7 +659,21 @@ bool RmapTraining<SamplingSpaceType>::evaluateCallback(
     std_srvs::Empty::Request& req,
     std_srvs::Empty::Response& res)
 {
-  evaluateAccuracy(config_.eval_bag_path);
+  ROS_INFO("==== SVM ====");
+  evaluateAccuracy(
+      config_.eval_bag_path,
+      std::bind(&RmapTraining<SamplingSpaceType>::predictOnceSVM,
+                this, std::placeholders::_1, svm_thre_manager_->value()));
+
+  ROS_INFO("==== KNN ====");
+  for (size_t K : std::vector<size_t>{1, 3, 5, 7, 9}) {
+    ROS_INFO_STREAM("K: " << K);
+    evaluateAccuracy(
+        config_.eval_bag_path,
+        std::bind(&RmapTraining<SamplingSpaceType>::predictOnceKNN,
+                  this, std::placeholders::_1, K));
+  }
+
   return true;
 }
 

@@ -108,6 +108,9 @@ class RmapTraining: public RmapTrainingBase
   /*! \brief Type of velocity vector. */
   using VelType = Vel<SamplingSpaceType>;
 
+  /*! \brief Type of function to predict once. */
+  using PredictFuncType = std::function<bool(const SampleType&)>;
+
  public:
   /** \brief Constructor.
       \param bag_path path of ROS bag file
@@ -137,8 +140,10 @@ class RmapTraining: public RmapTrainingBase
 
   /** \brief Evaluate accuracy
       \param bag_path ROS bag path of sample set for evaluation
+      \param predict_func function to predict once
    */
-  void evaluateAccuracy(const std::string& bag_path);
+  void evaluateAccuracy(const std::string& bag_path,
+                        const PredictFuncType& predict_func);
 
   /** \brief Test SVM value calculation.
       \param[out] svm_value_libsvm SVM value calculated by libsvm
