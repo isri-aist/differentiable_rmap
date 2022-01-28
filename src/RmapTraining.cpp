@@ -12,6 +12,7 @@
 
 #include <differentiable_rmap/RmapTraining.h>
 #include <differentiable_rmap/SVMUtils.h>
+#include <differentiable_rmap/EvalUtils.h>
 #include <differentiable_rmap/libsvm_hotfix.h>
 
 using namespace DiffRmap;
@@ -182,9 +183,13 @@ void RmapTraining<SamplingSpaceType>::evaluateAccuracy(const std::string& bag_pa
         sample_set_msg->type, static_cast<size_t>(SamplingSpaceType));
   }
 
-  int sample_num = sample_set_msg->samples.size();
+  std::unordered_map<PredictResult, size_t> predict_result_table;
+  for (const auto& result : PredictResults::all) {
+    predict_result_table.emplace(result, 0);
+  }
+
+  size_t sample_num = sample_set_msg->samples.size();
   SampleType sample;
-  int correct_num = 0;
   for (size_t i = 0; i < sample_num; i++) {
     for (int j = 0; j < sample_dim_; j++) {
       sample[j] = sample_set_msg->samples[i].position[j];
@@ -192,11 +197,29 @@ void RmapTraining<SamplingSpaceType>::evaluateAccuracy(const std::string& bag_pa
 
     bool reachability_gt = sample_set_msg->samples[i].is_reachable;
     bool reachability_pred = (calcSVMValue(sample) >= svm_thre_manager_->value());
-    if (reachability_gt == reachability_pred) {
-      correct_num++;
+    if (reachability_pred) {
+      if (reachability_gt) {
+        predict_result_table.at(PredictResult::TrueReachable)++;
+      } else {
+        predict_result_table.at(PredictResult::FalseReachable)++;
+      }
+    } else {
+      if (reachability_gt) {
+        predict_result_table.at(PredictResult::FalseUnreachable)++;
+      } else {
+        predict_result_table.at(PredictResult::TrueUnreachable)++;
+      }
     }
   }
-  ROS_INFO_STREAM("accuracy: " << static_cast<double>(correct_num) / sample_num * 100 << " %");
+
+  double iou = static_cast<double>(predict_result_table.at(PredictResult::TrueReachable)) / (
+      predict_result_table.at(PredictResult::TrueReachable) +
+      predict_result_table.at(PredictResult::FalseReachable) +
+      predict_result_table.at(PredictResult::FalseUnreachable));
+  ROS_INFO_STREAM("IoU: " << iou);
+  for (const auto& result : PredictResults::all) {
+    ROS_INFO_STREAM("  - " << std::to_string(result) << ": " << predict_result_table.at(result));
+  }
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -313,7 +336,7 @@ void RmapTraining<SamplingSpaceType>::loadSampleSet(const std::string& bag_path)
           sample_set_msg->type, static_cast<size_t>(SamplingSpaceType));
     }
 
-    int sample_num = sample_set_msg->samples.size();
+    size_t sample_num = sample_set_msg->samples.size();
     sample_list_.resize(sample_num);
     reachability_list_.resize(sample_num);
     for (size_t i = 0; i < sample_num; i++) {
