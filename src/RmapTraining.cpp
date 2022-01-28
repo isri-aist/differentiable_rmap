@@ -495,7 +495,7 @@ bool RmapTraining<SamplingSpaceType>::predictOnceDistance(
 }
 
 template <SamplingSpace SamplingSpaceType>
-bool RmapTraining<SamplingSpaceType>::predictOnceNN(
+bool RmapTraining<SamplingSpaceType>::predictOnceKNN(
     const SampleType& sample,
     size_t K) const
 {

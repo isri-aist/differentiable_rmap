@@ -212,7 +212,7 @@ class RmapTraining: public RmapTrainingBase
   bool predictOnceDistance(const SampleType& sample) const;
 
   /** \brief Predict once by k-nearest neighbor method. */
-  bool predictOnceNN(const SampleType& sample, size_t K) const;
+  bool predictOnceKNN(const SampleType& sample, size_t K) const;
 
   /** \brief Predict once by SVM */
   bool predictOnceConvex(const SampleType& sample) const;

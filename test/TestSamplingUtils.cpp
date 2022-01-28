@@ -1,7 +1,5 @@
 #include <boost/test/unit_test.hpp>
 
-#include <mc_rtc/logging.h>
-
 #include <differentiable_rmap/SamplingUtils.h>
 
 using namespace DiffRmap;

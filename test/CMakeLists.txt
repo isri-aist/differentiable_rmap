@@ -4,6 +4,7 @@ set(differentiable_rmap_test_list
   TestSamplingUtils
   TestSVMUtils
   TestGridUtils
+  TestBaselineUtils
   )
 
 foreach(NAME IN LISTS differentiable_rmap_test_list)

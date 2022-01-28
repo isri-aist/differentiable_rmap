@@ -2,6 +2,8 @@
 
 #include <limits>
 
+#include <mc_rtc/logging.h>
+
 
 namespace DiffRmap
 {
