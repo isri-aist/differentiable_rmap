@@ -677,8 +677,8 @@ bool RmapTraining<SamplingSpaceType>::evaluateCallback(
 
   if (!contain_unreachable_sample_) {
     ROS_INFO("==== OCNN ====");
-    for (double dist_ratio_thre : std::vector<double>{1.0, 2.0, 3.0, 4.0}) {
-      ROS_INFO_STREAM("dist_ratio_thre: " << dist_ratio_thre);
+    for (double dist_ratio_thre : config_.ocnn_dist_ratio_thre_list) {
+      ROS_INFO_STREAM("- dist_ratio_thre: " << dist_ratio_thre);
       evaluateAccuracy(
           config_.eval_bag_path,
           std::bind(&RmapTraining<SamplingSpaceType>::predictOnceOCNN,
@@ -688,8 +688,8 @@ bool RmapTraining<SamplingSpaceType>::evaluateCallback(
 
   if (contain_unreachable_sample_) {
     ROS_INFO("==== KNN ====");
-    for (size_t K : std::vector<size_t>{1, 3, 5, 7, 9}) {
-      ROS_INFO_STREAM("K: " << K);
+    for (size_t K : config_.knn_K_list) {
+      ROS_INFO_STREAM("- K: " << K);
       evaluateAccuracy(
           config_.eval_bag_path,
           std::bind(&RmapTraining<SamplingSpaceType>::predictOnceKNN,
