@@ -1,5 +1,6 @@
 add_library(DiffRmap
   SamplingUtils.cpp
+  BaselineUtils.cpp
   RmapSampling.cpp
   RmapSamplingIK.cpp
   RmapSamplingFootstep.cpp

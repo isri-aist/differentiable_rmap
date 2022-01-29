@@ -20,6 +20,11 @@ find_package(catkin REQUIRED COMPONENTS
   optmotiongen
   )
 
+# Boost
+# Use Boost.Geometry which is header-only library
+find_package(Boost REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+
 # Eigen
 find_package(Eigen3 REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})

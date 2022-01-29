@@ -2,6 +2,11 @@
 
 #pragma once
 
+#include <vector>
+#include <memory>
+
+#include <Eigen/Core>
+
 
 namespace DiffRmap
 {
@@ -34,6 +39,33 @@ bool kNearestNeighbor(
     size_t K,
     const std::vector<Eigen::Matrix<double, N, 1>>& train_sample_list,
     const std::vector<bool>& class_list);
+
+
+/** \brief Class that classifies whether a point is inside or outside a convex. */
+class ConvexInsideClassification
+{
+ protected:
+  /** \brief Implementation class to hide boost codes. */
+  class Impl;
+
+ public:
+  /** \brief Constructor.
+      \param points training points to make convex
+  */
+  ConvexInsideClassification(const std::vector<Eigen::Vector2d>& points);
+
+  /** \brief Destructor. */
+  ~ConvexInsideClassification();
+
+  /** \brief Classify point.
+      \param test point
+  */
+  bool classify(const Eigen::Vector2d& point) const;
+
+ protected:
+  //! Implementation
+  std::unique_ptr<Impl> impl_;
+};
 }
 
 // See method 3 in https://www.codeproject.com/Articles/48575/How-to-Define-a-Template-Class-in-a-h-File-and-Imp
