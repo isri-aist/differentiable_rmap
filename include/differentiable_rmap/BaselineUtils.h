@@ -62,6 +62,10 @@ class ConvexInsideClassification
   */
   bool classify(const Eigen::Vector2d& point) const;
 
+ public:
+  //! Convex vertices
+  std::vector<Eigen::Vector2d> convex_vertices_;
+
  protected:
   //! Implementation
   std::unique_ptr<Impl> impl_;

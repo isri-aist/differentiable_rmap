@@ -33,6 +33,16 @@ class ConvexInsideClassification::Impl
     return boost::geometry::within(point, bg_hull_);
   }
 
+  void setConvexVertices(std::vector<Eigen::Vector2d>& convex_vertices) const
+  {
+    convex_vertices.clear();
+    boost::geometry::for_each_point(
+        bg_hull_.outer(),
+        [&convex_vertices](const Eigen::Vector2d& point) {
+          convex_vertices.push_back(point);
+        });
+  }
+
  protected:
   //! Training points
   BGMultiPointType bg_points_;
@@ -45,6 +55,7 @@ ConvexInsideClassification::ConvexInsideClassification(
     const std::vector<Eigen::Vector2d>& points)
 {
   impl_.reset(new Impl(points));
+  impl_->setConvexVertices(convex_vertices_);
 }
 
 ConvexInsideClassification::~ConvexInsideClassification()

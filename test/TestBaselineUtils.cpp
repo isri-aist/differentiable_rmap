@@ -113,3 +113,46 @@ BOOST_AUTO_TEST_CASE(TestKNN)
   // std::cout << "  replot \"/tmp/test_data_knn_0.txt\" u 1:2:3 with points pt 4 ps 2 palette" << std::endl;
   // std::cout << "  replot sin(4 * x) lw 4" << std::endl;
 }
+
+BOOST_AUTO_TEST_CASE(TestConvexInsideClassification)
+{
+  std::ofstream ofs("/tmp/data_convex_inside_classification.txt");
+
+  // Generate training points
+  std::vector<Eigen::Vector2d> points;
+  for (int i = 0; i < 20; i++) {
+    const Eigen::Vector2d& point = Eigen::Vector2d::Random();
+    points.push_back(point);
+    ofs << point.transpose() << std::endl;
+  }
+  ofs << std::endl;
+
+  // Generate classification instance
+  ConvexInsideClassification convex_inside_class(points);
+
+  // Dump convex vertices
+  for (const auto& vertex : convex_inside_class.convex_vertices_) {
+    ofs << vertex.transpose() << std::endl;
+  }
+  ofs << std::endl;
+
+  // Check inside convex
+  for (int i = 0; i < 1000; i++) {
+    Eigen::Vector2d point = Eigen::Vector2d::Random();
+    ofs << point.transpose() << " " << static_cast<int>(convex_inside_class.classify(point)) << std::endl;
+  }
+
+  BOOST_CHECK(convex_inside_class.classify(Eigen::Vector2d::Zero()));
+  BOOST_CHECK(!convex_inside_class.classify(Eigen::Vector2d(1.1, 0)));
+  BOOST_CHECK(!convex_inside_class.classify(Eigen::Vector2d(-1.1, 0)));
+  BOOST_CHECK(!convex_inside_class.classify(Eigen::Vector2d(0, 1.1)));
+  BOOST_CHECK(!convex_inside_class.classify(Eigen::Vector2d(0, -1.1)));
+
+  // std::cout
+  //     << "[TestConvexInsideClassification] Plot samples by the following gnuplot commands:" << std::endl
+  //     << "  set palette model RGB defined ( 0 'red', 1 'green' )" << std::endl
+  //     << "  unset colorbox" << std::endl
+  //     << "  plot \"/tmp/data_convex_inside_classification.txt\" every :::0::0 using 1:2 t \"train\" pt 4 ps 2 lc rgb \"blue\"" << std::endl
+  //     << "  replot \"\" every :::1::1 u 1:2 with lines t \"convex\" lw 2 lc rgb \"blue\"" << std::endl
+  //     << "  replot \"\" every :::2::2 u 1:2:3 t \"test\" pt 7 ps 2 palette" << std::endl;
+}
