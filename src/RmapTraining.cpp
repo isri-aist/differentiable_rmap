@@ -683,10 +683,13 @@ bool RmapTraining<SamplingSpaceType>::evaluateCallback(
     std_srvs::Empty::Response& res)
 {
   ROS_INFO("==== SVM ====");
-  evaluateAccuracy(
-      config_.eval_bag_path,
-      std::bind(&RmapTraining<SamplingSpaceType>::predictOnceSVM,
-                this, std::placeholders::_1, svm_thre_manager_->value()));
+  for (double svm_thre : config_.eval_svm_thre_list) {
+    ROS_INFO_STREAM("- svm_thre: " << svm_thre);
+    evaluateAccuracy(
+        config_.eval_bag_path,
+        std::bind(&RmapTraining<SamplingSpaceType>::predictOnceSVM,
+                  this, std::placeholders::_1, svm_thre));
+  }
 
   if (!contain_unreachable_sample_) {
     ROS_INFO("==== OCNN ====");

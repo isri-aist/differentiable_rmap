@@ -73,6 +73,9 @@ class RmapTraining: public RmapTrainingBase
     //! ROS bag path of sample set for evaluation
     std::string eval_bag_path;
 
+    //! SVM threshold list for evaluation
+    std::vector<double> eval_svm_thre_list = {-0.2, -0.1, 0.0};
+
     //! Threshold list of distaice ratio for evaluation by one-class nearest neighbor
     std::vector<double> ocnn_dist_ratio_thre_list = {1.0, 2.0, 3.0, 4.0};
 
@@ -90,6 +93,7 @@ class RmapTraining: public RmapTrainingBase
       mc_rtc_config("slice_se3_z_thre", slice_se3_z_thre);
       mc_rtc_config("slice_se3_theta_thre", slice_se3_theta_thre);
       mc_rtc_config("eval_bag_path", eval_bag_path);
+      mc_rtc_config("eval_svm_thre_list", eval_svm_thre_list);
       mc_rtc_config("ocnn_dist_ratio_thre_list", ocnn_dist_ratio_thre_list);
       mc_rtc_config("knn_K_list", knn_K_list);
     }

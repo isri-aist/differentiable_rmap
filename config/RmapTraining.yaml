@@ -22,6 +22,9 @@ slice_se3_theta_thre: 20
 # ROS bag path of sample set for evaluation
 eval_bag_path: "" # Set by rosparam since it contains ROS package path
 
+# SVM threshold list for evaluation
+eval_svm_thre_list: [-0.2, -0.15, -0.1, -0.05, 0.0]
+
 # Threshold list of distaice ratio for evaluation by one-class nearest neighbor
 ocnn_dist_ratio_thre_list: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
 
