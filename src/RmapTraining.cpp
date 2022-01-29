@@ -518,6 +518,14 @@ template <SamplingSpace SamplingSpaceType>
 bool RmapTraining<SamplingSpaceType>::predictOnceConvex(
     const SampleType& sample) const
 {
+  if constexpr (SamplingSpaceType == SamplingSpace::R2) {
+      ConvexInsideClassification convex_inside_class(sample_list_);
+      return convex_inside_class.classify(sample);
+    } else {
+    mc_rtc::log::error_and_throw<std::runtime_error>(
+        "[predictOnceConvex] Unsupported SamplingSpace: {}", std::to_string(SamplingSpaceType));
+  }
+
   return false;
 }
 
@@ -684,6 +692,14 @@ bool RmapTraining<SamplingSpaceType>::evaluateCallback(
           std::bind(&RmapTraining<SamplingSpaceType>::predictOnceOCNN,
                     this, std::placeholders::_1, dist_ratio_thre));
     }
+
+    if constexpr (SamplingSpaceType == SamplingSpace::R2) {
+        ROS_INFO("==== Convex ====");
+        evaluateAccuracy(
+            config_.eval_bag_path,
+            std::bind(&RmapTraining<SamplingSpaceType>::predictOnceConvex,
+                      this, std::placeholders::_1));
+      }
   }
 
   if (contain_unreachable_sample_) {
