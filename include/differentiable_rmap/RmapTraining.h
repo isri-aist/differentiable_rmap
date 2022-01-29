@@ -18,6 +18,8 @@
 
 namespace DiffRmap
 {
+class ConvexInsideClassification;
+
 /** \brief Virtual base class to train SVM for differentiable reachability map. */
 class RmapTrainingBase
 {
@@ -117,7 +119,10 @@ class RmapTraining: public RmapTrainingBase
   using VelType = Vel<SamplingSpaceType>;
 
   /*! \brief Type of function to predict once. */
-  using PredictFuncType = std::function<bool(const SampleType&)>;
+  using PredictOnceFuncType = std::function<bool(const SampleType&)>;
+
+  /*! \brief Type of function to setup prediction. */
+  using PredictSetupFuncType = std::function<void(void)>;
 
  public:
   /** \brief Constructor.
@@ -148,10 +153,12 @@ class RmapTraining: public RmapTrainingBase
 
   /** \brief Evaluate accuracy
       \param bag_path ROS bag path of sample set for evaluation
-      \param predict_func function to predict once
+      \param predict_once_func function to predict once
+      \param predict_setup_func function to setup prediction
    */
   void evaluateAccuracy(const std::string& bag_path,
-                        const PredictFuncType& predict_func);
+                        const PredictOnceFuncType& predict_once_func,
+                        const PredictSetupFuncType& predict_setup_func = nullptr);
 
   /** \brief Test SVM value calculation.
       \param[out] svm_value_libsvm SVM value calculated by libsvm
@@ -296,6 +303,9 @@ class RmapTraining: public RmapTrainingBase
 
   //! Whether origin of slicing is updated
   bool slice_updated_ = false;
+
+  //! Convex inside classification (only for evaluation)
+  std::shared_ptr<ConvexInsideClassification> convex_inside_class_;
 
   //! ROS related members
   ros::NodeHandle nh_;

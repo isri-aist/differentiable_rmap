@@ -172,8 +172,10 @@ void RmapTraining<SamplingSpaceType>::runLoop()
 }
 
 template <SamplingSpace SamplingSpaceType>
-void RmapTraining<SamplingSpaceType>::evaluateAccuracy(const std::string& bag_path,
-                                                       const PredictFuncType& predict_func)
+void RmapTraining<SamplingSpaceType>::evaluateAccuracy(
+    const std::string& bag_path,
+    const PredictOnceFuncType& predict_once_func,
+    const PredictSetupFuncType& predict_setup_func)
 {
   ROS_INFO_STREAM("Load evaluation sample set from " << bag_path);
 
@@ -195,6 +197,10 @@ void RmapTraining<SamplingSpaceType>::evaluateAccuracy(const std::string& bag_pa
   // Predict
   auto start_time = std::chrono::system_clock::now();
 
+  if (predict_setup_func) {
+    predict_setup_func();
+  }
+
   size_t sample_num = sample_set_msg->samples.size();
   SampleType sample;
   for (size_t i = 0; i < sample_num; i++) {
@@ -203,7 +209,7 @@ void RmapTraining<SamplingSpaceType>::evaluateAccuracy(const std::string& bag_pa
     }
 
     bool reachability_gt = sample_set_msg->samples[i].is_reachable;
-    bool reachability_pred = predict_func(sample);
+    bool reachability_pred = predict_once_func(sample);
 
     if (reachability_pred) {
       if (reachability_gt) {
@@ -519,8 +525,7 @@ bool RmapTraining<SamplingSpaceType>::predictOnceConvex(
     const SampleType& sample) const
 {
   if constexpr (SamplingSpaceType == SamplingSpace::R2) {
-      ConvexInsideClassification convex_inside_class(sample_list_);
-      return convex_inside_class.classify(sample);
+      return convex_inside_class_->classify(sample);
     } else {
     mc_rtc::log::error_and_throw<std::runtime_error>(
         "[predictOnceConvex] Unsupported SamplingSpace: {}", std::to_string(SamplingSpaceType));
@@ -698,7 +703,11 @@ bool RmapTraining<SamplingSpaceType>::evaluateCallback(
         evaluateAccuracy(
             config_.eval_bag_path,
             std::bind(&RmapTraining<SamplingSpaceType>::predictOnceConvex,
-                      this, std::placeholders::_1));
+                      this, std::placeholders::_1),
+            [this]() {
+              this->convex_inside_class_ =
+                  std::make_shared<ConvexInsideClassification>(this->sample_list_);
+            });
       }
   }
 
