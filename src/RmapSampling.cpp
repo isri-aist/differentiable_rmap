@@ -228,7 +228,7 @@ void RmapSampling<SamplingSpaceType>::publishCollisionMarker(
   closest_points_marker.ns = "closest_points";
   closest_points_marker.id = marker_arr_msg.markers.size();
   closest_points_marker.type = visualization_msgs::Marker::SPHERE_LIST;
-  closest_points_marker.color = OmgCore::toColorRGBAMsg({1, 0, 0, 1});
+  closest_points_marker.color = OmgCore::toColorRGBAMsg({0, 0, 1, 1});
   closest_points_marker.scale = OmgCore::toVector3Msg({0.02, 0.02, 0.02}); // sphere size
   closest_points_marker.pose.orientation = OmgCore::toQuaternionMsg({0, 0, 0, 1});
   visualization_msgs::Marker closest_lines_marker;
@@ -236,7 +236,7 @@ void RmapSampling<SamplingSpaceType>::publishCollisionMarker(
   closest_lines_marker.ns = "closest_lines";
   closest_lines_marker.id = marker_arr_msg.markers.size();
   closest_lines_marker.type = visualization_msgs::Marker::LINE_LIST;
-  closest_lines_marker.color = OmgCore::toColorRGBAMsg({1, 0, 0, 1});
+  closest_lines_marker.color = OmgCore::toColorRGBAMsg({0, 0, 1, 1});
   closest_lines_marker.scale.x = 0.01; // line width
   closest_lines_marker.pose.orientation = OmgCore::toQuaternionMsg({0, 0, 0, 1});
   for (const auto& collision_task : collision_task_list) {
