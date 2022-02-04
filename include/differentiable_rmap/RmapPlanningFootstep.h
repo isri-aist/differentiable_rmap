@@ -65,6 +65,9 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
     //! List of obstacle shape configuration
     std::vector<CollisionShapeConfiguration> obst_shape_config_list = {};
 
+    //! Threshold of collision signed distance to visualize line marker [m]
+    double collision_visualization_dist_thre = 1.0;
+
     //! Vertices of foot marker
     std::vector<Eigen::Vector3d> foot_vertices = {
       Eigen::Vector3d(-0.1, -0.05, 0.0),
@@ -95,6 +98,7 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
           obst_shape_config_list.push_back(obst_config);
         }
       }
+      mc_rtc_config("collision_visualization_dist_thre", collision_visualization_dist_thre);
       mc_rtc_config("foot_vertices", foot_vertices);
     }
   };
@@ -178,6 +182,9 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
 
   //! List of collision detector of sch objects
   std::vector<std::shared_ptr<sch::CD_Pair>> sch_cd_list_;
+
+  //! List of signed distance of sch objects
+  std::vector<double> signed_dist_list_;
 
   //! List of closest points of sch objects
   std::vector<std::array<Eigen::Vector3d, 2>> closest_points_list_;

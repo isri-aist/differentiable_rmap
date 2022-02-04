@@ -146,6 +146,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::setup()
   const int& obst_num = config_.obst_shape_config_list.size();
   obst_sch_list_.resize(obst_num);
   sch_cd_list_.resize(obst_num);
+  signed_dist_list_.assign(obst_num * config_.footstep_num, 0);
   closest_points_list_.resize(obst_num * config_.footstep_num);
   for (size_t i = 0; i < obst_num; i++) {
     const auto& obst_shape_config = config_.obst_shape_config_list[i];
@@ -226,7 +227,8 @@ void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
         foot_sch_, config_.foot_shape_config.pose * sampleToPose<SamplingSpaceType>(current_sample_seq_[i]));
     for (size_t j = 0; j < config_.obst_shape_config_list.size(); j++) {
       int idx = i * config_.obst_shape_config_list.size() + j;
-      double signed_dist = sch_cd_list_[j]->getClosestPoints(closest_sch_points[0], closest_sch_points[1]);
+      double& signed_dist = signed_dist_list_[idx];
+      signed_dist = sch_cd_list_[j]->getClosestPoints(closest_sch_points[0], closest_sch_points[1]);
       // getClosestPoints() returns the squared distance with sign
       signed_dist = signed_dist >= 0 ? std::sqrt(signed_dist) : -std::sqrt(-signed_dist);
       std::array<Eigen::Vector3d, 2>& closest_points = closest_points_list_[idx];
@@ -382,6 +384,9 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishMarkerArray() const
   for (int i = 0; i < config_.footstep_num; i++) {
     for (size_t j = 0; j < config_.obst_shape_config_list.size(); j++) {
       int idx = i * config_.obst_shape_config_list.size() + j;
+      if (signed_dist_list_[idx] > config_.collision_visualization_dist_thre) {
+        continue;
+      }
       for (auto k : {0, 1}) {
         const auto& point_msg = OmgCore::toPointMsg(closest_points_list_[idx][k]);
         collision_points_marker.points.push_back(point_msg);
