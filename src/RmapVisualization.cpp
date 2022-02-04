@@ -222,7 +222,7 @@ void RmapVisualization<SamplingSpaceType>::publishMarkerArray() const
   grids_marker.ns = "reachable_grids";
   grids_marker.id = marker_arr_msg.markers.size();
   grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
-  grids_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.0, 0.0, 1.0});
+  grids_marker.color = OmgCore::toColorRGBAMsg(config_.grid_color);
   grids_marker.scale = OmgCore::toVector3Msg(
       calcGridCubeScale<SamplingSpaceType>(grid_set_msg_.divide_nums, sample_range));
   grids_marker.pose = OmgCore::toPoseMsg(sva::PTransformd::Identity());

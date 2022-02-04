@@ -61,12 +61,16 @@ class RmapVisualization: public RmapVisualizationBase
     //! Grid resolution for rotation [rad]
     double rot_resolution = 0.1;
 
+    //! Grid color
+    std::array<double, 4> grid_color = {0.8, 0.0, 0.0, 1.0};
+
     /*! \brief Load mc_rtc configuration. */
     inline void load(const mc_rtc::Configuration& mc_rtc_config)
     {
       mc_rtc_config("svm_thre", svm_thre);
       mc_rtc_config("pos_resolution", pos_resolution);
       mc_rtc_config("rot_resolution", rot_resolution);
+      mc_rtc_config("grid_color", grid_color);
     }
   };
 
