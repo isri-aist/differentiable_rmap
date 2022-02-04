@@ -18,11 +18,12 @@
   <node pkg="optmotiongen" type="InteractiveMarkerManager.py" name="rviz_server"
         clear_params="true">
     <rosparam>
-      enable_initial_publish: false
+      enable_initial_publish: true
       interactive_markers:
         - name: target
           initial_pose:
             pos: [0.75, 0.9, 0.0]
+            rot: [0, 0, 1, deg(-100)]
           axis_controls: [rz]
           markers:
             - type: 1 # CUBE
