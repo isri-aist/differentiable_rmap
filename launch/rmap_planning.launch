@@ -77,7 +77,7 @@
     </rosparam>
   </node>
 
-  <node pkg="rviz" type="rviz" name="rviz"
+  <node pkg="rviz" type="rviz" name="$(anon rviz)"
         args="-d $(find differentiable_rmap)/rviz/RmapPlanning.rviz"
         output="log" clear_params="true" />
 </launch>
