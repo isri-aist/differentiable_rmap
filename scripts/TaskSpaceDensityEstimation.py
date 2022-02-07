@@ -39,7 +39,7 @@ class TaskSpaceDensityEstimation(object):
         # Plot joint-space sampling
         ax = fig.add_subplot(321)
         ax.scatter(joint_pos_list[:, 0], joint_pos_list[:, 1], s=7.5)
-        ax.set_title("(A) Joint-space sampling", y=-0.4)
+        ax.set_title("(A) Joint-space samples", y=-0.4)
         ax.set_xlabel("Joint1 position [rad]")
         ax.set_ylabel("Joint2 position [rad]")
         ax.set_aspect("equal")
@@ -47,7 +47,7 @@ class TaskSpaceDensityEstimation(object):
         # Plot task-space sampling
         ax = fig.add_subplot(322)
         ax.scatter(body_pos_list[:, 0], body_pos_list[:, 1], s=7.5)
-        ax.set_title("(B) Task-space sampling", y=-0.4)
+        ax.set_title("(B) Task-space samples", y=-0.4)
         ax.set_xlabel("X position [m]")
         ax.set_ylabel("Y position [m]")
         ax.set_aspect("equal")
