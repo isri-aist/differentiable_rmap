@@ -24,8 +24,8 @@ class DrawRmapSimple2DoFManipulator(object):
         line_marker_msg = Marker()
         line_marker_msg.header.frame_id = "world"
         line_marker_msg.type = Marker.LINE_STRIP
-        line_marker_msg.scale.x = 0.015
-        line_marker_msg.color = ColorRGBA(0, 1, 0, 1)
+        line_marker_msg.scale.x = 0.008
+        line_marker_msg.color = ColorRGBA(1, 0, 0, 1)
         line_marker_msg.pose.orientation.w = 1
         line_marker_msg.points += self.makeArcPoints(
             center=np.array([0.0, 0.0]),
