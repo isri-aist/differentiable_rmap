@@ -40,14 +40,14 @@
     <rosparam subst_value="true" if="$(eval arg('sampling_space') == 'R3')">
       body_name: tool0
       joint_name_list: [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint, wrist_3_joint]
-      sample_num: 40000
+      sample_num: 80000
       sleep_rate: 10000
     </rosparam>
 
     <rosparam subst_value="true" if="$(eval arg('sampling_space') == 'SE3')">
       body_name: tool0
       joint_name_list: [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint, wrist_3_joint]
-      sample_num: 400000
+      sample_num: 500000
       sleep_rate: 0
     </rosparam>
   </node>
