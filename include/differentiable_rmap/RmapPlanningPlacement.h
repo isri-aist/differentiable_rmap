@@ -74,6 +74,15 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
     //! Threshold of IK [m], [rad]
     double ik_error_thre = 1e-2;
 
+    //! Duration between adjacent target poses for animation [s]
+    double animate_adjacent_duration = 1.0;
+
+    //! Division number between adjacent target poses for animation
+    int animate_adjacent_divide_num = 100;
+
+    //! Number of IK loop for animation
+    int animate_ik_loop_num = 5;
+
     /*! \brief Load mc_rtc configuration. */
     inline void load(const mc_rtc::Configuration& mc_rtc_config)
     {
@@ -88,6 +97,9 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
       mc_rtc_config("ik_trial_num", ik_trial_num);
       mc_rtc_config("ik_loop_num", ik_loop_num);
       mc_rtc_config("ik_error_thre", ik_error_thre);
+      mc_rtc_config("animate_adjacent_duration", animate_adjacent_duration);
+      mc_rtc_config("animate_adjacent_divide_num", animate_adjacent_divide_num);
+      mc_rtc_config("animate_ik_loop_num", animate_ik_loop_num);
     }
   };
 
@@ -189,6 +201,10 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
   bool postureCallback(std_srvs::Empty::Request& req,
                        std_srvs::Empty::Response& res);
 
+  /** \brief Callback to animate. */
+  bool animateCallback(std_srvs::Empty::Request& req,
+                       std_srvs::Empty::Response& res);
+
  protected:
   //! Sample of reaching corresponding to identity pose
   static inline const SampleType identity_sample_ = poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
@@ -229,6 +245,7 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
   ros::Publisher current_pose_arr_pub_;
   ros::Publisher rs_arr_pub_;
   ros::ServiceServer posture_srv_;
+  ros::ServiceServer animate_srv_;
 
  protected:
   // See https://stackoverflow.com/a/6592617

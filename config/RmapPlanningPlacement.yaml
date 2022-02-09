@@ -39,3 +39,12 @@ ik_loop_num: 50
 
 # Threshold of IK [m], [rad]
 ik_error_thre: 2e-3
+
+# Duration between adjacent target poses for animation [s]
+animate_adjacent_duration: 1.0
+
+# Division number between adjacent target poses for animation
+animate_adjacent_divide_num: 100
+
+# Number of IK loop for animation
+animate_ik_loop_num: 5

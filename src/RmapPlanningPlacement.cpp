@@ -59,6 +59,10 @@ RmapPlanningPlacement<SamplingSpaceType>::RmapPlanningPlacement(
       "generate_posture",
       &RmapPlanningPlacement<SamplingSpaceType>::postureCallback,
       this);
+  animate_srv_ = nh_.advertiseService(
+      "animate",
+      &RmapPlanningPlacement<SamplingSpaceType>::animateCallback,
+      this);
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -334,6 +338,7 @@ bool RmapPlanningPlacement<SamplingSpaceType>::postureCallback(
   const auto& rb = rb_arr_[0];
   const auto& rbc = problem_->rbcArr()[0];
   OmgCore::AuxRobotArray aux_rb_arr;
+  rb->jvel_max_scale_ = 1e10;
 
   // Setup random sampling of joint position (used for initial posture)
   std::vector<int> joint_idx_list;
@@ -418,6 +423,76 @@ bool RmapPlanningPlacement<SamplingSpaceType>::postureCallback(
 
   // Publish robot
   rs_arr_pub_.publish(robot_state_arr_msg);
+
+  return true;
+}
+
+template <SamplingSpace SamplingSpaceType>
+bool RmapPlanningPlacement<SamplingSpaceType>::animateCallback(
+    std_srvs::Empty::Request& req,
+    std_srvs::Empty::Response& res)
+{
+  if (!problem_) {
+    ROS_ERROR_STREAM("[animateCallback] IK problem is not initialized.");
+    return false;
+  }
+
+  const auto& rb = rb_arr_[0];
+  const auto& rbc = problem_->rbcArr()[0];
+  OmgCore::AuxRobotArray aux_rb_arr;
+
+  // Setup random sampling of joint position (used for initial posture)
+  std::vector<int> joint_idx_list;
+  for (const auto& joint : rb->joints()) {
+    const auto& joint_name = joint.name();
+    int joint_idx = rb->jointIndexByName(joint_name);
+
+    if (joint_name == "Root" ||
+        joint.dof() != 1 ||
+        std::find(config_.ik_exclude_joint_name_list.begin(), config_.ik_exclude_joint_name_list.end(),
+                  joint_name) != config_.ik_exclude_joint_name_list.end()) {
+      // Overwrite joint range to restrict joints to be used
+      // Be carefull that this overwrites original robot
+      // This becomes unnecessary when optmotiongen supports joint selection
+      std::fill(rb->jposs_min_[joint_idx].begin(), rb->jposs_min_[joint_idx].end(), 0);
+      std::fill(rb->jposs_max_[joint_idx].begin(), rb->jposs_max_[joint_idx].end(), 0);
+    } else {
+      joint_idx_list.push_back(joint_idx);
+    }
+  }
+
+  // Set initial configuration
+  rb->rootPose(sampleToPose<PlacementSamplingSpaceType>(current_placement_sample_));
+  rbc->zero(*rb);
+  rbd::forwardKinematics(*rb, *rbc);
+
+  ros::Rate rate(config_.animate_adjacent_divide_num / config_.animate_adjacent_duration);
+  for (int i = 0; i < config_.reaching_num - 1; i++) {
+    const sva::PTransformd& pre_pose = sampleToPose<SamplingSpaceType>(current_reaching_sample_list_[i]);
+    const sva::PTransformd& suc_pose = sampleToPose<SamplingSpaceType>(current_reaching_sample_list_[i + 1]);
+
+    for (size_t j = 0; j < config_.animate_adjacent_divide_num; j++) {
+      // Set IK target
+      body_task_->target() = sva::interpolate(
+          pre_pose, suc_pose, static_cast<double>(j) / (config_.animate_adjacent_divide_num - 1));
+
+      // Solve IK
+      bool initial_iteration = (i == 0 && j == 0);
+      rb->jvel_max_scale_ =
+          initial_iteration ? 1e10 : (config_.animate_adjacent_duration / config_.animate_adjacent_divide_num);
+      problem_->run(initial_iteration ? config_.ik_loop_num : config_.animate_ik_loop_num);
+      taskset_.update(rb_arr_, problem_->rbcArr(), aux_rb_arr);
+      if (taskset_.errorSquaredNorm(false) > std::pow(config_.ik_error_thre, 2)) {
+        ROS_WARN_STREAM_THROTTLE(
+            10, "[animateCallback] IK error is large: " << std::sqrt(taskset_.errorSquaredNorm(false)));
+      }
+
+      // Publish robot
+      rs_arr_pub_.publish(rb_arr_.makeRobotStateArrayMsg(problem_->rbcArr()));
+
+      rate.sleep();
+    }
+  }
 
   return true;
 }
