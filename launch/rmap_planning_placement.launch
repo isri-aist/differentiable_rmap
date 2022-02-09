@@ -28,40 +28,14 @@
     <rosparam>
       enable_initial_publish: true
       interactive_markers:
-        <!-- - name: target_placement -->
-        <!--   initial_pose: -->
-        <!--     pos: [0.0, 0.0, 1.0] -->
-        <!--   axis_controls: [tx, ty, tz] -->
-        <!--   markers: -->
-        <!--     - type: 0 # ARROW -->
-        <!--       scale: [0.15, 0.05, 0.05] -->
-        <!--       color: [1.0, 0.0, 1.0, 0.5] -->
-        - name: target_0
+        - name: target
           initial_pose:
             pos: [1.0, 0.0, 1.0]
           axis_controls: []
           markers:
-            - type: 1 # CUBE
+            - type: 2 # SPHERE
               scale: [0.1, 0.1, 0.1]
-              color: [1.0, 0.0, 0.0, 1.0]
-              interaction_mode: 9 # MOVE_ROTATE_3D
-        - name: target_1
-          initial_pose:
-            pos: [0.0, 1.0, 1.0]
-          axis_controls: []
-          markers:
-            - type: 1 # CUBE
-              scale: [0.1, 0.1, 0.1]
-              color: [1.0, 0.0, 0.0, 1.0]
-              interaction_mode: 9 # MOVE_ROTATE_3D
-        - name: target_2
-          initial_pose:
-            pos: [-0.5, 1.5, 1.0]
-          axis_controls: []
-          markers:
-            - type: 1 # CUBE
-              scale: [0.1, 0.1, 0.1]
-              color: [1.0, 0.0, 0.0, 1.0]
+              color: [0.0, 1.0, 0.0, 1.0]
               interaction_mode: 9 # MOVE_ROTATE_3D
     </rosparam>
   </node>

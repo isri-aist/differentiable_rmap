@@ -318,10 +318,16 @@ void RmapPlanningPlacement<SamplingSpaceType>::transCallback(
   if (frame_id == "target_placement") {
     target_placement_sample_ =
         poseToSample<PlacementSamplingSpaceType>(OmgCore::toSvaPTransform(trans_st_msg->transform));
-  } else if (frame_id.find("target_") == 0) {
-    frame_id.erase(0, std::string("target_").length());
-    target_reaching_sample_list_[std::stoi(frame_id)] =
-        poseToSample<SamplingSpaceType>(OmgCore::toSvaPTransform(trans_st_msg->transform));
+  } else if (frame_id == "target") {
+    sva::PTransformd center_pose = OmgCore::toSvaPTransform(trans_st_msg->transform);
+    for (int i = 0; i < config_.reaching_num; i++) {
+      double angle = M_PI * i / config_.reaching_num;
+      sva::PTransformd target_pose(
+          center_pose.rotation(),
+          (sva::PTransformd(Eigen::Vector3d(config_.target_traj_radius, 0, 0)) *
+           sva::PTransformd(sva::RotZ(angle)) * center_pose).translation());
+      target_reaching_sample_list_[i] = poseToSample<SamplingSpaceType>(target_pose);
+    }
   }
 }
 
@@ -467,9 +473,9 @@ bool RmapPlanningPlacement<SamplingSpaceType>::animateCallback(
   rbd::forwardKinematics(*rb, *rbc);
 
   ros::Rate rate(config_.animate_adjacent_divide_num / config_.animate_adjacent_duration);
-  for (int i = 0; i < config_.reaching_num - 1; i++) {
+  for (int i = 0; i < config_.reaching_num; i++) {
     const sva::PTransformd& pre_pose = sampleToPose<SamplingSpaceType>(current_reaching_sample_list_[i]);
-    const sva::PTransformd& suc_pose = sampleToPose<SamplingSpaceType>(current_reaching_sample_list_[i + 1]);
+    const sva::PTransformd& suc_pose = sampleToPose<SamplingSpaceType>(current_reaching_sample_list_[(i + 1) % config_.reaching_num]);
 
     for (size_t j = 0; j < config_.animate_adjacent_divide_num; j++) {
       // Set IK target

@@ -1,5 +1,8 @@
 # Number of reaching points
-reaching_num: 3
+reaching_num: 10
+
+# Radius of target trajectory [m]
+target_traj_radius: 0.5
 
 # Regularization weight
 reg_weight: 1e-6

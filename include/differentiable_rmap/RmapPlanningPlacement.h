@@ -50,6 +50,9 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
     //! Number of reaching points
     int reaching_num = 2;
 
+    //! Radius of target trajectory [m]
+    double target_traj_radius = 0.5;
+
     //! Regularization weight
     double reg_weight = 1e-6;
 
@@ -89,6 +92,7 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
       RmapPlanning<SamplingSpaceType>::Configuration::load(mc_rtc_config);
 
       mc_rtc_config("reaching_num", reaching_num);
+      mc_rtc_config("target_traj_radius", target_traj_radius);
       mc_rtc_config("reg_weight", reg_weight);
       mc_rtc_config("placement_weight", placement_weight);
       mc_rtc_config("svm_ineq_weight", svm_ineq_weight);
