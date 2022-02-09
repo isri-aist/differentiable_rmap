@@ -35,13 +35,13 @@ ik_body_name: tool0
 ik_exclude_joint_name_list: {}
 
 # Number of IK trial
-ik_trial_num: 10
+ik_trial_num: 30
 
 # Number of IK loop
 ik_loop_num: 50
 
 # Threshold of IK [m], [rad]
-ik_error_thre: 2e-3
+ik_error_thre: 5e-2
 
 # Duration between adjacent target poses for animation [s]
 animate_adjacent_duration: 1.0

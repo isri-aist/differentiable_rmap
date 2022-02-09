@@ -321,7 +321,7 @@ void RmapPlanningPlacement<SamplingSpaceType>::transCallback(
   } else if (frame_id == "target") {
     sva::PTransformd center_pose = OmgCore::toSvaPTransform(trans_st_msg->transform);
     for (int i = 0; i < config_.reaching_num; i++) {
-      double angle = M_PI * i / config_.reaching_num;
+      double angle = M_PI * i / (config_.reaching_num - 1);
       sva::PTransformd target_pose(
           center_pose.rotation(),
           (sva::PTransformd(Eigen::Vector3d(config_.target_traj_radius, 0, 0)) *
@@ -467,26 +467,61 @@ bool RmapPlanningPlacement<SamplingSpaceType>::animateCallback(
     }
   }
 
-  // Set initial configuration
-  rb->rootPose(sampleToPose<PlacementSamplingSpaceType>(current_placement_sample_));
-  rbc->zero(*rb);
-  rbd::forwardKinematics(*rb, *rbc);
+  Eigen::VectorXd joint_pos_coeff;
+  Eigen::VectorXd joint_pos_offset;
+  joint_pos_coeff.resize(joint_idx_list.size());
+  joint_pos_offset.resize(joint_idx_list.size());
+  for (size_t i = 0; i < joint_idx_list.size(); i++) {
+    const auto& joint_name = rb->joint(joint_idx_list[i]).name();
+    double lower_joint_pos = rb->limits_.lower.at(joint_name)[0];
+    double upper_joint_pos = rb->limits_.upper.at(joint_name)[0];
+    joint_pos_coeff[i] = (upper_joint_pos - lower_joint_pos) / 2;
+    joint_pos_offset[i] = (upper_joint_pos + lower_joint_pos) / 2;
+  }
 
+  // Set initial configuration
+  rb->jvel_max_scale_ = 1e10;
+  rb->rootPose(sampleToPose<PlacementSamplingSpaceType>(current_placement_sample_));
+  body_task_->target() = sampleToPose<SamplingSpaceType>(current_reaching_sample_list_[0]);
+  for (int i = 0; i < config_.ik_trial_num; i++) {
+    if (i == 0) {
+      // Set zero configuration
+      rbc->zero(*rb);
+    } else {
+      // Set random configuration
+      Eigen::VectorXd joint_pos =
+          joint_pos_coeff.cwiseProduct(Eigen::VectorXd::Random(joint_idx_list.size())) + joint_pos_offset;
+      for (size_t j = 0; j < joint_idx_list.size(); j++) {
+        rbc->q[joint_idx_list[j]][0] = joint_pos[j];
+      }
+    }
+    rbd::forwardKinematics(*rb, *rbc);
+
+    // Solve IK
+    problem_->run(config_.ik_loop_num);
+    taskset_.update(rb_arr_, problem_->rbcArr(), aux_rb_arr);
+
+    if (taskset_.errorSquaredNorm(false) < std::pow(config_.ik_error_thre, 2)) {
+      break;
+    } else if (i == config_.ik_trial_num - 1) {
+      ROS_WARN("[animateCallback] Failed to generate initial posture.");
+    }
+  }
+
+  // Loop for trajectory
   ros::Rate rate(config_.animate_adjacent_divide_num / config_.animate_adjacent_duration);
-  for (int i = 0; i < config_.reaching_num; i++) {
+  rb->jvel_max_scale_ = config_.animate_adjacent_duration / config_.animate_adjacent_divide_num;
+  for (int i = 0; i < config_.reaching_num - 1; i++) {
     const sva::PTransformd& pre_pose = sampleToPose<SamplingSpaceType>(current_reaching_sample_list_[i]);
-    const sva::PTransformd& suc_pose = sampleToPose<SamplingSpaceType>(current_reaching_sample_list_[(i + 1) % config_.reaching_num]);
+    const sva::PTransformd& suc_pose = sampleToPose<SamplingSpaceType>(current_reaching_sample_list_[i + 1]);
 
     for (size_t j = 0; j < config_.animate_adjacent_divide_num; j++) {
       // Set IK target
       body_task_->target() = sva::interpolate(
-          pre_pose, suc_pose, static_cast<double>(j) / (config_.animate_adjacent_divide_num - 1));
+          pre_pose, suc_pose, static_cast<double>(j + 1) / config_.animate_adjacent_divide_num);
 
       // Solve IK
-      bool initial_iteration = (i == 0 && j == 0);
-      rb->jvel_max_scale_ =
-          initial_iteration ? 1e10 : (config_.animate_adjacent_duration / config_.animate_adjacent_divide_num);
-      problem_->run(initial_iteration ? config_.ik_loop_num : config_.animate_ik_loop_num);
+      problem_->run(config_.animate_ik_loop_num);
       taskset_.update(rb_arr_, problem_->rbcArr(), aux_rb_arr);
       if (taskset_.errorSquaredNorm(false) > std::pow(config_.ik_error_thre, 2)) {
         ROS_WARN_STREAM_THROTTLE(
