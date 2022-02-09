@@ -5,6 +5,8 @@
 #include <std_srvs/Empty.h>
 
 #include <optmotiongen/Utils/RobotUtils.h>
+#include <optmotiongen/Problem/IterativeQpProblem.h>
+#include <optmotiongen/Task/BodyTask.h>
 
 #include <differentiable_rmap/RmapPlanning.h>
 
@@ -211,8 +213,17 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
   //! Target sample list of reaching
   std::vector<SampleType> target_reaching_sample_list_;
 
-  //! Robot to be used for posture generation
-  std::shared_ptr<OmgCore::Robot> rb_;
+  //! Robot array for IK (only for visualization)
+  OmgCore::RobotArray rb_arr_;
+
+  //! Body task for IK (only for visualization)
+  std::shared_ptr<OmgCore::BodyPoseTask> body_task_;
+
+  //! Taskset for IK (only for visualization)
+  OmgCore::Taskset taskset_;
+
+  //! IK problem (only for visualization)
+  std::shared_ptr<OmgCore::IterativeQpProblem> problem_;
 
   //! ROS related members
   ros::Publisher current_pose_arr_pub_;

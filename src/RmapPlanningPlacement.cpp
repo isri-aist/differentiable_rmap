@@ -10,8 +10,6 @@
 #include <visualization_msgs/MarkerArray.h>
 #include <optmotiongen_msgs/RobotStateArray.h>
 
-#include <optmotiongen/Problem/IterativeQpProblem.h>
-#include <optmotiongen/Task/BodyTask.h>
 #include <optmotiongen/Utils/RosUtils.h>
 
 #include <differentiable_rmap/RmapPlanningPlacement.h>
@@ -81,7 +79,27 @@ template <SamplingSpace SamplingSpaceType>
 void RmapPlanningPlacement<SamplingSpaceType>::setup(
     const std::shared_ptr<OmgCore::Robot>& rb)
 {
-  rb_ = rb;
+  // Setup robot, task, and problem
+  if (rb) {
+    rb_arr_.clear();
+    rb_arr_.push_back(rb);
+    rb_arr_.setup();
+
+    body_task_ = std::make_shared<OmgCore::BodyPoseTask>(
+        std::make_shared<OmgCore::BodyFunc>(
+            rb_arr_,
+            0,
+            config_.ik_body_name),
+        sva::PTransformd::Identity(),
+        "BodyPoseTask",
+        getSelectIdxs(SamplingSpaceType));
+    taskset_.addTask(body_task_);
+
+    problem_ = std::make_shared<OmgCore::IterativeQpProblem>(rb_arr_);
+    problem_->setup(
+        std::vector<OmgCore::Taskset>{taskset_},
+        std::vector<OmgCore::QpSolverType>{OmgCore::QpSolverType::JRLQP});
+  }
 
   // Setup QP coefficients and solver
   int config_dim = placement_vel_dim_ + config_.reaching_num * vel_dim_;
@@ -308,37 +326,13 @@ bool RmapPlanningPlacement<SamplingSpaceType>::postureCallback(
     std_srvs::Empty::Request& req,
     std_srvs::Empty::Response& res)
 {
-  if (!rb_) {
-    ROS_ERROR_STREAM("[generateRobotPosture] Robot is not initialized.");
+  if (!problem_) {
+    ROS_ERROR_STREAM("[postureCallback] IK problem is not initialized.");
     return false;
   }
 
-  // Setup robot
-  const auto& rb = rb_;
-  OmgCore::RobotArray rb_arr;
-  rb_arr.push_back(rb);
-  rb_arr.setup();
-
-  // Setup task and problem
-  auto body_task = std::make_shared<OmgCore::BodyPoseTask>(
-      std::make_shared<OmgCore::BodyFunc>(
-          rb_arr,
-          0,
-          config_.ik_body_name),
-      sva::PTransformd::Identity(),
-      "BodyPoseTask",
-      getSelectIdxs(SamplingSpaceType));
-
-  OmgCore::Taskset taskset;
-  taskset.addTask(body_task);
-
-  auto problem = std::make_shared<OmgCore::IterativeQpProblem>(rb_arr);
-  problem->setup(
-      std::vector<OmgCore::Taskset>{taskset},
-      std::vector<OmgCore::QpSolverType>{OmgCore::QpSolverType::JRLQP});
-
-  OmgCore::RobotConfigArray rbc_arr = problem->rbcArr();
-  const auto& rbc = rbc_arr[0];
+  const auto& rb = rb_arr_[0];
+  const auto& rbc = problem_->rbcArr()[0];
   OmgCore::AuxRobotArray aux_rb_arr;
 
   // Setup random sampling of joint position (used for initial posture)
@@ -378,7 +372,7 @@ bool RmapPlanningPlacement<SamplingSpaceType>::postureCallback(
   for (int i = 0; i < config_.reaching_num; i++) {
     // Set IK target
     rb->rootPose(sampleToPose<PlacementSamplingSpaceType>(current_placement_sample_));
-    body_task->target() = sampleToPose<SamplingSpaceType>(current_reaching_sample_list_[i]);
+    body_task_->target() = sampleToPose<SamplingSpaceType>(current_reaching_sample_list_[i]);
 
     bool ik_solved = false;
     double best_error = std::numeric_limits<double>::max();
@@ -399,15 +393,15 @@ bool RmapPlanningPlacement<SamplingSpaceType>::postureCallback(
       rbd::forwardKinematics(*rb, *rbc);
 
       // Solve IK
-      problem->run(config_.ik_loop_num);
-      taskset.update(rb_arr, rbc_arr, aux_rb_arr);
+      problem_->run(config_.ik_loop_num);
+      taskset_.update(rb_arr_, problem_->rbcArr(), aux_rb_arr);
 
-      if (taskset.errorSquaredNorm(false) < best_error) {
-        best_error = taskset.errorSquaredNorm(false);
-        best_error_vec = body_task->weight().cwiseProduct(body_task->value());
+      if (taskset_.errorSquaredNorm(false) < best_error) {
+        best_error = taskset_.errorSquaredNorm(false);
+        best_error_vec = body_task_->weight().cwiseProduct(body_task_->value());
         best_rbc = std::make_shared<rbd::MultiBodyConfig>(*rbc);
       }
-      if (taskset.errorSquaredNorm(false) < std::pow(config_.ik_error_thre, 2)) {
+      if (taskset_.errorSquaredNorm(false) < std::pow(config_.ik_error_thre, 2)) {
         ik_solved = true;
         break;
       }
