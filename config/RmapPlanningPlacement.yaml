@@ -5,7 +5,7 @@ reaching_num: 3
 reg_weight: 1e-6
 
 # QP objective weight for placement
-placement_weight: 1e-3
+placement_weight: 1e-4
 
 # QP objective weight for SVM inequality error
 svm_ineq_weight: 1e6
