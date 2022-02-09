@@ -41,6 +41,9 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
     //! Constraint space of IK (default is same as template parameter SamplingSpaceType)
     std::string ik_constraint_space = "";
 
+    //! Lower and upper limits of ratio of reachable samples
+    std::pair<double, double> reachable_sample_ratio_limits = {0.0, 1.0};
+
     /*! \brief Load mc_rtc configuration. */
     inline virtual void load(const mc_rtc::Configuration& mc_rtc_config) override
     {
@@ -57,6 +60,7 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
       mc_rtc_config("ik_loop_num", ik_loop_num);
       mc_rtc_config("ik_error_thre", ik_error_thre);
       mc_rtc_config("ik_constraint_space", ik_constraint_space);
+      mc_rtc_config("reachable_sample_ratio_limits", reachable_sample_ratio_limits);
     }
   };
 
@@ -135,6 +139,9 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
   double body_yaw_coeff_;
   //! Body Yaw angle offset to make sample from [-1:1] random value
   double body_yaw_offset_;
+
+  //! Number of reachabe samples
+  size_t reachable_sample_num_ = 0;
 
  protected:
   // See https://stackoverflow.com/a/6592617

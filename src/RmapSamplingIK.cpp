@@ -145,6 +145,8 @@ void RmapSamplingIK<SamplingSpaceType>::setupSampling()
   body_pos_offset_ = (upper_body_pos + lower_body_pos) / 2;
   body_yaw_coeff_ = (config_.body_yaw_limits.second - config_.body_yaw_limits.first) / 2;
   body_yaw_offset_ = (config_.body_yaw_limits.second + config_.body_yaw_limits.first) / 2;
+
+  reachable_sample_num_ = 0;
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -195,11 +197,21 @@ bool RmapSamplingIK<SamplingSpaceType>::sampleOnce(int sample_idx)
     }
   }
 
+  // Check ratio of reachable samples
+  if (sample_idx > 0) {
+    double reachable_sample_ratio = static_cast<double>(reachable_sample_num_) / (sample_idx - 1);
+    if ((reachable_sample_ratio < config_.reachable_sample_ratio_limits.first && !reachability) ||
+        (reachable_sample_ratio > config_.reachable_sample_ratio_limits.second && reachability)) {
+      return false;
+    }
+  }
+
   // Append new sample to sample list
   const SampleType& sample = poseToSample<SamplingSpaceType>(body_task_->target());
   sample_list_[sample_idx] = sample;
   reachability_list_[sample_idx] = reachability;
   if (reachability) {
+    reachable_sample_num_++;
     reachable_cloud_msg_.points.push_back(OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample)));
   } else {
     unreachable_cloud_msg_.points.push_back(OmgCore::toPoint32Msg(sampleToCloudPos<SamplingSpaceType>(sample)));

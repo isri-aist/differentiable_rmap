@@ -18,3 +18,6 @@ ik_loop_num: 50
 
 # Threshold of IK [m], [rad]
 ik_error_thre: 2e-3
+
+# Lower and upper limits of ratio of reachable samples
+reachable_sample_ratio_limits: [0.5, 0.5]
