@@ -221,8 +221,24 @@ Sample<SamplingSpaceType> relSample(const Sample<SamplingSpaceType>& pre_sample,
       return (Eigen::Quaterniond(pre_sample.w(), pre_sample.x(), pre_sample.y(), pre_sample.z()).conjugate() *
               Eigen::Quaterniond(suc_sample.w(), suc_sample.x(), suc_sample.y(), suc_sample.z())).coeffs();
     } else if constexpr (SamplingSpaceType == SamplingSpace::SE3) {
-      return poseToSample<SamplingSpaceType>(
-          sampleToPose<SamplingSpaceType>(suc_sample) * sampleToPose<SamplingSpaceType>(pre_sample).inv());
+      Sample<SamplingSpace::SE3> sample;
+      sample <<
+          Eigen::Quaterniond(pre_sample.template tail<4>().w(),
+                             pre_sample.template tail<4>().x(),
+                             pre_sample.template tail<4>().y(),
+                             pre_sample.template tail<4>().z()).conjugate() *
+          (suc_sample.template head<3>() - pre_sample.template head<3>()),
+          (Eigen::Quaterniond(pre_sample.template tail<4>().w(),
+                              pre_sample.template tail<4>().x(),
+                              pre_sample.template tail<4>().y(),
+                              pre_sample.template tail<4>().z()).conjugate() *
+           Eigen::Quaterniond(suc_sample.template tail<4>().w(),
+                              suc_sample.template tail<4>().x(),
+                              suc_sample.template tail<4>().y(),
+                              suc_sample.template tail<4>().z())).coeffs();
+      return sample;
+      // return poseToSample<SamplingSpaceType>(
+      //     sampleToPose<SamplingSpaceType>(suc_sample) * sampleToPose<SamplingSpaceType>(pre_sample).inv());
     } else {
     return sampleError<SamplingSpaceType>(pre_sample, suc_sample);
   }
