@@ -210,10 +210,10 @@ void loopGrid(
     const GridPos<SamplingSpaceType>& grid_pos_range,
     const GridFuncType<SamplingSpaceType>& func,
     const std::vector<int>& update_dims,
-    const GridIdxsType<SamplingSpaceType>& default_divide_idxs)
+    const GridIdxs<SamplingSpaceType>& default_divide_idxs)
 {
   // Initialize divide_idxs with default value
-  GridIdxsType<SamplingSpaceType> divide_idxs = GridIdxsType<SamplingSpaceType>::Zero();
+  GridIdxs<SamplingSpaceType> divide_idxs = GridIdxs<SamplingSpaceType>::Zero();
   if (!update_dims.empty()) {
     for (size_t i = 0; i < divide_idxs.size(); i++) {
       if (std::find(update_dims.begin(), update_dims.end(), i) == update_dims.end()) {

@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(TestGridUtilsIdxsRatios)
 
 BOOST_AUTO_TEST_CASE(TestGridUtilsLoopGrid)
 {
-  GridIdxsType<SamplingSpace::SE2> divide_nums = GridIdxsType<SamplingSpace::SE2>(5, 2, 3);
+  GridIdxs<SamplingSpace::SE2> divide_nums = GridIdxs<SamplingSpace::SE2>(5, 2, 3);
 
   Sample<SamplingSpace::SE2> sample1 = Sample<SamplingSpace::SE2>::Random();
   Sample<SamplingSpace::SE2> sample2 = Sample<SamplingSpace::SE2>::Random();

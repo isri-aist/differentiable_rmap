@@ -436,7 +436,7 @@ void RmapPlanningMulticontact::publishMarkerArray() const
           i % 2 == 0 ? std::array<double, 4>{0.8, 0.0, 0.0, 0.3} : std::array<double, 4>{0.0, 0.8, 0.0, 0.3});
       const FootSampleType& slice_sample =
           relSample<FootSamplingSpaceType>(current_foot_sample_seq_[i - 1], current_foot_sample_seq_[i]);
-      GridIdxsType<FootSamplingSpaceType> slice_divide_idxs;
+      GridIdxs<FootSamplingSpaceType> slice_divide_idxs;
       gridDivideRatiosToIdxs(
           slice_divide_idxs,
           (slice_sample - sample_min).array() / sample_range.array(),

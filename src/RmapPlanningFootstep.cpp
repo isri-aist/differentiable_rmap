@@ -319,7 +319,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishMarkerArray() const
             slice_sample.template tail<2>() *= -1;
           }
         }
-      GridIdxsType<SamplingSpaceType> slice_divide_idxs;
+      GridIdxs<SamplingSpaceType> slice_divide_idxs;
       gridDivideRatiosToIdxs(
           slice_divide_idxs,
           (slice_sample - sample_min_).array() / sample_range.array(),

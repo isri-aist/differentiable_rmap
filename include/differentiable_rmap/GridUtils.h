@@ -28,7 +28,7 @@ using GridPos = Eigen::Matrix<double, gridDim<SamplingSpaceType>(), 1>;
 
 /*! \brief Type of grid indices. */
 template <SamplingSpace SamplingSpaceType>
-using GridIdxsType = Eigen::Matrix<int, gridDim<SamplingSpaceType>(), 1>;
+using GridIdxs = Eigen::Matrix<int, gridDim<SamplingSpaceType>(), 1>;
 
 /*! \brief Type of function to be called for each grid. */
 template <SamplingSpace SamplingSpaceType>
@@ -121,7 +121,7 @@ void loopGrid(
     const GridPos<SamplingSpaceType>& grid_pos_range,
     const GridFuncType<SamplingSpaceType>& func,
     const std::vector<int>& update_dims = {},
-    const GridIdxsType<SamplingSpaceType>& default_divide_idxs = GridIdxsType<SamplingSpaceType>::Zero());
+    const GridIdxs<SamplingSpaceType>& default_divide_idxs = GridIdxs<SamplingSpaceType>::Zero());
 
 /** \brief Calculate cube scale for grid.
     \tparam SamplingSpaceType sampling space

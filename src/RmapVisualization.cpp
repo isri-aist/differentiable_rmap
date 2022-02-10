@@ -139,7 +139,7 @@ void RmapVisualization<SamplingSpaceType>::dumpGridSet(
 {
   // Set number of division
   GridPosType grid_pos_range = getGridPosRange<SamplingSpaceType>(sample_min_, sample_max_);
-  GridIdxsType<SamplingSpaceType> divide_nums;
+  GridIdxs<SamplingSpaceType> divide_nums;
   GridPosType resolution;
   if constexpr (SamplingSpaceType == SamplingSpace::R2 ||
                 SamplingSpaceType == SamplingSpace::R3) {

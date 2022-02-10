@@ -375,7 +375,7 @@ void RmapPlanningLocomanip::publishMarkerArray() const
           i % 2 == 0 ? std::array<double, 4>{0.8, 0.0, 0.0, 0.3} : std::array<double, 4>{0.0, 0.8, 0.0, 0.3});
       const SampleType& slice_sample =
           relSample<SamplingSpaceType>(pre_sample, current_foot_sample_seq_[i]);
-      GridIdxsType<SamplingSpaceType> slice_divide_idxs;
+      GridIdxs<SamplingSpaceType> slice_divide_idxs;
       gridDivideRatiosToIdxs(
           slice_divide_idxs,
           (slice_sample - sample_min).array() / sample_range.array(),
@@ -432,7 +432,7 @@ void RmapPlanningLocomanip::publishMarkerArray() const
       const SampleType& slice_sample = relSample<SamplingSpaceType>(
           pre_sample,
           i == -1 ? start_sample_list_.at(Limb::LeftHand) : current_hand_sample_seq_[i]);
-      GridIdxsType<SamplingSpaceType> slice_divide_idxs;
+      GridIdxs<SamplingSpaceType> slice_divide_idxs;
       gridDivideRatiosToIdxs(
           slice_divide_idxs,
           (slice_sample - sample_min).array() / sample_range.array(),

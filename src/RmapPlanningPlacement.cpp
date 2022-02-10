@@ -254,7 +254,7 @@ void RmapPlanningPlacement<SamplingSpaceType>::publishMarkerArray() const
           sampleToPose<PlacementSamplingSpaceType>(current_placement_sample_));
       const SampleType& slice_sample =
           relSample<SamplingSpaceType>(current_placement_sample_, current_reaching_sample_list_[i]);
-      GridIdxsType<SamplingSpaceType> slice_divide_idxs;
+      GridIdxs<SamplingSpaceType> slice_divide_idxs;
       gridDivideRatiosToIdxs(
           slice_divide_idxs,
           (slice_sample - sample_min_).array() / sample_range.array(),
