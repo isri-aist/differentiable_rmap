@@ -23,6 +23,18 @@ RmapVisualization<SamplingSpaceType>::RmapVisualization(
 {
   // Setup ROS
   marker_arr_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("marker_arr", 1, true);
+  slice_roll_manager_ =
+      std::make_shared<SubscVariableManager<std_msgs::Float64, double>>(
+          "variable/slice_roll",
+          0.0);
+  slice_pitch_manager_ =
+      std::make_shared<SubscVariableManager<std_msgs::Float64, double>>(
+          "variable/slice_pitch",
+          0.0);
+  slice_yaw_manager_ =
+      std::make_shared<SubscVariableManager<std_msgs::Float64, double>>(
+          "variable/slice_yaw",
+          0.0);
 
   // Load ROS bag
   loadSampleSet(sample_bag_path);
@@ -60,6 +72,8 @@ void RmapVisualization<SamplingSpaceType>::setup(const std::string& grid_bag_pat
 template <SamplingSpace SamplingSpaceType>
 void RmapVisualization<SamplingSpaceType>::runOnce()
 {
+  updateSliceOrigin();
+
   publishMarkerArray();
 }
 
@@ -203,6 +217,25 @@ void RmapVisualization<SamplingSpaceType>::dumpGridSet(
 }
 
 template <SamplingSpace SamplingSpaceType>
+void RmapVisualization<SamplingSpaceType>::updateSliceOrigin()
+{
+  if (!(slice_roll_manager_->hasNewValue() ||
+        slice_pitch_manager_->hasNewValue() ||
+        slice_yaw_manager_->hasNewValue())) {
+    return;
+  }
+
+  slice_origin_.rotation() =
+      (Eigen::AngleAxisd(slice_roll_manager_->value(), Eigen::Vector3d::UnitX())
+       * Eigen::AngleAxisd(slice_pitch_manager_->value(),  Eigen::Vector3d::UnitY())
+       * Eigen::AngleAxisd(slice_yaw_manager_->value(), Eigen::Vector3d::UnitZ())).toRotationMatrix().transpose();
+
+  slice_roll_manager_->update();
+  slice_pitch_manager_->update();
+  slice_yaw_manager_->update();
+}
+
+template <SamplingSpace SamplingSpaceType>
 void RmapVisualization<SamplingSpaceType>::publishMarkerArray() const
 {
   std_msgs::Header header_msg;
@@ -219,27 +252,79 @@ void RmapVisualization<SamplingSpaceType>::publishMarkerArray() const
   del_marker.id = marker_arr_msg.markers.size();
   marker_arr_msg.markers.push_back(del_marker);
 
+  const GridPos<SamplingSpaceType>& grid_pos_min = getGridPosMin<SamplingSpaceType>(sample_min_);
+  const GridPos<SamplingSpaceType>& grid_pos_range = getGridPosRange<SamplingSpaceType>(sample_min_, sample_max_);
+
   // Reachable grids marker
-  visualization_msgs::Marker grids_marker;
-  grids_marker.header = header_msg;
-  grids_marker.ns = "reachable_grids";
-  grids_marker.id = marker_arr_msg.markers.size();
-  grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
-  grids_marker.color = OmgCore::toColorRGBAMsg(config_.grid_color);
-  grids_marker.scale = OmgCore::toVector3Msg(
-      calcGridCubeScale<SamplingSpaceType>(grid_set_msg_.divide_nums, sample_max_ - sample_min_));
-  grids_marker.pose = OmgCore::toPoseMsg(sva::PTransformd::Identity());
-  loopGrid<SamplingSpaceType>(
-      grid_set_msg_.divide_nums,
-      getGridPosMin<SamplingSpaceType>(sample_min_),
-      getGridPosRange<SamplingSpaceType>(sample_min_, sample_max_),
-      [&](int grid_idx, const GridPosType& grid_pos) {
-        if (grid_set_msg_.values[grid_idx] > config_.svm_thre) {
-          grids_marker.points.push_back(OmgCore::toPointMsg(
-              sampleToCloudPos<SamplingSpaceType>(gridPosToSample<SamplingSpaceType>(grid_pos))));
-        }
-      });
-  marker_arr_msg.markers.push_back(grids_marker);
+  {
+    visualization_msgs::Marker grids_marker;
+    grids_marker.header = header_msg;
+    grids_marker.ns = "reachable_grids";
+    grids_marker.id = marker_arr_msg.markers.size();
+    grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
+    grids_marker.color = OmgCore::toColorRGBAMsg(config_.grid_color);
+    grids_marker.scale = OmgCore::toVector3Msg(
+        calcGridCubeScale<SamplingSpaceType>(grid_set_msg_.divide_nums, sample_max_ - sample_min_));
+    grids_marker.pose = OmgCore::toPoseMsg(sva::PTransformd::Identity());
+    loopGrid<SamplingSpaceType>(
+        grid_set_msg_.divide_nums,
+        grid_pos_min,
+        grid_pos_range,
+        [&](int grid_idx, const GridPosType& grid_pos) {
+          if (grid_set_msg_.values[grid_idx] > config_.svm_thre) {
+            grids_marker.points.push_back(OmgCore::toPointMsg(
+                sampleToCloudPos<SamplingSpaceType>(gridPosToSample<SamplingSpaceType>(grid_pos))));
+          }
+        });
+    marker_arr_msg.markers.push_back(grids_marker);
+  }
+
+  // Sliced reachable grids marker
+  {
+    visualization_msgs::Marker grids_marker;
+    grids_marker.header = header_msg;
+    grids_marker.ns = "reachable_grids_sliced";
+    grids_marker.id = marker_arr_msg.markers.size();
+    grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
+    grids_marker.color = OmgCore::toColorRGBAMsg(config_.grid_color);
+    grids_marker.scale = OmgCore::toVector3Msg(
+        calcGridCubeScale<SamplingSpaceType>(grid_set_msg_.divide_nums, sample_max_ - sample_min_));
+    grids_marker.pose = OmgCore::toPoseMsg(sva::PTransformd::Identity());
+
+    const SampleType& slice_sample = poseToSample<SamplingSpaceType>(slice_origin_);
+    GridIdxs<SamplingSpaceType> slice_divide_idxs;
+    gridDivideRatiosToIdxs(
+        slice_divide_idxs,
+        (sampleToGridPos<SamplingSpaceType>(slice_sample) - grid_pos_min).array() / grid_pos_range.array(),
+        grid_set_msg_.divide_nums);
+    std::vector<int> slice_update_dims = {};
+    if (SamplingSpaceType == SamplingSpace::R2 ||
+        SamplingSpaceType == SamplingSpace::SE2) {
+      slice_update_dims = {0, 1};
+    } else if (SamplingSpaceType == SamplingSpace::R3 ||
+               SamplingSpaceType == SamplingSpace::SE3) {
+      slice_update_dims = {0, 1, 2};
+    }
+
+    loopGrid<SamplingSpaceType>(
+        grid_set_msg_.divide_nums,
+        grid_pos_min,
+        grid_pos_range,
+        [&](int grid_idx, const GridPosType& grid_pos) {
+          if (grid_set_msg_.values[grid_idx] > config_.svm_thre) {
+            Eigen::Vector3d pos = sampleToCloudPos<SamplingSpaceType>(gridPosToSample<SamplingSpaceType>(grid_pos));
+            if (SamplingSpaceType == SamplingSpace::R2 ||
+                SamplingSpaceType == SamplingSpace::SO2 ||
+                SamplingSpaceType == SamplingSpace::SE2) {
+              pos.z() = 0;
+            }
+            grids_marker.points.push_back(OmgCore::toPointMsg(pos));
+          }
+        },
+        slice_update_dims,
+        slice_divide_idxs);
+    marker_arr_msg.markers.push_back(grids_marker);
+  }
 
   marker_arr_pub_.publish(marker_arr_msg);
 }

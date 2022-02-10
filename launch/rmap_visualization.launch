@@ -18,4 +18,8 @@
   <node pkg="rviz" type="rviz" name="$(anon rviz)"
         args="-d $(find differentiable_rmap)/rviz/RmapVisualization.rviz"
         output="log" clear_params="true" />
+
+  <node pkg="rqt_ez_publisher" type="rqt_ez_publisher" name="rqt_ez_publisher"
+        args="--slider-file $(find differentiable_rmap)/rqt/RmapVisualization.yaml"
+        output="log" clear_params="true" />
 </launch>

@@ -3,7 +3,8 @@ Panels:
     Help Height: 110
     Name: Displays
     Property Tree Widget:
-      Expanded: ~
+      Expanded:
+        - /MarkerArray1/Namespaces1
       Splitter Ratio: 0.6277258396148682
     Tree Height: 724
   - Class: rviz/Selection
@@ -56,6 +57,7 @@ Visualization Manager:
       Name: MarkerArray
       Namespaces:
         reachable_grids: true
+        reachable_grids_sliced: false
       Queue Size: 100
       Value: true
   Enabled: true

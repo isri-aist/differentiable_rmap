@@ -5,6 +5,7 @@
 #include <mc_rtc/Configuration.h>
 
 #include <ros/ros.h>
+#include <std_msgs/Float64.h>
 #include <differentiable_rmap/RmapGridSet.h>
 
 #include <libsvm/svm.h>
@@ -141,6 +142,9 @@ class RmapVisualization: public RmapVisualizationBase
   /** \brief Dump generated grid set to ROS bag. */
   void dumpGridSet(const std::string& grid_bag_path);
 
+  /** \brief Update origin of slicing. */
+  void updateSliceOrigin();
+
   /** \brief Publish marker array. */
   void publishMarkerArray() const;
 
@@ -166,10 +170,17 @@ class RmapVisualization: public RmapVisualizationBase
   //! Grid set message
   differentiable_rmap::RmapGridSet grid_set_msg_;
 
+  //! Origin of slicing
+  sva::PTransformd slice_origin_ = sva::PTransformd::Identity();
+
   //! ROS related members
   ros::NodeHandle nh_;
 
   ros::Publisher marker_arr_pub_;
+
+  std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> slice_roll_manager_;
+  std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> slice_pitch_manager_;
+  std::shared_ptr<SubscVariableManager<std_msgs::Float64, double>> slice_yaw_manager_;
 };
 
 /** \brief Create RmapVisualization instance.
