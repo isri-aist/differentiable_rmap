@@ -291,13 +291,11 @@ void RmapTraining<SamplingSpaceType>::updateSliceOrigin()
   if (slice_roll_manager_->hasNewValue() ||
       slice_pitch_manager_->hasNewValue() ||
       slice_yaw_manager_->hasNewValue()) {
-    Eigen::Vector3d vec(
-        slice_roll_manager_->value(), slice_pitch_manager_->value(), slice_yaw_manager_->value());
-    if (vec.norm() < 1e-20) {
-      slice_origin_.rotation().setIdentity();
-    } else {
-      slice_origin_.rotation() = Eigen::AngleAxisd(vec.norm(), vec.normalized()).toRotationMatrix().transpose();
-    }
+    slice_origin_.rotation() =
+        (Eigen::AngleAxisd(slice_roll_manager_->value(), Eigen::Vector3d::UnitX())
+         * Eigen::AngleAxisd(slice_pitch_manager_->value(),  Eigen::Vector3d::UnitY())
+         * Eigen::AngleAxisd(slice_yaw_manager_->value(), Eigen::Vector3d::UnitZ())).toRotationMatrix().transpose();
+
     slice_roll_manager_->update();
     slice_pitch_manager_->update();
     slice_yaw_manager_->update();
