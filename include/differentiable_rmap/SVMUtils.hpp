@@ -211,12 +211,6 @@ inline SampleToVelMat<SamplingSpace::SE3> sampleToVelMat<SamplingSpace::SE3>(
 }
 
 template <SamplingSpace SamplingSpaceType>
-InputToVelMat<SamplingSpaceType> inputToVelMat(const Sample<SamplingSpaceType>& sample)
-{
-  return sampleToVelMat<SamplingSpaceType>(sample) * inputToSampleMat<SamplingSpaceType>(sample);
-}
-
-template <SamplingSpace SamplingSpaceType>
 Sample<SamplingSpaceType> relSample(const Sample<SamplingSpaceType>& pre_sample,
                                     const Sample<SamplingSpaceType>& suc_sample)
 {

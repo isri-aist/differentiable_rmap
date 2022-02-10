@@ -91,10 +91,6 @@ using InputToSampleMat = Eigen::Matrix<double, sampleDim<SamplingSpaceType>(), i
 template <SamplingSpace SamplingSpaceType>
 using SampleToVelMat = Eigen::Matrix<double, velDim<SamplingSpaceType>(), sampleDim<SamplingSpaceType>()>;
 
-/*! \brief Type of matrix to represent the linear relation from input to vel. */
-template <SamplingSpace SamplingSpaceType>
-using InputToVelMat = Eigen::Matrix<double, velDim<SamplingSpaceType>(), inputDim<SamplingSpaceType>()>;
-
 /** \brief Get matrix to convert gradient for input to gradient for sample. Gradient is assumed to be column vector.
     \tparam SamplingSpaceType sampling space
     \param sample sample
@@ -108,13 +104,6 @@ InputToSampleMat<SamplingSpaceType> inputToSampleMat(const Sample<SamplingSpaceT
 */
 template <SamplingSpace SamplingSpaceType>
 SampleToVelMat<SamplingSpaceType> sampleToVelMat(const Sample<SamplingSpaceType>& sample);
-
-/** \brief Get matrix to convert gradient for input to gradient for vel. Gradient is assumed to be column vector.
-    \tparam SamplingSpaceType sampling space
-    \param sample sample
-*/
-template <SamplingSpace SamplingSpaceType>
-InputToVelMat<SamplingSpaceType> inputToVelMat(const Sample<SamplingSpaceType>& sample);
 
 /** \brief Get relative sample between two samples which is represented in predecessor frame.
     \tparam SamplingSpaceType sampling space

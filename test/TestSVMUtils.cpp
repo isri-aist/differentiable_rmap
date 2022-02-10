@@ -149,14 +149,17 @@ BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradRelR3) { testCalcSVMGradRel<Sampling
 template <SamplingSpace SamplingSpaceType>
 void testInputToVelMat()
 {
+  using InputToVelMat = Eigen::Matrix<double, velDim<SamplingSpaceType>(), inputDim<SamplingSpaceType>()>;
+
   int test_num = 1000;
   for (int i = 0; i < test_num; i++) {
     sva::PTransformd pose = getRandomPose<SamplingSpaceType>();
     Sample<SamplingSpaceType> sample = poseToSample<SamplingSpaceType>(pose);
 
-    InputToVelMat<SamplingSpaceType> mat_analytical = inputToVelMat<SamplingSpaceType>(sample);
+    InputToVelMat mat_analytical =
+        sampleToVelMat<SamplingSpaceType>(sample) * inputToSampleMat<SamplingSpaceType>(sample);
 
-    InputToVelMat<SamplingSpaceType> mat_numerical;
+    InputToVelMat mat_numerical;
     double eps = 1e-6;
     for (int j = 0; j < velDim<SamplingSpaceType>(); j++) {
       Vel<SamplingSpaceType> vel = eps * Vel<SamplingSpaceType>::Unit(j);
