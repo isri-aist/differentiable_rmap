@@ -358,9 +358,11 @@ void RmapPlanningLocomanip::publishMarkerArray() const
     for (int i = 0; i < config_.motion_len; i++) {
       std::shared_ptr<RmapPlanning<SamplingSpaceType>> rmap_planning =
           rmapPlanning(i % 2 == 0 ? Limb::LeftFoot : Limb::RightFoot);
-      const SampleType& sample_min = rmap_planning->sample_min_;
-      const SampleType& sample_max = rmap_planning->sample_max_;
-      const SampleType& sample_range = sample_max - sample_min;
+      const GridPos<SamplingSpaceType>& grid_pos_min =
+          getGridPosMin<SamplingSpaceType>(rmap_planning->sample_min_);
+      const GridPos<SamplingSpaceType>& grid_pos_range =
+          getGridPosRange<SamplingSpaceType>(rmap_planning->sample_min_, rmap_planning->sample_max_);
+      const SampleType& sample_range = rmap_planning->sample_max_ - rmap_planning->sample_min_;
       const auto& grid_set_msg = rmap_planning->grid_set_msg_;
 
       grids_marker.ns = "foot_reachable_grids_" + std::to_string(i);
@@ -378,16 +380,16 @@ void RmapPlanningLocomanip::publishMarkerArray() const
       GridIdxs<SamplingSpaceType> slice_divide_idxs;
       gridDivideRatiosToIdxs(
           slice_divide_idxs,
-          (slice_sample - sample_min).array() / sample_range.array(),
+          (sampleToGridPos<SamplingSpaceType>(slice_sample) - grid_pos_min).array() / grid_pos_range.array(),
           grid_set_msg->divide_nums);
       grids_marker.points.clear();
       loopGrid<SamplingSpaceType>(
           grid_set_msg->divide_nums,
-          sample_min,
-          sample_range,
-          [&](int grid_idx, const SampleType& sample) {
+          grid_pos_min,
+          grid_pos_range,
+          [&](int grid_idx, const GridPos<SamplingSpaceType>& grid_pos) {
             if (grid_set_msg->values[grid_idx] > config_.svm_thre) {
-              Eigen::Vector3d pos = sampleToCloudPos<SamplingSpaceType>(sample);
+              Eigen::Vector3d pos = sampleToCloudPos<SamplingSpaceType>(gridPosToSample<SamplingSpaceType>(grid_pos));
               pos.z() = 0;
               grids_marker.points.push_back(OmgCore::toPointMsg(pos));
             }
@@ -401,9 +403,11 @@ void RmapPlanningLocomanip::publishMarkerArray() const
   // Hand reachable grids marker
   {
     std::shared_ptr<RmapPlanning<SamplingSpaceType>> rmap_planning = rmapPlanning(Limb::LeftHand);
-    const SampleType& sample_min = rmap_planning->sample_min_;
-    const SampleType& sample_max = rmap_planning->sample_max_;
-    const SampleType& sample_range = sample_max - sample_min;
+    const GridPos<SamplingSpaceType>& grid_pos_min =
+        getGridPosMin<SamplingSpaceType>(rmap_planning->sample_min_);
+    const GridPos<SamplingSpaceType>& grid_pos_range =
+        getGridPosRange<SamplingSpaceType>(rmap_planning->sample_min_, rmap_planning->sample_max_);
+    const SampleType& sample_range = rmap_planning->sample_max_ - rmap_planning->sample_min_;
     const auto& grid_set_msg = rmap_planning->grid_set_msg_;
 
     visualization_msgs::Marker grids_marker;
@@ -435,16 +439,16 @@ void RmapPlanningLocomanip::publishMarkerArray() const
       GridIdxs<SamplingSpaceType> slice_divide_idxs;
       gridDivideRatiosToIdxs(
           slice_divide_idxs,
-          (slice_sample - sample_min).array() / sample_range.array(),
+          (sampleToGridPos<SamplingSpaceType>(slice_sample) - grid_pos_min).array() / grid_pos_range.array(),
           grid_set_msg->divide_nums);
       grids_marker.points.clear();
       loopGrid<SamplingSpaceType>(
           grid_set_msg->divide_nums,
-          sample_min,
-          sample_range,
-          [&](int grid_idx, const SampleType& sample) {
+          grid_pos_min,
+          grid_pos_range,
+          [&](int grid_idx, const GridPos<SamplingSpaceType>& grid_pos) {
             if (grid_set_msg->values[grid_idx] > config_.svm_thre) {
-              Eigen::Vector3d pos = sampleToCloudPos<SamplingSpaceType>(sample);
+              Eigen::Vector3d pos = sampleToCloudPos<SamplingSpaceType>(gridPosToSample<SamplingSpaceType>(grid_pos));
               pos.z() = config_.hand_marker_height;
               grids_marker.points.push_back(OmgCore::toPointMsg(pos));
             }
