@@ -10,11 +10,8 @@
       svm_path: /tmp/rmap_svm_model_$(arg sampling_space).libsvm
     </rosparam>
 
-    <rosparam subst_value="true" unless="$(eval arg('sampling_space') == 'SE3')">
+    <rosparam subst_value="true">
       bag_path: /tmp/rmap_grid_set_$(arg sampling_space).bag
-    </rosparam>
-    <rosparam subst_value="true" if="$(eval arg('sampling_space') == 'SE3')">
-      bag_path: ""
     </rosparam>
   </node>
 

@@ -273,23 +273,22 @@ void RmapPlanning<SamplingSpaceType>::publishMarkerArray() const
   // Reachable grids marker
   if (grid_set_msg_) {
     visualization_msgs::Marker grids_marker;
-    SampleType sample_range = sample_max_ - sample_min_;
     grids_marker.header = header_msg;
     grids_marker.ns = "reachable_grids";
     grids_marker.id = marker_arr_msg.markers.size();
     grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
     grids_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.0, 0.0, 0.5});
     grids_marker.scale = OmgCore::toVector3Msg(
-        calcGridCubeScale<SamplingSpaceType>(grid_set_msg_->divide_nums, sample_range));
+        calcGridCubeScale<SamplingSpaceType>(grid_set_msg_->divide_nums, sample_max_ - sample_min_));
     grids_marker.pose = OmgCore::toPoseMsg(sva::PTransformd::Identity());
     loopGrid<SamplingSpaceType>(
         grid_set_msg_->divide_nums,
-        sample_min_,
-        sample_range,
-        [&](int grid_idx, const SampleType& sample) {
+        getGridPosMin<SamplingSpaceType>(sample_min_),
+        getGridPosRange<SamplingSpaceType>(sample_min_, sample_max_),
+        [&](int grid_idx, const GridPos<SamplingSpaceType>& grid_pos) {
           if (grid_set_msg_->values[grid_idx] > config_.svm_thre) {
-            grids_marker.points.push_back(
-                OmgCore::toPointMsg(sampleToCloudPos<SamplingSpaceType>(sample)));
+            grids_marker.points.push_back(OmgCore::toPointMsg(
+                sampleToCloudPos<SamplingSpaceType>(gridPosToSample<SamplingSpaceType>(grid_pos))));
           }
         });
     marker_arr_msg.markers.push_back(grids_marker);
