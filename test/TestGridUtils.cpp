@@ -42,6 +42,45 @@ BOOST_AUTO_TEST_CASE(TestGridUtilsIdxsRatios)
   }
 }
 
+template <SamplingSpace SamplingSpaceType>
+void testGridPos()
+{
+  int test_num = 1000;
+  for (int i = 0; i < test_num; i++) {
+    sva::PTransformd pose = getRandomPose<SamplingSpaceType>();
+
+    Sample<SamplingSpaceType> sample = poseToSample<SamplingSpaceType>(pose);
+    GridPos<SamplingSpaceType> grid_pos = sampleToGridPos<SamplingSpaceType>(sample);
+    Sample<SamplingSpaceType> restored_sample = gridPosToSample<SamplingSpaceType>(grid_pos);
+
+    // std::cout << "[TestGridUtilsGridPos]" << std::endl;
+    // std::cout << "  grid_pos: " << grid_pos.transpose() << std::endl;
+    // std::cout << "  sample: " << sample.transpose() << std::endl;
+    // std::cout << "  restored_sample: " << restored_sample.transpose() << std::endl;
+    // std::cout << "  error: " << (sample - restored_sample).norm() << std::endl;
+
+    if constexpr (SamplingSpaceType == SamplingSpace::SO3) {
+        // Quaternion multiplied by -1 represents the same rotation
+        BOOST_CHECK((sample - restored_sample).norm() < 1e-10 ||
+                    (sample + restored_sample).norm() < 1e-10);
+      } else if constexpr (SamplingSpaceType == SamplingSpace::SE3) {
+        BOOST_CHECK((sample.template head<3>() - restored_sample.template head<3>()).norm() < 1e-10);
+        // Quaternion multiplied by -1 represents the same rotation
+        BOOST_CHECK((sample.template tail<4>() - restored_sample.template tail<4>()).norm() < 1e-10 ||
+                    (sample.template tail<4>() + restored_sample.template tail<4>()).norm() < 1e-10);
+      } else {
+      BOOST_CHECK((sample - restored_sample).norm() < 1e-10);
+    }
+  }
+}
+
+BOOST_AUTO_TEST_CASE(TestGridUtilsGridPosR2) { testGridPos<SamplingSpace::R2>(); }
+BOOST_AUTO_TEST_CASE(TestGridUtilsGridPosSO2) { testGridPos<SamplingSpace::SO2>(); }
+BOOST_AUTO_TEST_CASE(TestGridUtilsGridPosSE2) { testGridPos<SamplingSpace::SE2>(); }
+BOOST_AUTO_TEST_CASE(TestGridUtilsGridPosR3) { testGridPos<SamplingSpace::R3>(); }
+BOOST_AUTO_TEST_CASE(TestGridUtilsGridPosSO3) { testGridPos<SamplingSpace::SO3>(); }
+BOOST_AUTO_TEST_CASE(TestGridUtilsGridPosSE3) { testGridPos<SamplingSpace::SE3>(); }
+
 BOOST_AUTO_TEST_CASE(TestGridUtilsLoopGrid)
 {
   GridIdxs<SamplingSpace::SE2> divide_nums = GridIdxs<SamplingSpace::SE2>(5, 2, 3);
