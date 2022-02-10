@@ -1,0 +1,18 @@
+publish_interval: 100
+settings:
+  /variable/slice_roll/data:
+    is_repeat: false
+    max: 3.1415
+    min: 0.0
+  /variable/slice_pitch/data:
+    is_repeat: false
+    max: 3.1415
+    min: -3.1415
+  /variable/slice_yaw/data:
+    is_repeat: false
+    max: 3.1415
+    min: -3.1415
+texts:
+- /variable/slice_roll/data
+- /variable/slice_pitch/data
+- /variable/slice_yaw/data
