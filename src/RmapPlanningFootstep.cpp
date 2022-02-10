@@ -199,7 +199,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
       }
     const VelType& svm_grad = sampleToVelMat<SamplingSpaceType>(rel_sample) *
         calcSVMGrad<SamplingSpaceType>(rel_sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_);
-    VelToVelMat<SamplingSpaceType> rel_vel_mat_suc = relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, true);
+    SampleToSampleMat<SamplingSpaceType> rel_vel_mat_suc = relSampleToSampleMat<SamplingSpaceType>(pre_sample, suc_sample, true);
     if constexpr (isAlternateSupported()) {
         if (config_.alternate_lr && (i % 2 == 1)) {
           rel_vel_mat_suc.template bottomRows<2>() *= -1;
@@ -209,7 +209,7 @@ void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
     qp_coeff_.ineq_vec_.template segment<1>(i) << calcSVMValue<SamplingSpaceType>(
         rel_sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_) - config_.svm_thre;
     if (i > 0) {
-      VelToVelMat<SamplingSpaceType> rel_vel_mat_pre = relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, false);
+      SampleToSampleMat<SamplingSpaceType> rel_vel_mat_pre = relSampleToSampleMat<SamplingSpaceType>(pre_sample, suc_sample, false);
       if constexpr (isAlternateSupported()) {
           if (config_.alternate_lr && (i % 2 == 1)) {
             rel_vel_mat_pre.template bottomRows<2>() *= -1;

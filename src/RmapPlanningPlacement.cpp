@@ -162,10 +162,10 @@ void RmapPlanningPlacement<SamplingSpaceType>::runOnce(bool publish)
     const SampleType& rel_sample = relSample<SamplingSpaceType>(pre_sample, suc_sample);
     const VelType& svm_grad = sampleToVelMat<SamplingSpaceType>(rel_sample) *
         calcSVMGrad<SamplingSpaceType>(rel_sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_);
-    const VelToVelMat<SamplingSpaceType>& rel_vel_mat_pre =
-        relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, false);
-    const VelToVelMat<SamplingSpaceType>& rel_vel_mat_suc =
-        relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, true);
+    const SampleToSampleMat<SamplingSpaceType>& rel_vel_mat_pre =
+        relSampleToSampleMat<SamplingSpaceType>(pre_sample, suc_sample, false);
+    const SampleToSampleMat<SamplingSpaceType>& rel_vel_mat_suc =
+        relSampleToSampleMat<SamplingSpaceType>(pre_sample, suc_sample, true);
     qp_coeff_.ineq_mat_.template block<1, placement_vel_dim_>(i, 0) =
         -1 * svm_grad.transpose() * rel_vel_mat_pre;
     qp_coeff_.ineq_mat_.template block<1, vel_dim_>(i, placement_vel_dim_ + i * vel_dim_) =

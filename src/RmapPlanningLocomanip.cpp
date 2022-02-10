@@ -187,11 +187,11 @@ void RmapPlanningLocomanip::runOnce(bool publish)
     if (i > 0) {
       qp_coeff_.ineq_mat_.template block<1, vel_dim_>(i, (i - 1) * vel_dim_) =
           -1 * rel_svm_grad.transpose() *
-          relVelToVelMat<SamplingSpaceType>(pre_foot_sample, suc_foot_sample, false);
+          relSampleToSampleMat<SamplingSpaceType>(pre_foot_sample, suc_foot_sample, false);
     }
     qp_coeff_.ineq_mat_.template block<1, vel_dim_>(i, i * vel_dim_) =
         -1 * rel_svm_grad.transpose() *
-        relVelToVelMat<SamplingSpaceType>(pre_foot_sample, suc_foot_sample, true);
+        relSampleToSampleMat<SamplingSpaceType>(pre_foot_sample, suc_foot_sample, true);
     qp_coeff_.ineq_vec_.template segment<1>(i) <<
         rmap_planning->calcSVMValue(rel_sample) - config_.svm_thre;
   }
@@ -212,10 +212,10 @@ void RmapPlanningLocomanip::runOnce(bool publish)
       const VelType& rel_svm_grad = rmap_planning->calcSVMGradWithVel(rel_sample);
       qp_coeff_.ineq_mat_.template block<1, vel_dim_>(start_ineq_idx + 0, (i - 1) * vel_dim_) =
           -1 * rel_svm_grad.transpose() *
-          relVelToVelMat<SamplingSpaceType>(pre_foot_sample, mid_hand_sample, false);
+          relSampleToSampleMat<SamplingSpaceType>(pre_foot_sample, mid_hand_sample, false);
       double mid_hand_ineq_mat =
           -1 * rel_svm_grad.transpose().dot(
-              relVelToVelMat<SamplingSpaceType>(pre_foot_sample, mid_hand_sample, true) *
+              relSampleToSampleMat<SamplingSpaceType>(pre_foot_sample, mid_hand_sample, true) *
               calcSampleGradFromHandTraj(current_hand_traj_angle_seq_[i])) / 2;
       qp_coeff_.ineq_mat_(start_ineq_idx + 0, hand_start_config_idx_ + (i - 1)) =
           mid_hand_ineq_mat;
@@ -231,7 +231,7 @@ void RmapPlanningLocomanip::runOnce(bool publish)
       const VelType& rel_svm_grad = rmap_planning->calcSVMGradWithVel(rel_sample);
       Eigen::MatrixXd mid_foot_ineq_mat =
           -1 * rel_svm_grad.transpose() *
-          relVelToVelMat<SamplingSpaceType>(mid_foot_sample, suc_hand_sample, false) / 2;
+          relSampleToSampleMat<SamplingSpaceType>(mid_foot_sample, suc_hand_sample, false) / 2;
       if (i > 0) {
         qp_coeff_.ineq_mat_.template block<1, vel_dim_>(start_ineq_idx + 1, (i - 1) * vel_dim_) =
             mid_foot_ineq_mat;
@@ -240,7 +240,7 @@ void RmapPlanningLocomanip::runOnce(bool publish)
           mid_foot_ineq_mat;
       qp_coeff_.ineq_mat_(start_ineq_idx + 1, hand_start_config_idx_ + i) =
           -1 * rel_svm_grad.transpose() *
-          relVelToVelMat<SamplingSpaceType>(mid_foot_sample, suc_hand_sample, true) *
+          relSampleToSampleMat<SamplingSpaceType>(mid_foot_sample, suc_hand_sample, true) *
           calcSampleGradFromHandTraj(current_hand_traj_angle_seq_[i]);
       qp_coeff_.ineq_vec_.template segment<1>(start_ineq_idx + 1) <<
           rmap_planning->calcSVMValue(rel_sample) - config_.svm_thre;

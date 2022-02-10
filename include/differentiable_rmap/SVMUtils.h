@@ -134,9 +134,9 @@ template <SamplingSpace SamplingSpaceType>
 Sample<SamplingSpaceType> midSample(const Sample<SamplingSpaceType>& sample1,
                                     const Sample<SamplingSpaceType>& sample2);
 
-/*! \brief Type of matrix to represent the linear relation from input to vel. */
+/*! \brief Type of matrix to represent the linear relation from sample to sample. */
 template <SamplingSpace SamplingSpaceType>
-using VelToVelMat = Eigen::Matrix<double, velDim<SamplingSpaceType>(), velDim<SamplingSpaceType>()>;
+using SampleToSampleMat = Eigen::Matrix<double, sampleDim<SamplingSpaceType>(), sampleDim<SamplingSpaceType>()>;
 
 /** \brief Get matrix to represent the linear relation from relative velocity to single velocity.
     \tparam SamplingSpaceType sampling space
@@ -145,9 +145,9 @@ using VelToVelMat = Eigen::Matrix<double, velDim<SamplingSpaceType>(), velDim<Sa
     \param wrt_suc if true, the returned matrix is w.r.t. the successor sample. otherwise, it is w.r.t. predecessor sample.
 */
 template <SamplingSpace SamplingSpaceType>
-VelToVelMat<SamplingSpaceType> relVelToVelMat(const Sample<SamplingSpaceType>& pre_sample,
-                                              const Sample<SamplingSpaceType>& suc_sample,
-                                              bool wrt_suc);
+SampleToSampleMat<SamplingSpaceType> relSampleToSampleMat(const Sample<SamplingSpaceType>& pre_sample,
+                                                          const Sample<SamplingSpaceType>& suc_sample,
+                                                          bool wrt_suc);
 }
 
 // See method 3 in https://www.codeproject.com/Articles/48575/How-to-Define-a-Template-Class-in-a-h-File-and-Imp

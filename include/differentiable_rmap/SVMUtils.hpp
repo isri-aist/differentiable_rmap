@@ -264,24 +264,24 @@ Sample<SamplingSpaceType> midSample(const Sample<SamplingSpaceType>& sample1,
 }
 
 template <SamplingSpace SamplingSpaceType>
-VelToVelMat<SamplingSpaceType> relVelToVelMat(const Sample<SamplingSpaceType>& pre_sample,
-                                              const Sample<SamplingSpaceType>& suc_sample,
-                                              bool wrt_suc)
+SampleToSampleMat<SamplingSpaceType> relSampleToSampleMat(const Sample<SamplingSpaceType>& pre_sample,
+                                                          const Sample<SamplingSpaceType>& suc_sample,
+                                                          bool wrt_suc)
 {
   if constexpr (SamplingSpaceType == SamplingSpace::SO3 ||
                 SamplingSpaceType == SamplingSpace::SE3) {
       mc_rtc::log::error_and_throw<std::runtime_error>(
-          "[relVelToVelMat] Need to specialize for SamplingSpace {}", std::to_string(SamplingSpaceType));
+          "[relSampleToSampleMat] Need to specialize for SamplingSpace {}", std::to_string(SamplingSpaceType));
     }
   if (wrt_suc) {
-    return VelToVelMat<SamplingSpaceType>::Identity();
+    return SampleToSampleMat<SamplingSpaceType>::Identity();
   } else {
-    return -1 * VelToVelMat<SamplingSpaceType>::Identity();
+    return -1 * SampleToSampleMat<SamplingSpaceType>::Identity();
   }
 }
 
 template <>
-inline VelToVelMat<SamplingSpace::SE2> relVelToVelMat<SamplingSpace::SE2>(
+inline SampleToSampleMat<SamplingSpace::SE2> relSampleToSampleMat<SamplingSpace::SE2>(
     const Sample<SamplingSpace::SE2>& pre_sample,
     const Sample<SamplingSpace::SE2>& suc_sample,
     bool wrt_suc)
@@ -289,7 +289,7 @@ inline VelToVelMat<SamplingSpace::SE2> relVelToVelMat<SamplingSpace::SE2>(
   double cos = std::cos(pre_sample.z());
   double sin = std::sin(pre_sample.z());
 
-  VelToVelMat<SamplingSpace::SE2> mat;
+  SampleToSampleMat<SamplingSpace::SE2> mat;
   mat <<
       cos, sin, 0,
       -sin, cos, 0,

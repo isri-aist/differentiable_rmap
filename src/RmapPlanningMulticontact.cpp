@@ -254,10 +254,10 @@ void RmapPlanningMulticontact::runOnce(bool publish)
     const FootVelType& rel_svm_grad = rmap_planning->calcSVMGradWithVel(rel_sample);
     qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(i, i * foot_vel_dim_) =
         -1 * rel_svm_grad.transpose() *
-        relVelToVelMat<FootSamplingSpaceType>(pre_foot_sample, suc_foot_sample, false);
+        relSampleToSampleMat<FootSamplingSpaceType>(pre_foot_sample, suc_foot_sample, false);
     qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(i, (i + 1) * foot_vel_dim_) =
         -1 * rel_svm_grad.transpose() *
-        relVelToVelMat<FootSamplingSpaceType>(pre_foot_sample, suc_foot_sample, true);
+        relSampleToSampleMat<FootSamplingSpaceType>(pre_foot_sample, suc_foot_sample, true);
     qp_coeff_.ineq_vec_.template segment<1>(i) <<
         rmap_planning->calcSVMValue(rel_sample) - config_.svm_thre;
   }

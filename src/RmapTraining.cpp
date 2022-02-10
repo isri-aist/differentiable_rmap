@@ -779,8 +779,8 @@ void RmapTraining<SamplingSpaceType>::testCalcSVMGradRel(
   SampleType rel_sample = relSample<SamplingSpaceType>(pre_sample, suc_sample);
   const VelType& svm_grad = calcSVMGradWithVel(rel_sample);
 
-  pre_grad_analytical = relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, false).transpose() * svm_grad;
-  suc_grad_analytical = relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, true).transpose() * svm_grad;
+  pre_grad_analytical = relSampleToSampleMat<SamplingSpaceType>(pre_sample, suc_sample, false).transpose() * svm_grad;
+  suc_grad_analytical = relSampleToSampleMat<SamplingSpaceType>(pre_sample, suc_sample, true).transpose() * svm_grad;
 
   double eps = 1e-6;
   for (bool wrt_suc : {false, true}) {
