@@ -227,6 +227,11 @@ class RmapTraining: public RmapTrainingBase
   /** \brief Calculate gradient of SVM value.
       \param sample sample
   */
+  SampleType calcSVMGrad(const SampleType& sample) const;
+
+  /** \brief Calculate gradient of SVM value w.r.t. vel.
+      \param sample sample
+  */
   VelType calcSVMGradWithVel(const SampleType& sample) const;
 
   /** \brief Predict once by SVM. */

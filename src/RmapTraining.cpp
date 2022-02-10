@@ -483,16 +483,22 @@ double RmapTraining<SamplingSpaceType>::calcSVMValue(
 }
 
 template <SamplingSpace SamplingSpaceType>
-Vel<SamplingSpaceType> RmapTraining<SamplingSpaceType>::calcSVMGradWithVel(
+Sample<SamplingSpaceType> RmapTraining<SamplingSpaceType>::calcSVMGrad(
     const SampleType& sample) const
 {
-  return sampleToVelMat<SamplingSpaceType>(sample) *
-      DiffRmap::calcSVMGrad<SamplingSpaceType>(
+  return DiffRmap::calcSVMGrad<SamplingSpaceType>(
           sample,
           svm_mo_->param,
           svm_mo_,
           svm_coeff_vec_,
           svm_sv_mat_);
+}
+
+template <SamplingSpace SamplingSpaceType>
+Vel<SamplingSpaceType> RmapTraining<SamplingSpaceType>::calcSVMGradWithVel(
+    const SampleType& sample) const
+{
+  return sampleToVelMat<SamplingSpaceType>(sample) * calcSVMGrad(sample);
 }
 
 template <SamplingSpace SamplingSpaceType>
