@@ -280,10 +280,6 @@ SampleToSampleMat<SamplingSpaceType> relSampleToSampleMat(const Sample<SamplingS
                                                           const Sample<SamplingSpaceType>& suc_sample,
                                                           bool wrt_suc)
 {
-  if constexpr (SamplingSpaceType == SamplingSpace::SE3) {
-      mc_rtc::log::error_and_throw<std::runtime_error>(
-          "[relSampleToSampleMat] Need to specialize for SamplingSpace {}", std::to_string(SamplingSpaceType));
-    }
   if (wrt_suc) {
     return SampleToSampleMat<SamplingSpaceType>::Identity();
   } else {
@@ -346,6 +342,27 @@ inline SampleToSampleMat<SamplingSpace::SO3> relSampleToSampleMat<SamplingSpace:
         -qy2, qx2, -qw2, qz2,
         qx2, qy2, qz2, qw2;
   }
+
+  return mat;
+}
+
+template <>
+inline SampleToSampleMat<SamplingSpace::SE3> relSampleToSampleMat<SamplingSpace::SE3>(
+    const Sample<SamplingSpace::SE3>& pre_sample,
+    const Sample<SamplingSpace::SE3>& suc_sample,
+    bool wrt_suc)
+{
+  SampleToSampleMat<SamplingSpace::SE3> mat = SampleToSampleMat<SamplingSpace::SE3>::Zero();
+
+  mat.block<sampleDim<SamplingSpace::R3>(), sampleDim<SamplingSpace::R3>()>(0, 0) =
+      (wrt_suc ? 1 : -1) * Eigen::Quaterniond(
+          pre_sample.tail<4>().w(),
+          pre_sample.tail<4>().x(),
+          pre_sample.tail<4>().y(),
+          pre_sample.tail<4>().z()).toRotationMatrix().transpose();
+  mat.block<sampleDim<SamplingSpace::SO3>(), sampleDim<SamplingSpace::SO3>()>(
+      sampleDim<SamplingSpace::R3>(), sampleDim<SamplingSpace::R3>()) =
+      relSampleToSampleMat<SamplingSpace::SO3>(pre_sample.tail<4>(), suc_sample.tail<4>(), wrt_suc);
 
   return mat;
 }

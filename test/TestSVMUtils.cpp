@@ -308,4 +308,4 @@ BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatSO2) { testRelSampleToSampleMat<Sam
 BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatSE2) { testRelSampleToSampleMat<SamplingSpace::SE2>(); }
 BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatR3) { testRelSampleToSampleMat<SamplingSpace::R3>(); }
 BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatSO3) { testRelSampleToSampleMat<SamplingSpace::SO3>(); }
-// BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatSE3) { testRelSampleToSampleMat<SamplingSpace::SE3>(); }
+BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatSE3) { testRelSampleToSampleMat<SamplingSpace::SE3>(); }
