@@ -160,18 +160,16 @@ void RmapPlanningPlacement<SamplingSpaceType>::runOnce(bool publish)
     const PlacementSampleType& pre_sample = current_placement_sample_;
     const SampleType& suc_sample = current_reaching_sample_list_[i];
     const SampleType& rel_sample = relSample<SamplingSpaceType>(pre_sample, suc_sample);
-    const VelType& svm_grad = sampleToVelMat<SamplingSpaceType>(rel_sample) *
-        calcSVMGrad<SamplingSpaceType>(rel_sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_);
-    const SampleToSampleMat<SamplingSpaceType>& rel_vel_mat_pre =
+    const SampleType& svm_grad = this->calcSVMGrad(rel_sample);
+    const SampleToSampleMat<SamplingSpaceType>& rel_sample_mat_pre =
         relSampleToSampleMat<SamplingSpaceType>(pre_sample, suc_sample, false);
-    const SampleToSampleMat<SamplingSpaceType>& rel_vel_mat_suc =
+    const SampleToSampleMat<SamplingSpaceType>& rel_sample_mat_suc =
         relSampleToSampleMat<SamplingSpaceType>(pre_sample, suc_sample, true);
     qp_coeff_.ineq_mat_.template block<1, placement_vel_dim_>(i, 0) =
-        -1 * svm_grad.transpose() * rel_vel_mat_pre;
+        -1 * svm_grad.transpose() * rel_sample_mat_pre * sampleToVelMat<SamplingSpaceType>(pre_sample).transpose();
     qp_coeff_.ineq_mat_.template block<1, vel_dim_>(i, placement_vel_dim_ + i * vel_dim_) =
-        -1 * svm_grad.transpose() * rel_vel_mat_suc;
-    qp_coeff_.ineq_vec_.template segment<1>(i) << calcSVMValue<SamplingSpaceType>(
-        rel_sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_) - config_.svm_thre;
+        -1 * svm_grad.transpose() * rel_sample_mat_suc * sampleToVelMat<SamplingSpaceType>(suc_sample).transpose();
+    qp_coeff_.ineq_vec_.template segment<1>(i) << this->calcSVMValue(rel_sample) - config_.svm_thre;
   }
   qp_coeff_.ineq_mat_.rightCols(svm_ineq_dim + collision_ineq_dim).diagonal().head(svm_ineq_dim).setConstant(-1);
 
