@@ -214,11 +214,13 @@ template <SamplingSpace SamplingSpaceType>
 Sample<SamplingSpaceType> relSample(const Sample<SamplingSpaceType>& pre_sample,
                                     const Sample<SamplingSpaceType>& suc_sample)
 {
-  if constexpr (SamplingSpaceType == SamplingSpace::SO3 ||
-                SamplingSpaceType == SamplingSpace::SE3) {
-      // In sampleError(), translation error is assumed to be represented in world frame.
-      // In relSample(), on the other hand, it is assumed to be represented in pre_sample frame.
-      // These assumptions lead to different results in SE2, SO3, and SE3, so sampleError() cannot be used.
+  // In sampleError(), translation error is assumed to be represented in world frame.
+  // In relSample(), on the other hand, it is assumed to be represented in pre_sample frame.
+  // These assumptions lead to different results in SE2, SO3, and SE3, so sampleError() cannot be used.
+  if constexpr (SamplingSpaceType == SamplingSpace::SO3) {
+      return (Eigen::Quaterniond(pre_sample.w(), pre_sample.x(), pre_sample.y(), pre_sample.z()).conjugate() *
+              Eigen::Quaterniond(suc_sample.w(), suc_sample.x(), suc_sample.y(), suc_sample.z())).coeffs();
+    } else if constexpr (SamplingSpaceType == SamplingSpace::SE3) {
       return poseToSample<SamplingSpaceType>(
           sampleToPose<SamplingSpaceType>(suc_sample) * sampleToPose<SamplingSpaceType>(pre_sample).inv());
     } else {
@@ -262,8 +264,7 @@ SampleToSampleMat<SamplingSpaceType> relSampleToSampleMat(const Sample<SamplingS
                                                           const Sample<SamplingSpaceType>& suc_sample,
                                                           bool wrt_suc)
 {
-  if constexpr (SamplingSpaceType == SamplingSpace::SO3 ||
-                SamplingSpaceType == SamplingSpace::SE3) {
+  if constexpr (SamplingSpaceType == SamplingSpace::SE3) {
       mc_rtc::log::error_and_throw<std::runtime_error>(
           "[relSampleToSampleMat] Need to specialize for SamplingSpace {}", std::to_string(SamplingSpaceType));
     }
@@ -294,6 +295,40 @@ inline SampleToSampleMat<SamplingSpace::SE2> relSampleToSampleMat<SamplingSpace:
     mat *= -1;
     mat(0, 2) = -sin * sample_error.x() + cos * sample_error.y();
     mat(1, 2) = -cos * sample_error.x() - sin * sample_error.y();
+  }
+
+  return mat;
+}
+
+template <>
+inline SampleToSampleMat<SamplingSpace::SO3> relSampleToSampleMat<SamplingSpace::SO3>(
+    const Sample<SamplingSpace::SO3>& pre_sample,
+    const Sample<SamplingSpace::SO3>& suc_sample,
+    bool wrt_suc)
+{
+  double qx1 = pre_sample.x();
+  double qy1 = pre_sample.y();
+  double qz1 = pre_sample.z();
+  double qw1 = pre_sample.w();
+  double qx2 = suc_sample.x();
+  double qy2 = suc_sample.y();
+  double qz2 = suc_sample.z();
+  double qw2 = suc_sample.w();
+
+  SampleToSampleMat<SamplingSpace::SO3> mat;
+
+  if (wrt_suc) {
+    mat <<
+        qw1, qz1, -qy1, -qx1,
+        -qz1, qw1, qx1, -qy1,
+        qy1, -qx1, qw1, -qz1,
+        qx1, qy1, qz1, qw1;
+  } else {
+    mat <<
+        -qw2, -qz2, qy2, qx2,
+        qz2, -qw2, -qx2, qy2,
+        -qy2, qx2, -qw2, qz2,
+        qx2, qy2, qz2, qw2;
   }
 
   return mat;

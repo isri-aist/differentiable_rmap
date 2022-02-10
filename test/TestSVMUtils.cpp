@@ -205,7 +205,18 @@ void testRelSample()
     // std::cout << "  rel_sample2: " << rel_sample2.transpose() << std::endl;
     // std::cout << "  error: " << (rel_sample1 - rel_sample2).norm() << std::endl;
 
-    BOOST_CHECK((rel_sample1 - rel_sample2).norm() < 1e-8);
+    if constexpr (SamplingSpaceType == SamplingSpace::SO3) {
+        // Quaternion multiplied by -1 represents the same rotation
+        BOOST_CHECK((rel_sample1 - rel_sample2).norm() < 1e-8 ||
+                    (rel_sample1 + rel_sample2).norm() < 1e-8);
+      } else if constexpr (SamplingSpaceType == SamplingSpace::SE3) {
+        BOOST_CHECK((rel_sample1.template head<3>() - rel_sample2.template head<3>()).norm() < 1e-8);
+        // Quaternion multiplied by -1 represents the same rotation
+        BOOST_CHECK((rel_sample1.template tail<4>() - rel_sample2.template tail<4>()).norm() < 1e-8 ||
+                    (rel_sample1.template tail<4>() + rel_sample2.template tail<4>()).norm() < 1e-8);
+      } else {
+      BOOST_CHECK((rel_sample1 - rel_sample2).norm() < 1e-8);
+    }
   }
 }
 
@@ -279,13 +290,13 @@ void testRelSampleToSampleMat()
            relSample<SamplingSpaceType>(pre_sample, suc_sample_minus)) / (2 * eps);
     }
 
-    std::cout << "[testRelSampleToSampleMat]" << std::endl;
-    std::cout << "  pre_mat_analytical:\n" << pre_mat_analytical << std::endl;
-    std::cout << "  pre_mat_numerical:\n" << pre_mat_numerical << std::endl;
-    std::cout << "  pre_error: " << (pre_mat_analytical - pre_mat_numerical).norm() << std::endl;
-    std::cout << "  suc_mat_analytical:\n" << suc_mat_analytical << std::endl;
-    std::cout << "  suc_mat_numerical:\n" << suc_mat_numerical << std::endl;
-    std::cout << "  suc_error: " << (suc_mat_analytical - suc_mat_numerical).norm() << std::endl;
+    // std::cout << "[testRelSampleToSampleMat]" << std::endl;
+    // std::cout << "  pre_mat_analytical:\n" << pre_mat_analytical << std::endl;
+    // std::cout << "  pre_mat_numerical:\n" << pre_mat_numerical << std::endl;
+    // std::cout << "  pre_error: " << (pre_mat_analytical - pre_mat_numerical).norm() << std::endl;
+    // std::cout << "  suc_mat_analytical:\n" << suc_mat_analytical << std::endl;
+    // std::cout << "  suc_mat_numerical:\n" << suc_mat_numerical << std::endl;
+    // std::cout << "  suc_error: " << (suc_mat_analytical - suc_mat_numerical).norm() << std::endl;
 
     BOOST_CHECK((pre_mat_analytical - pre_mat_numerical).norm() < 1e-8);
     BOOST_CHECK((suc_mat_analytical - suc_mat_numerical).norm() < 1e-8);
@@ -296,5 +307,5 @@ BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatR2) { testRelSampleToSampleMat<Samp
 BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatSO2) { testRelSampleToSampleMat<SamplingSpace::SO2>(); }
 BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatSE2) { testRelSampleToSampleMat<SamplingSpace::SE2>(); }
 BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatR3) { testRelSampleToSampleMat<SamplingSpace::R3>(); }
-// BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatSO3) { testRelSampleToSampleMat<SamplingSpace::SO3>(); }
+BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatSO3) { testRelSampleToSampleMat<SamplingSpace::SO3>(); }
 // BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatSE3) { testRelSampleToSampleMat<SamplingSpace::SE3>(); }
