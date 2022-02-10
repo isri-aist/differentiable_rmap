@@ -421,9 +421,11 @@ void RmapPlanningMulticontact::publishMarkerArray() const
     for (int i = 1; i < foot_num_; i++) {
       std::shared_ptr<RmapPlanning<FootSamplingSpaceType>> rmap_planning =
           i % 2 == 0 ? rmapPlanning<Limb::LeftFoot>() : rmapPlanning<Limb::RightFoot>();
-      const FootSampleType& sample_min = rmap_planning->sample_min_;
-      const FootSampleType& sample_max = rmap_planning->sample_max_;
-      const FootSampleType& sample_range = sample_max - sample_min;
+      const GridPos<FootSamplingSpaceType>& grid_pos_min =
+          getGridPosMin<FootSamplingSpaceType>(rmap_planning->sample_min_);
+      const GridPos<FootSamplingSpaceType>& grid_pos_range =
+          getGridPosRange<FootSamplingSpaceType>(rmap_planning->sample_min_, rmap_planning->sample_max_);
+      const FootSampleType& sample_range = rmap_planning->sample_max_ - rmap_planning->sample_min_;
       const auto& grid_set_msg = rmap_planning->grid_set_msg_;
 
       grids_marker.ns = "foot_reachable_grids_" + std::to_string(i);
@@ -439,16 +441,16 @@ void RmapPlanningMulticontact::publishMarkerArray() const
       GridIdxs<FootSamplingSpaceType> slice_divide_idxs;
       gridDivideRatiosToIdxs(
           slice_divide_idxs,
-          (slice_sample - sample_min).array() / sample_range.array(),
+          (sampleToGridPos<FootSamplingSpaceType>(slice_sample) - grid_pos_min).array() / grid_pos_range.array(),
           grid_set_msg->divide_nums);
       grids_marker.points.clear();
       loopGrid<FootSamplingSpaceType>(
           grid_set_msg->divide_nums,
-          sample_min,
-          sample_range,
-          [&](int grid_idx, const FootSampleType& sample) {
+          grid_pos_min,
+          grid_pos_range,
+          [&](int grid_idx, const GridPos<FootSamplingSpaceType>& grid_pos) {
             if (grid_set_msg->values[grid_idx] > config_.svm_thre) {
-              Eigen::Vector3d pos = sampleToCloudPos<FootSamplingSpaceType>(sample);
+              Eigen::Vector3d pos = sampleToCloudPos<FootSamplingSpaceType>(gridPosToSample<FootSamplingSpaceType>(grid_pos));
               pos.z() = 0;
               grids_marker.points.push_back(OmgCore::toPointMsg(pos));
             }
@@ -462,9 +464,12 @@ void RmapPlanningMulticontact::publishMarkerArray() const
   // Hand reachable grids marker
   {
     std::shared_ptr<RmapPlanning<HandSamplingSpaceType>> rmap_planning = rmapPlanning<Limb::LeftHand>();
-    const HandSampleType& sample_min = rmap_planning->sample_min_;
+    const GridPos<HandSamplingSpaceType>& grid_pos_min =
+        getGridPosMin<HandSamplingSpaceType>(rmap_planning->sample_min_);
+    const GridPos<HandSamplingSpaceType>& grid_pos_range =
+        getGridPosRange<HandSamplingSpaceType>(rmap_planning->sample_min_, rmap_planning->sample_max_);
     const HandSampleType& sample_max = rmap_planning->sample_max_;
-    const HandSampleType& sample_range = sample_max - sample_min;
+    const HandSampleType& sample_range = rmap_planning->sample_max_ - rmap_planning->sample_min_;
     const auto& grid_set_msg = rmap_planning->grid_set_msg_;
 
     visualization_msgs::Marker grids_marker;
@@ -475,12 +480,12 @@ void RmapPlanningMulticontact::publishMarkerArray() const
         calcGridCubeScale<HandSamplingSpaceType>(grid_set_msg->divide_nums, sample_range));
     loopGrid<HandSamplingSpaceType>(
         grid_set_msg->divide_nums,
-        sample_min,
-        sample_range,
-        [&](int grid_idx, const HandSampleType& sample) {
+        grid_pos_min,
+        grid_pos_range,
+        [&](int grid_idx, const GridPos<HandSamplingSpaceType>& grid_pos) {
           if (grid_set_msg->values[grid_idx] > config_.svm_thre) {
             grids_marker.points.push_back(
-                OmgCore::toPointMsg(sampleToCloudPos<HandSamplingSpaceType>(sample)));
+                OmgCore::toPointMsg(sampleToCloudPos<HandSamplingSpaceType>(gridPosToSample<HandSamplingSpaceType>(grid_pos))));
           }
         });
     for (int i = 0; i < foot_num_ - 1; i++) {
