@@ -239,12 +239,14 @@ void RmapPlanningPlacement<SamplingSpaceType>::publishMarkerArray() const
 
   // Reachable grids marker
   if (grid_set_msg_) {
-    SampleType sample_range = sample_max_ - sample_min_;
+    const GridPos<SamplingSpaceType>& grid_pos_min = getGridPosMin<SamplingSpaceType>(sample_min_);
+    const GridPos<SamplingSpaceType>& grid_pos_range = getGridPosRange<SamplingSpaceType>(sample_min_, sample_max_);
+
     visualization_msgs::Marker grids_marker;
     grids_marker.header = header_msg;
     grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
     grids_marker.scale = OmgCore::toVector3Msg(
-        calcGridCubeScale<SamplingSpaceType>(grid_set_msg_->divide_nums, sample_range));
+        calcGridCubeScale<SamplingSpaceType>(grid_set_msg_->divide_nums, sample_max_ - sample_min_));
     grids_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.0, 0.0, 0.3});
 
     for (int i = 0; i < config_.reaching_num; i++) {
@@ -257,18 +259,18 @@ void RmapPlanningPlacement<SamplingSpaceType>::publishMarkerArray() const
       GridIdxs<SamplingSpaceType> slice_divide_idxs;
       gridDivideRatiosToIdxs(
           slice_divide_idxs,
-          (slice_sample - sample_min_).array() / sample_range.array(),
+          (sampleToGridPos<SamplingSpaceType>(slice_sample) - grid_pos_min).array() / grid_pos_range.array(),
           grid_set_msg_->divide_nums);
       std::vector<int> slice_update_dims(std::min(2, sample_dim_));
       std::iota(slice_update_dims.begin(), slice_update_dims.end(), 0);
       grids_marker.points.clear();
       loopGrid<SamplingSpaceType>(
           grid_set_msg_->divide_nums,
-          sample_min_,
-          sample_range,
-          [&](int grid_idx, const SampleType& sample) {
+          grid_pos_min,
+          grid_pos_range,
+          [&](int grid_idx, const GridPos<SamplingSpaceType>& grid_pos) {
             if (grid_set_msg_->values[grid_idx] > config_.svm_thre) {
-              Eigen::Vector3d pos = sampleToCloudPos<SamplingSpaceType>(sample);
+              Eigen::Vector3d pos = sampleToCloudPos<SamplingSpaceType>(gridPosToSample<SamplingSpaceType>(grid_pos));
               if constexpr (!(SamplingSpaceType == SamplingSpace::R3 ||
                               SamplingSpaceType == SamplingSpace::SE3)) {
                   pos.z() = 0;

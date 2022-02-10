@@ -8,7 +8,7 @@ add_library(DiffRmap
   RmapVisualization.cpp
   RmapPlanning.cpp
   RmapPlanningFootstep.cpp
-  # RmapPlanningPlacement.cpp
+  RmapPlanningPlacement.cpp
   RmapPlanningMulticontact.cpp
   RmapPlanningLocomanip.cpp
   )

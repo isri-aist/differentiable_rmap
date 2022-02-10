@@ -293,12 +293,14 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishMarkerArray() const
 
   // Reachable grids marker
   if (grid_set_msg_) {
-    SampleType sample_range = sample_max_ - sample_min_;
+    const GridPos<SamplingSpaceType>& grid_pos_min = getGridPosMin<SamplingSpaceType>(sample_min_);
+    const GridPos<SamplingSpaceType>& grid_pos_range = getGridPosRange<SamplingSpaceType>(sample_min_, sample_max_);
+
     visualization_msgs::Marker grids_marker;
     grids_marker.header = header_msg;
     grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
     grids_marker.scale = OmgCore::toVector3Msg(
-        calcGridCubeScale<SamplingSpaceType>(grid_set_msg_->divide_nums, sample_range));
+        calcGridCubeScale<SamplingSpaceType>(grid_set_msg_->divide_nums, sample_max_ - sample_min_));
     grids_marker.scale.z = 0.01;
     grids_marker.color = OmgCore::toColorRGBAMsg({0.8, 0.0, 0.0, 0.3});
 
@@ -319,8 +321,6 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishMarkerArray() const
             slice_sample.template tail<2>() *= -1;
           }
         }
-      const GridPos<SamplingSpaceType>& grid_pos_min = getGridPosMin<SamplingSpaceType>(sample_min_);
-      const GridPos<SamplingSpaceType>& grid_pos_range = getGridPosRange<SamplingSpaceType>(sample_min_, sample_max_);
       GridIdxs<SamplingSpaceType> slice_divide_idxs;
       gridDivideRatiosToIdxs(
           slice_divide_idxs,
