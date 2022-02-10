@@ -76,7 +76,7 @@ double calcSVMValue(
     \return gradient of predicted SVM value (column vector)
 */
 template <SamplingSpace SamplingSpaceType>
-Vel<SamplingSpaceType> calcSVMGrad(
+Sample<SamplingSpaceType> calcSVMGrad(
     const Sample<SamplingSpaceType>& sample,
     const svm_parameter& svm_param,
     svm_model *svm_mo,

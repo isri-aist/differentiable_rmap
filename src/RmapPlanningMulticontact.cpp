@@ -251,7 +251,7 @@ void RmapPlanningMulticontact::runOnce(bool publish)
 
     const FootSampleType& rel_sample =
         relSample<FootSamplingSpaceType>(pre_foot_sample, suc_foot_sample);
-    const FootVelType& rel_svm_grad = rmap_planning->calcSVMGrad(rel_sample);
+    const FootVelType& rel_svm_grad = rmap_planning->calcSVMGradWithVel(rel_sample);
     qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(i, i * foot_vel_dim_) =
         -1 * rel_svm_grad.transpose() *
         relVelToVelMat<FootSamplingSpaceType>(pre_foot_sample, suc_foot_sample, false);
@@ -276,7 +276,7 @@ void RmapPlanningMulticontact::runOnce(bool publish)
           midSample<FootSamplingSpaceType>(pre1_foot_sample, pre2_foot_sample);
       const HandSampleType& pre12_rel_sample =
           relSampleHandFromFoot(pre12_foot_sample, hand_sample, config_.waist_height);
-      const HandVelType& pre12_rel_svm_grad = rmap_planning->calcSVMGrad(pre12_rel_sample);
+      const HandVelType& pre12_rel_svm_grad = rmap_planning->calcSVMGradWithVel(pre12_rel_sample);
       // The implementation of gradient of mean sample is not exact because the mean of two samples is not a simple arithmetic mean
       Eigen::MatrixXd pre12_foot_ineq_mat =
           -1 * pre12_rel_svm_grad.transpose() * relSampleGradHandFromFoot(pre12_foot_sample, hand_sample, false) / 2;
@@ -293,7 +293,7 @@ void RmapPlanningMulticontact::runOnce(bool publish)
 
     const HandSampleType& pre1_rel_sample =
         relSampleHandFromFoot(pre1_foot_sample, hand_sample, config_.waist_height);
-    const HandVelType& pre1_rel_svm_grad = rmap_planning->calcSVMGrad(pre1_rel_sample);
+    const HandVelType& pre1_rel_svm_grad = rmap_planning->calcSVMGradWithVel(pre1_rel_sample);
     qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(start_ineq_idx + 1, (2 * i) * foot_vel_dim_) =
         -1 * pre1_rel_svm_grad.transpose() *
         relSampleGradHandFromFoot(pre1_foot_sample, hand_sample, false);
@@ -305,7 +305,7 @@ void RmapPlanningMulticontact::runOnce(bool publish)
 
     const HandSampleType& suc1_rel_sample =
         relSampleHandFromFoot(suc1_foot_sample, hand_sample, config_.waist_height);
-    const HandVelType& suc1_rel_svm_grad = rmap_planning->calcSVMGrad(suc1_rel_sample);
+    const HandVelType& suc1_rel_svm_grad = rmap_planning->calcSVMGradWithVel(suc1_rel_sample);
     qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(start_ineq_idx + 2, (2 * i + 1) * foot_vel_dim_) =
         -1 * suc1_rel_svm_grad.transpose() *
         relSampleGradHandFromFoot(suc1_foot_sample, hand_sample, false);
@@ -319,7 +319,7 @@ void RmapPlanningMulticontact::runOnce(bool publish)
         midSample<FootSamplingSpaceType>(suc1_foot_sample, suc2_foot_sample);
     const HandSampleType& suc12_rel_sample =
         relSampleHandFromFoot(suc12_foot_sample, hand_sample, config_.waist_height);
-    const HandVelType& suc12_rel_svm_grad = rmap_planning->calcSVMGrad(suc12_rel_sample);
+    const HandVelType& suc12_rel_svm_grad = rmap_planning->calcSVMGradWithVel(suc12_rel_sample);
     Eigen::MatrixXd suc12_foot_ineq_mat =
         -1 * suc12_rel_svm_grad.transpose() * relSampleGradHandFromFoot(suc12_foot_sample, hand_sample, false) / 2;
     qp_coeff_.ineq_mat_.template block<1, foot_vel_dim_>(start_ineq_idx + 3, (2 * i + 1) * foot_vel_dim_) =

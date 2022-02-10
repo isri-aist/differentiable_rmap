@@ -157,7 +157,7 @@ class RmapPlanning: public RmapPlanningBase
   /** \brief Calculate gradient of SVM value.
       \param sample sample
   */
-  VelType calcSVMGrad(const SampleType& sample) const;
+  VelType calcSVMGradWithVel(const SampleType& sample) const;
 
  protected:
   /** \brief Setup grid map. */

@@ -483,15 +483,16 @@ double RmapTraining<SamplingSpaceType>::calcSVMValue(
 }
 
 template <SamplingSpace SamplingSpaceType>
-Vel<SamplingSpaceType> RmapTraining<SamplingSpaceType>::calcSVMGrad(
+Vel<SamplingSpaceType> RmapTraining<SamplingSpaceType>::calcSVMGradWithVel(
     const SampleType& sample) const
 {
-  return DiffRmap::calcSVMGrad<SamplingSpaceType>(
-      sample,
-      svm_mo_->param,
-      svm_mo_,
-      svm_coeff_vec_,
-      svm_sv_mat_);
+  return sampleToVelMat<SamplingSpaceType>(sample) *
+      DiffRmap::calcSVMGrad<SamplingSpaceType>(
+          sample,
+          svm_mo_->param,
+          svm_mo_,
+          svm_coeff_vec_,
+          svm_sv_mat_);
 }
 
 template <SamplingSpace SamplingSpaceType>
@@ -745,7 +746,7 @@ void RmapTraining<SamplingSpaceType>::testCalcSVMGrad(
     Eigen::Ref<Vel<SamplingSpaceType>> svm_grad_numerical,
     const SampleType& sample) const
 {
-  svm_grad_analytical = calcSVMGrad(sample);
+  svm_grad_analytical = calcSVMGradWithVel(sample);
 
   double eps = 1e-6;
   for (int i = 0; i < velDim<SamplingSpaceType>(); i++) {
@@ -770,7 +771,7 @@ void RmapTraining<SamplingSpaceType>::testCalcSVMGradRel(
     const SampleType& suc_sample) const
 {
   SampleType rel_sample = relSample<SamplingSpaceType>(pre_sample, suc_sample);
-  const VelType& svm_grad = calcSVMGrad(rel_sample);
+  const VelType& svm_grad = calcSVMGradWithVel(rel_sample);
 
   pre_grad_analytical = relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, false).transpose() * svm_grad;
   suc_grad_analytical = relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, true).transpose() * svm_grad;

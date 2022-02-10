@@ -76,7 +76,7 @@ double calcSVMValue(
 }
 
 template <SamplingSpace SamplingSpaceType>
-Vel<SamplingSpaceType> calcSVMGrad(
+Sample<SamplingSpaceType> calcSVMGrad(
     const Sample<SamplingSpaceType>& sample,
     const svm_parameter& svm_param,
     svm_model *svm_mo,
@@ -96,7 +96,7 @@ Vel<SamplingSpaceType> calcSVMGrad(
   Eigen::Matrix<double, inputDim<SamplingSpaceType>(), Eigen::Dynamic> sv_mat_minus_input =
       svm_sv_mat.colwise() - sampleToInput<SamplingSpaceType>(sample);
 
-  return inputToVelMat<SamplingSpaceType>(sample) *
+  return inputToSampleMat<SamplingSpaceType>(sample) *
       2 * svm_param.gamma * sv_mat_minus_input *
       svm_coeff_vec.cwiseProduct((-svm_param.gamma * sv_mat_minus_input.colwise().squaredNorm()).array().exp().matrix().transpose());
 }

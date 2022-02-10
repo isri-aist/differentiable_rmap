@@ -197,8 +197,8 @@ void RmapPlanningFootstep<SamplingSpaceType>::runOnce(bool publish)
           rel_sample.template tail<2>() *= -1;
         }
       }
-    const VelType& svm_grad = calcSVMGrad<SamplingSpaceType>(
-            rel_sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_);
+    const VelType& svm_grad = sampleToVelMat<SamplingSpaceType>(rel_sample) *
+        calcSVMGrad<SamplingSpaceType>(rel_sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_);
     VelToVelMat<SamplingSpaceType> rel_vel_mat_suc = relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, true);
     if constexpr (isAlternateSupported()) {
         if (config_.alternate_lr && (i % 2 == 1)) {

@@ -160,8 +160,8 @@ void RmapPlanningPlacement<SamplingSpaceType>::runOnce(bool publish)
     const PlacementSampleType& pre_sample = current_placement_sample_;
     const SampleType& suc_sample = current_reaching_sample_list_[i];
     const SampleType& rel_sample = relSample<SamplingSpaceType>(pre_sample, suc_sample);
-    const VelType& svm_grad = calcSVMGrad<SamplingSpaceType>(
-            rel_sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_);
+    const VelType& svm_grad = sampleToVelMat<SamplingSpaceType>(rel_sample) *
+        calcSVMGrad<SamplingSpaceType>(rel_sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_);
     const VelToVelMat<SamplingSpaceType>& rel_vel_mat_pre =
         relVelToVelMat<SamplingSpaceType>(pre_sample, suc_sample, false);
     const VelToVelMat<SamplingSpaceType>& rel_vel_mat_suc =
