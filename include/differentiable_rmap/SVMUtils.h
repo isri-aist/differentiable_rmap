@@ -83,9 +83,31 @@ Vel<SamplingSpaceType> calcSVMGrad(
     const Eigen::VectorXd& svm_coeff_vec,
     const Eigen::Matrix<double, inputDim<SamplingSpaceType>(), Eigen::Dynamic>& svm_sv_mat);
 
+/*! \brief Type of matrix to represent the linear relation from input to sample. */
+template <SamplingSpace SamplingSpaceType>
+using InputToSampleMat = Eigen::Matrix<double, sampleDim<SamplingSpaceType>(), inputDim<SamplingSpaceType>()>;
+
+/*! \brief Type of matrix to represent the linear relation from sample to vel. */
+template <SamplingSpace SamplingSpaceType>
+using SampleToVelMat = Eigen::Matrix<double, velDim<SamplingSpaceType>(), sampleDim<SamplingSpaceType>()>;
+
 /*! \brief Type of matrix to represent the linear relation from input to vel. */
 template <SamplingSpace SamplingSpaceType>
 using InputToVelMat = Eigen::Matrix<double, velDim<SamplingSpaceType>(), inputDim<SamplingSpaceType>()>;
+
+/** \brief Get matrix to convert gradient for input to gradient for sample. Gradient is assumed to be column vector.
+    \tparam SamplingSpaceType sampling space
+    \param sample sample
+*/
+template <SamplingSpace SamplingSpaceType>
+InputToSampleMat<SamplingSpaceType> inputToSampleMat(const Sample<SamplingSpaceType>& sample);
+
+/** \brief Get matrix to convert gradient for sample to gradient for vel. Gradient is assumed to be column vector.
+    \tparam SamplingSpaceType sampling space
+    \param sample sample
+*/
+template <SamplingSpace SamplingSpaceType>
+SampleToVelMat<SamplingSpaceType> sampleToVelMat(const Sample<SamplingSpaceType>& sample);
 
 /** \brief Get matrix to convert gradient for input to gradient for vel. Gradient is assumed to be column vector.
     \tparam SamplingSpaceType sampling space

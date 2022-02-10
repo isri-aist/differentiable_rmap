@@ -102,50 +102,45 @@ Vel<SamplingSpaceType> calcSVMGrad(
 }
 
 template <SamplingSpace SamplingSpaceType>
-InputToVelMat<SamplingSpaceType> inputToVelMat(const Sample<SamplingSpaceType>& sample)
+InputToSampleMat<SamplingSpaceType> inputToSampleMat(const Sample<SamplingSpaceType>& sample)
 {
-  static_assert(velDim<SamplingSpaceType>() == inputDim<SamplingSpaceType>());
+  static_assert(sampleDim<SamplingSpaceType>() == inputDim<SamplingSpaceType>());
 
-  return InputToVelMat<SamplingSpaceType>::Identity();
+  return InputToSampleMat<SamplingSpaceType>::Identity();
 }
 
 template <>
-inline InputToVelMat<SamplingSpace::SO2> inputToVelMat<SamplingSpace::SO2>(
+inline InputToSampleMat<SamplingSpace::SO2> inputToSampleMat<SamplingSpace::SO2>(
     const Sample<SamplingSpace::SO2>& sample)
 {
   double cos = std::cos(sample.x());
   double sin = std::sin(sample.x());
-  InputToVelMat<SamplingSpace::SO2> mat;
+  InputToSampleMat<SamplingSpace::SO2> mat;
   mat << -sin, -cos, cos, -sin;
   return mat;
 }
 
 template <>
-inline InputToVelMat<SamplingSpace::SE2> inputToVelMat<SamplingSpace::SE2>(
+inline InputToSampleMat<SamplingSpace::SE2> inputToSampleMat<SamplingSpace::SE2>(
     const Sample<SamplingSpace::SE2>& sample)
 {
-  InputToVelMat<SamplingSpace::SE2> mat = InputToVelMat<SamplingSpace::SE2>::Zero();
-  mat.block<velDim<SamplingSpace::R2>(), inputDim<SamplingSpace::R2>()>(0, 0) =
-      inputToVelMat<SamplingSpace::R2>(sample.head<sampleDim<SamplingSpace::R2>()>());
-  mat.block<velDim<SamplingSpace::SO2>(), inputDim<SamplingSpace::SO2>()>(
-      velDim<SamplingSpace::R2>(), inputDim<SamplingSpace::R2>()) =
-      inputToVelMat<SamplingSpace::SO2>(sample.tail<sampleDim<SamplingSpace::SO2>()>());
+  InputToSampleMat<SamplingSpace::SE2> mat = InputToSampleMat<SamplingSpace::SE2>::Zero();
+  mat.block<sampleDim<SamplingSpace::R2>(), inputDim<SamplingSpace::R2>()>(0, 0) =
+      inputToSampleMat<SamplingSpace::R2>(sample.head<sampleDim<SamplingSpace::R2>()>());
+  mat.block<sampleDim<SamplingSpace::SO2>(), inputDim<SamplingSpace::SO2>()>(
+      sampleDim<SamplingSpace::R2>(), inputDim<SamplingSpace::R2>()) =
+      inputToSampleMat<SamplingSpace::SO2>(sample.tail<sampleDim<SamplingSpace::SO2>()>());
   return mat;
 }
 
 template <>
-inline InputToVelMat<SamplingSpace::SO3> inputToVelMat<SamplingSpace::SO3>(
+inline InputToSampleMat<SamplingSpace::SO3> inputToSampleMat<SamplingSpace::SO3>(
     const Sample<SamplingSpace::SO3>& sample)
 {
   double qw = sample.w();
   double qx = sample.x();
   double qy = sample.y();
   double qz = sample.z();
-
-  Eigen::Matrix<double, sampleDim<SamplingSpace::SO3>(), velDim<SamplingSpace::SO3>()>
-      vel_to_sample_mat; // 4 x 3 matrix
-  vel_to_sample_mat <<
-      -qx, -qy, -qz, qw, -qz, qy, qz, qw, -qx, -qy, qx, qw;
 
   Eigen::Matrix<double, inputDim<SamplingSpace::SO3>(), sampleDim<SamplingSpace::SO3>()>
       sample_to_input_mat; // 9 x 4 matrix
@@ -161,20 +156,64 @@ inline InputToVelMat<SamplingSpace::SO3> inputToVelMat<SamplingSpace::SO3>(
       0, -2*qx, -2*qy, 0;
   sample_to_input_mat *= 2;
 
-  return vel_to_sample_mat.transpose() * sample_to_input_mat.transpose() / 2;
+  return sample_to_input_mat.transpose();
 }
 
 template <>
-inline InputToVelMat<SamplingSpace::SE3> inputToVelMat<SamplingSpace::SE3>(
+inline InputToSampleMat<SamplingSpace::SE3> inputToSampleMat<SamplingSpace::SE3>(
     const Sample<SamplingSpace::SE3>& sample)
 {
-  InputToVelMat<SamplingSpace::SE3> mat = InputToVelMat<SamplingSpace::SE3>::Zero();
-  mat.block<velDim<SamplingSpace::R3>(), inputDim<SamplingSpace::R3>()>(0, 0) =
-      inputToVelMat<SamplingSpace::R3>(sample.head<sampleDim<SamplingSpace::R3>()>());
-  mat.block<velDim<SamplingSpace::SO3>(), inputDim<SamplingSpace::SO3>()>(
-      velDim<SamplingSpace::R3>(), inputDim<SamplingSpace::R3>()) =
-      inputToVelMat<SamplingSpace::SO3>(sample.tail<sampleDim<SamplingSpace::SO3>()>());
+  InputToSampleMat<SamplingSpace::SE3> mat = InputToSampleMat<SamplingSpace::SE3>::Zero();
+  mat.block<sampleDim<SamplingSpace::R3>(), inputDim<SamplingSpace::R3>()>(0, 0) =
+      inputToSampleMat<SamplingSpace::R3>(sample.head<sampleDim<SamplingSpace::R3>()>());
+  mat.block<sampleDim<SamplingSpace::SO3>(), inputDim<SamplingSpace::SO3>()>(
+      sampleDim<SamplingSpace::R3>(), inputDim<SamplingSpace::R3>()) =
+      inputToSampleMat<SamplingSpace::SO3>(sample.tail<sampleDim<SamplingSpace::SO3>()>());
   return mat;
+}
+
+template <SamplingSpace SamplingSpaceType>
+SampleToVelMat<SamplingSpaceType> sampleToVelMat(const Sample<SamplingSpaceType>& sample)
+{
+  static_assert(sampleDim<SamplingSpaceType>() == velDim<SamplingSpaceType>());
+
+  return SampleToVelMat<SamplingSpaceType>::Identity();
+}
+
+template <>
+inline SampleToVelMat<SamplingSpace::SO3> sampleToVelMat<SamplingSpace::SO3>(
+    const Sample<SamplingSpace::SO3>& sample)
+{
+  double qw = sample.w();
+  double qx = sample.x();
+  double qy = sample.y();
+  double qz = sample.z();
+
+  Eigen::Matrix<double, sampleDim<SamplingSpace::SO3>(), velDim<SamplingSpace::SO3>()>
+      vel_to_sample_mat; // 4 x 3 matrix
+  vel_to_sample_mat <<
+      -qx, -qy, -qz, qw, -qz, qy, qz, qw, -qx, -qy, qx, qw;
+
+  return vel_to_sample_mat.transpose() / 2;
+}
+
+template <>
+inline SampleToVelMat<SamplingSpace::SE3> sampleToVelMat<SamplingSpace::SE3>(
+    const Sample<SamplingSpace::SE3>& sample)
+{
+  SampleToVelMat<SamplingSpace::SE3> mat = SampleToVelMat<SamplingSpace::SE3>::Zero();
+  mat.block<velDim<SamplingSpace::R3>(), sampleDim<SamplingSpace::R3>()>(0, 0) =
+      sampleToVelMat<SamplingSpace::R3>(sample.head<sampleDim<SamplingSpace::R3>()>());
+  mat.block<velDim<SamplingSpace::SO3>(), sampleDim<SamplingSpace::SO3>()>(
+      velDim<SamplingSpace::R3>(), sampleDim<SamplingSpace::R3>()) =
+      sampleToVelMat<SamplingSpace::SO3>(sample.tail<sampleDim<SamplingSpace::SO3>()>());
+  return mat;
+}
+
+template <SamplingSpace SamplingSpaceType>
+InputToVelMat<SamplingSpaceType> inputToVelMat(const Sample<SamplingSpaceType>& sample)
+{
+  return sampleToVelMat<SamplingSpaceType>(sample) * inputToSampleMat<SamplingSpaceType>(sample);
 }
 
 template <SamplingSpace SamplingSpaceType>
