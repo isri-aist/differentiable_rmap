@@ -244,3 +244,57 @@ BOOST_AUTO_TEST_CASE(TestMidSampleSE2) { testMidSample<SamplingSpace::SE2>(); }
 BOOST_AUTO_TEST_CASE(TestMidSampleR3) { testMidSample<SamplingSpace::R3>(); }
 BOOST_AUTO_TEST_CASE(TestMidSampleSO3) { testMidSample<SamplingSpace::SO3>(); }
 BOOST_AUTO_TEST_CASE(TestMidSampleSE3) { testMidSample<SamplingSpace::SE3>(); }
+
+template <SamplingSpace SamplingSpaceType>
+void testRelSampleToSampleMat()
+{
+  int test_num = 1000;
+  for (int i = 0; i < test_num; i++) {
+    sva::PTransformd pre_pose = getRandomPose<SamplingSpaceType>();
+    sva::PTransformd suc_pose = getRandomPose<SamplingSpaceType>();
+    Sample<SamplingSpaceType> pre_sample = poseToSample<SamplingSpaceType>(pre_pose);
+    Sample<SamplingSpaceType> suc_sample = poseToSample<SamplingSpaceType>(suc_pose);
+
+    double eps = 1e-6;
+
+    SampleToSampleMat<SamplingSpaceType> pre_mat_analytical =
+        relSampleToSampleMat<SamplingSpaceType>(pre_sample, suc_sample, false);
+    SampleToSampleMat<SamplingSpaceType> pre_mat_numerical;
+    for (int j = 0; j < sampleDim<SamplingSpaceType>(); j++) {
+      Sample<SamplingSpaceType> pre_sample_plus = pre_sample + eps * Sample<SamplingSpaceType>::Unit(j);
+      Sample<SamplingSpaceType> pre_sample_minus = pre_sample - eps * Sample<SamplingSpaceType>::Unit(j);
+      pre_mat_numerical.col(j) =
+          (relSample<SamplingSpaceType>(pre_sample_plus, suc_sample) -
+           relSample<SamplingSpaceType>(pre_sample_minus, suc_sample)) / (2 * eps);
+    }
+
+    SampleToSampleMat<SamplingSpaceType> suc_mat_analytical =
+        relSampleToSampleMat<SamplingSpaceType>(pre_sample, suc_sample, true);
+    SampleToSampleMat<SamplingSpaceType> suc_mat_numerical;
+    for (int j = 0; j < sampleDim<SamplingSpaceType>(); j++) {
+      Sample<SamplingSpaceType> suc_sample_plus = suc_sample + eps * Sample<SamplingSpaceType>::Unit(j);
+      Sample<SamplingSpaceType> suc_sample_minus = suc_sample - eps * Sample<SamplingSpaceType>::Unit(j);
+      suc_mat_numerical.col(j) =
+          (relSample<SamplingSpaceType>(pre_sample, suc_sample_plus) -
+           relSample<SamplingSpaceType>(pre_sample, suc_sample_minus)) / (2 * eps);
+    }
+
+    std::cout << "[testRelSampleToSampleMat]" << std::endl;
+    std::cout << "  pre_mat_analytical:\n" << pre_mat_analytical << std::endl;
+    std::cout << "  pre_mat_numerical:\n" << pre_mat_numerical << std::endl;
+    std::cout << "  pre_error: " << (pre_mat_analytical - pre_mat_numerical).norm() << std::endl;
+    std::cout << "  suc_mat_analytical:\n" << suc_mat_analytical << std::endl;
+    std::cout << "  suc_mat_numerical:\n" << suc_mat_numerical << std::endl;
+    std::cout << "  suc_error: " << (suc_mat_analytical - suc_mat_numerical).norm() << std::endl;
+
+    BOOST_CHECK((pre_mat_analytical - pre_mat_numerical).norm() < 1e-8);
+    BOOST_CHECK((suc_mat_analytical - suc_mat_numerical).norm() < 1e-8);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatR2) { testRelSampleToSampleMat<SamplingSpace::R2>(); }
+BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatSO2) { testRelSampleToSampleMat<SamplingSpace::SO2>(); }
+BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatSE2) { testRelSampleToSampleMat<SamplingSpace::SE2>(); }
+BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatR3) { testRelSampleToSampleMat<SamplingSpace::R3>(); }
+// BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatSO3) { testRelSampleToSampleMat<SamplingSpace::SO3>(); }
+// BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatSE3) { testRelSampleToSampleMat<SamplingSpace::SE3>(); }
