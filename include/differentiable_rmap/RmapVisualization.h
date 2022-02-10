@@ -11,6 +11,7 @@
 
 #include <differentiable_rmap/SamplingUtils.h>
 #include <differentiable_rmap/RosUtils.h>
+#include <differentiable_rmap/GridUtils.h>
 
 
 namespace DiffRmap
@@ -81,12 +82,18 @@ class RmapVisualization: public RmapVisualizationBase
   /*! \brief Dimension of SVM input. */
   static constexpr int input_dim_ = inputDim<SamplingSpaceType>();
 
+  /*! \brief Dimension of grid. */
+  static constexpr int grid_dim_ = gridDim<SamplingSpaceType>();
+
  public:
   /*! \brief Type of sample vector. */
   using SampleType = Sample<SamplingSpaceType>;
 
   /*! \brief Type of input vector. */
   using InputType = Input<SamplingSpaceType>;
+
+  /*! \brief Type of grid position. */
+  using GridPosType = GridPos<SamplingSpaceType>;
 
  public:
   /** \brief Constructor.

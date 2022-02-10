@@ -150,20 +150,67 @@ Eigen::Vector3d calcGridCubeScale(
   return scale;
 }
 
+/** \brief Get dimension of grid.
+    \tparam SamplingSpaceType sampling space
+*/
+template <SamplingSpace SamplingSpaceType>
+constexpr int gridDim()
+{
+  return velDim<SamplingSpaceType>();
+}
+
+/*! \brief Type of grid position. */
+template <SamplingSpace SamplingSpaceType>
+using GridPos = Vel<SamplingSpaceType>;
+
+/** \brief Convert grid position to sample.
+    \tparam SamplingSpaceType sampling space
+    \param grid pos grid position
+    \return sample
+*/
+template <SamplingSpace SamplingSpaceType>
+Sample<SamplingSpaceType> gridPosToSample(const GridPos<SamplingSpaceType>& grid_pos);
+
+/** \brief Convert min sample to min grid position.
+    \tparam SamplingSpaceType sampling space
+    \param sample_min min sample
+    \return min grid position
+*/
+template <SamplingSpace SamplingSpaceType>
+GridPos<SamplingSpaceType> getGridPosMin(const Sample<SamplingSpaceType>& sample_min);
+
+/** \brief Convert max sample to max grid position.
+    \tparam SamplingSpaceType sampling space
+    \param sample_max max sample
+    \return max grid position
+*/
+template <SamplingSpace SamplingSpaceType>
+GridPos<SamplingSpaceType> getGridPosMax(const Sample<SamplingSpaceType>& sample_max);
+
+/** \brief Convert min/max sample to range of grid position.
+    \tparam SamplingSpaceType sampling space
+    \param sample_min min sample
+    \param sample_max max sample
+    \return range of grid position
+*/
+template <SamplingSpace SamplingSpaceType>
+GridPos<SamplingSpaceType> getGridPosRange(const Sample<SamplingSpaceType>& sample_min,
+                                           const Sample<SamplingSpaceType>& sample_max);
+
 /*! \brief Type of grid indices. */
 template <SamplingSpace SamplingSpaceType>
-using GridIdxsType = Eigen::Matrix<int, sampleDim<SamplingSpaceType>(), 1>;
+using GridIdxsType = Eigen::Matrix<int, gridDim<SamplingSpaceType>(), 1>;
 
 /*! \brief Type of function to be called for each grid. */
 template <SamplingSpace SamplingSpaceType>
-using GridFuncType = std::function<void(int, const Sample<SamplingSpaceType>&)>;
+using GridFuncType = std::function<void(int, const GridPos<SamplingSpaceType>&)>;
 
 /** \brief Loop grid and call function for each grid.
     \tparam SamplingSpaceType sampling space
     \tparam DivideNumsType type of divide_nums
     \param divide_nums number of grid divisions (number of vertices is divide_nums + 1)
-    \param sample_min min position of sample
-    \param sample_range position range of sample
+    \param grid_pos_min min position of grid
+    \param grid_pos_range position range of grid
     \param func function to be called for each grid
     \param update_dims dimensions to update indices (empty to update all dimensions)
     \param default_divide_idxs default indices of grid divisions (used for non-updated indices according to update_dims)
@@ -171,8 +218,8 @@ using GridFuncType = std::function<void(int, const Sample<SamplingSpaceType>&)>;
 template <SamplingSpace SamplingSpaceType, class DivideNumsType>
 void loopGrid(
     const DivideNumsType& divide_nums,
-    const Sample<SamplingSpaceType>& sample_min,
-    const Sample<SamplingSpaceType>& sample_range,
+    const GridPos<SamplingSpaceType>& grid_pos_min,
+    const GridPos<SamplingSpaceType>& grid_pos_range,
     const GridFuncType<SamplingSpaceType>& func,
     const std::vector<int>& update_dims = {},
     const GridIdxsType<SamplingSpaceType>& default_divide_idxs = GridIdxsType<SamplingSpaceType>::Zero())
@@ -193,7 +240,7 @@ void loopGrid(
   }
 
   // Loop
-  Sample<SamplingSpaceType> divide_ratios;
+  GridPos<SamplingSpaceType> divide_ratios;
   bool break_flag = false;
   do {
     gridDivideIdxsToRatios(divide_ratios, divide_idxs, divide_nums);
@@ -201,10 +248,13 @@ void loopGrid(
     // ROS_INFO_STREAM("[loopGrid] idx: " << calcGridIdx(divide_idxs, divide_nums) <<
     //                 ", divide_idxs: [" << vecToStr(divide_idxs) << "]");
     func(calcGridIdx(divide_idxs, divide_nums),
-         divide_ratios.cwiseProduct(sample_range) + sample_min);
+         divide_ratios.cwiseProduct(grid_pos_range) + grid_pos_min);
 
     break_flag = updateGridDivideIdxs(divide_idxs, divide_nums, update_dims);
 
   } while (!break_flag);
 }
 }
+
+// See method 3 in https://www.codeproject.com/Articles/48575/How-to-Define-a-Template-Class-in-a-h-File-and-Imp
+#include <differentiable_rmap/GridUtils.hpp>

@@ -11,7 +11,6 @@
 
 #include <differentiable_rmap/RmapVisualization.h>
 #include <differentiable_rmap/SVMUtils.h>
-#include <differentiable_rmap/GridUtils.h>
 #include <differentiable_rmap/libsvm_hotfix.h>
 
 using namespace DiffRmap;
@@ -138,11 +137,10 @@ template <SamplingSpace SamplingSpaceType>
 void RmapVisualization<SamplingSpaceType>::dumpGridSet(
     const std::string& grid_bag_path)
 {
-  SampleType sample_range = sample_max_ - sample_min_;
-
   // Set number of division
+  GridPosType grid_pos_range = getGridPosRange<SamplingSpaceType>(sample_min_, sample_max_);
   GridIdxsType<SamplingSpaceType> divide_nums;
-  SampleType resolution;
+  GridPosType resolution;
   if constexpr (SamplingSpaceType == SamplingSpace::R2 ||
                 SamplingSpaceType == SamplingSpace::R3) {
       resolution.setConstant(config_.pos_resolution);
@@ -157,31 +155,37 @@ void RmapVisualization<SamplingSpaceType>::dumpGridSet(
           config_.pos_resolution, config_.pos_resolution, config_.pos_resolution,
           config_.rot_resolution, config_.rot_resolution, config_.rot_resolution;
     }
-  divide_nums = (sample_range.array() / resolution.array()).ceil().template cast<int>().max(1);
+  divide_nums = (grid_pos_range.array() / resolution.array()).ceil().template cast<int>().max(1);
 
   // Set grid set message
+  GridPosType grid_pos_min = getGridPosMin<SamplingSpaceType>(sample_min_);
+  GridPosType grid_pos_max = getGridPosMax<SamplingSpaceType>(sample_max_);
   grid_set_msg_.type = static_cast<size_t>(SamplingSpaceType);
-  grid_set_msg_.divide_nums.resize(sample_dim_);
-  grid_set_msg_.min.resize(sample_dim_);
-  grid_set_msg_.max.resize(sample_dim_);
+  grid_set_msg_.divide_nums.resize(grid_dim_);
+  grid_set_msg_.min.resize(grid_dim_);
+  grid_set_msg_.max.resize(grid_dim_);
   int total_grid_num = 1;
-  for (int i = 0; i < sample_dim_; i++) {
+  for (int i = 0; i < grid_dim_; i++) {
     grid_set_msg_.divide_nums[i] = divide_nums[i];
-    grid_set_msg_.min[i] = sample_min_[i];
-    grid_set_msg_.max[i] = sample_max_[i];
+    grid_set_msg_.min[i] = grid_pos_min[i];
+    grid_set_msg_.max[i] = grid_pos_max[i];
     total_grid_num *= (divide_nums[i] + 1);
   }
   grid_set_msg_.values.resize(total_grid_num);
 
   // Set grid value
+  ROS_INFO_STREAM("Total grid num is " << total_grid_num);
   auto start_time = std::chrono::system_clock::now();
   loopGrid<SamplingSpaceType>(
       divide_nums,
-      sample_min_,
-      sample_range,
-      [&](int grid_idx, const SampleType& sample) {
+      grid_pos_min,
+      grid_pos_range,
+      [&](int grid_idx, const GridPosType& grid_pos) {
+        if (total_grid_num > 1e3 && grid_idx % static_cast<int>(total_grid_num / 100.0) == 0) {
+          ROS_INFO_STREAM("Loop grid " << grid_idx << " / " << total_grid_num << ", grid_pos: " << grid_pos.transpose());
+        }
         grid_set_msg_.values[grid_idx] = calcSVMValue<SamplingSpaceType>(
-            sample,
+            gridPosToSample<SamplingSpaceType>(grid_pos),
             svm_mo_->param,
             svm_mo_,
             svm_coeff_vec_,
@@ -217,23 +221,22 @@ void RmapVisualization<SamplingSpaceType>::publishMarkerArray() const
 
   // Reachable grids marker
   visualization_msgs::Marker grids_marker;
-  SampleType sample_range = sample_max_ - sample_min_;
   grids_marker.header = header_msg;
   grids_marker.ns = "reachable_grids";
   grids_marker.id = marker_arr_msg.markers.size();
   grids_marker.type = visualization_msgs::Marker::CUBE_LIST;
   grids_marker.color = OmgCore::toColorRGBAMsg(config_.grid_color);
   grids_marker.scale = OmgCore::toVector3Msg(
-      calcGridCubeScale<SamplingSpaceType>(grid_set_msg_.divide_nums, sample_range));
+      calcGridCubeScale<SamplingSpaceType>(grid_set_msg_.divide_nums, sample_max_ - sample_min_));
   grids_marker.pose = OmgCore::toPoseMsg(sva::PTransformd::Identity());
   loopGrid<SamplingSpaceType>(
       grid_set_msg_.divide_nums,
-      sample_min_,
-      sample_range,
-      [&](int grid_idx, const SampleType& sample) {
+      getGridPosMin<SamplingSpaceType>(sample_min_),
+      getGridPosRange<SamplingSpaceType>(sample_min_, sample_max_),
+      [&](int grid_idx, const GridPosType& grid_pos) {
         if (grid_set_msg_.values[grid_idx] > config_.svm_thre) {
-          grids_marker.points.push_back(
-              OmgCore::toPointMsg(sampleToCloudPos<SamplingSpaceType>(sample)));
+          grids_marker.points.push_back(OmgCore::toPointMsg(
+              sampleToCloudPos<SamplingSpaceType>(gridPosToSample<SamplingSpaceType>(grid_pos))));
         }
       });
   marker_arr_msg.markers.push_back(grids_marker);
