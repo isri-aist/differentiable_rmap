@@ -319,21 +319,23 @@ void RmapPlanningFootstep<SamplingSpaceType>::publishMarkerArray() const
             slice_sample.template tail<2>() *= -1;
           }
         }
+      const GridPos<SamplingSpaceType>& grid_pos_min = getGridPosMin<SamplingSpaceType>(sample_min_);
+      const GridPos<SamplingSpaceType>& grid_pos_range = getGridPosRange<SamplingSpaceType>(sample_min_, sample_max_);
       GridIdxs<SamplingSpaceType> slice_divide_idxs;
       gridDivideRatiosToIdxs(
           slice_divide_idxs,
-          (slice_sample - sample_min_).array() / sample_range.array(),
+          (sampleToGridPos<SamplingSpaceType>(slice_sample) - grid_pos_min).array() / grid_pos_range.array(),
           grid_set_msg_->divide_nums);
       std::vector<int> slice_update_dims(std::min(2, sample_dim_));
       std::iota(slice_update_dims.begin(), slice_update_dims.end(), 0);
       grids_marker.points.clear();
       loopGrid<SamplingSpaceType>(
           grid_set_msg_->divide_nums,
-          sample_min_,
-          sample_range,
-          [&](int grid_idx, const SampleType& sample) {
+          grid_pos_min,
+          grid_pos_range,
+          [&](int grid_idx, const GridPos<SamplingSpaceType>& grid_pos) {
             if (grid_set_msg_->values[grid_idx] > config_.svm_thre) {
-              Eigen::Vector3d pos = sampleToCloudPos<SamplingSpaceType>(sample);
+              Eigen::Vector3d pos = sampleToCloudPos<SamplingSpaceType>(gridPosToSample<SamplingSpaceType>(grid_pos));
               pos.z() = 0;
               if constexpr (isAlternateSupported()) {
                   if (config_.alternate_lr && (i % 2 == 1)) {

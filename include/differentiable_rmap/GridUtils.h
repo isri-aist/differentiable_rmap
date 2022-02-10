@@ -72,11 +72,19 @@ void gridDivideRatiosToIdxs(DivideIdxsType& divide_idxs,
 
 /** \brief Convert grid position to sample.
     \tparam SamplingSpaceType sampling space
-    \param grid pos grid position
+    \param grid_pos grid position
     \return sample
 */
 template <SamplingSpace SamplingSpaceType>
 Sample<SamplingSpaceType> gridPosToSample(const GridPos<SamplingSpaceType>& grid_pos);
+
+/** \brief Convert sample to grid position.
+    \tparam SamplingSpaceType sampling space
+    \param sample sample
+    \return grid position
+*/
+template <SamplingSpace SamplingSpaceType>
+GridPos<SamplingSpaceType> sampleToGridPos(const Sample<SamplingSpaceType>& sample);
 
 /** \brief Convert min sample to min grid position.
     \tparam SamplingSpaceType sampling space

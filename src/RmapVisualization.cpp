@@ -138,7 +138,7 @@ void RmapVisualization<SamplingSpaceType>::dumpGridSet(
     const std::string& grid_bag_path)
 {
   // Set number of division
-  GridPosType grid_pos_range = getGridPosRange<SamplingSpaceType>(sample_min_, sample_max_);
+  const GridPosType& grid_pos_range = getGridPosRange<SamplingSpaceType>(sample_min_, sample_max_);
   GridIdxs<SamplingSpaceType> divide_nums;
   GridPosType resolution;
   if constexpr (SamplingSpaceType == SamplingSpace::R2 ||
@@ -158,8 +158,8 @@ void RmapVisualization<SamplingSpaceType>::dumpGridSet(
   divide_nums = (grid_pos_range.array() / resolution.array()).ceil().template cast<int>().max(1);
 
   // Set grid set message
-  GridPosType grid_pos_min = getGridPosMin<SamplingSpaceType>(sample_min_);
-  GridPosType grid_pos_max = getGridPosMax<SamplingSpaceType>(sample_max_);
+  const GridPosType& grid_pos_min = getGridPosMin<SamplingSpaceType>(sample_min_);
+  const GridPosType& grid_pos_max = getGridPosMax<SamplingSpaceType>(sample_max_);
   grid_set_msg_.type = static_cast<size_t>(SamplingSpaceType);
   grid_set_msg_.divide_nums.resize(grid_dim_);
   grid_set_msg_.min.resize(grid_dim_);

@@ -127,6 +127,30 @@ inline Sample<SamplingSpace::SE3> gridPosToSample<SamplingSpace::SE3>(
 }
 
 template <SamplingSpace SamplingSpaceType>
+GridPos<SamplingSpaceType> sampleToGridPos(const Sample<SamplingSpaceType>& sample)
+{
+  return sample;
+}
+
+template <>
+inline GridPos<SamplingSpace::SO3> sampleToGridPos<SamplingSpace::SO3>(
+    const Sample<SamplingSpace::SO3>& sample)
+{
+  GridPos<SamplingSpace::SO3> grid_pos =
+      Eigen::Quaterniond(sample.w(), sample.x(), sample.y(), sample.z()).toRotationMatrix().eulerAngles(0, 1, 2);
+  return grid_pos;
+}
+
+template <>
+inline GridPos<SamplingSpace::SE3> sampleToGridPos<SamplingSpace::SE3>(
+    const Sample<SamplingSpace::SE3>& sample)
+{
+  GridPos<SamplingSpace::SE3> grid_pos;
+  grid_pos << sampleToGridPos<SamplingSpace::R3>(sample.head<3>()), sampleToGridPos<SamplingSpace::SO3>(sample.tail<4>());
+  return grid_pos;
+}
+
+template <SamplingSpace SamplingSpaceType>
 GridPos<SamplingSpaceType> getGridPosMin(const Sample<SamplingSpaceType>& sample_min)
 {
   return sample_min;
