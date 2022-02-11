@@ -144,16 +144,17 @@ inline InputToSampleMat<SamplingSpace::SO3> inputToSampleMat<SamplingSpace::SO3>
 
   Eigen::Matrix<double, inputDim<SamplingSpace::SO3>(), sampleDim<SamplingSpace::SO3>()>
       sample_to_input_mat; // 9 x 4 matrix
+  // Element order of SO3 sample is (x, y, z, w)
   sample_to_input_mat <<
-      0, 0, -2*qy, -2*qz,
-      -qz, qy, qx, -qw,
-      qy, qz, qw, qx,
-      qz, qy, qx, qw,
-      0, -2*qx, 0, -2*qz,
-      -qx, -qw, qz, qy,
-      -qy, qz, -qw, qx,
-      qx, qw, qz, qy,
-      0, -2*qx, -2*qy, 0;
+      0, -2*qy, -2*qz, 0,
+      qy, qx, -qw, -qz,
+      qz, qw, qx, qy,
+      qy, qx, qw, qz,
+      -2*qx, 0, -2*qz, 0,
+      -qw, qz, qy, -qx,
+      qz, -qw, qx, -qy,
+      qw, qz, qy, qx,
+      -2*qx, -2*qy, 0, 0;
   sample_to_input_mat *= 2;
 
   return sample_to_input_mat.transpose();
@@ -191,8 +192,9 @@ inline SampleToVelMat<SamplingSpace::SO3> sampleToVelMat<SamplingSpace::SO3>(
 
   Eigen::Matrix<double, sampleDim<SamplingSpace::SO3>(), velDim<SamplingSpace::SO3>()>
       vel_to_sample_mat; // 4 x 3 matrix
+  // Element order of SO3 sample is (x, y, z, w)
   vel_to_sample_mat <<
-      -qx, -qy, -qz, qw, -qz, qy, qz, qw, -qx, -qy, qx, qw;
+      qw, -qz, qy, qz, qw, -qx, -qy, qx, qw, -qx, -qy, -qz;
 
   return vel_to_sample_mat.transpose() / 2;
 }
