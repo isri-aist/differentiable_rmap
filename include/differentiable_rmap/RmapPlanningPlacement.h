@@ -86,6 +86,9 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
     //! Number of IK loop for animation
     int animate_ik_loop_num = 5;
 
+    //! Wehther to print computation duration
+    bool print_duration = false;
+
     /*! \brief Load mc_rtc configuration. */
     inline void load(const mc_rtc::Configuration& mc_rtc_config)
     {
@@ -104,6 +107,7 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
       mc_rtc_config("animate_adjacent_duration", animate_adjacent_duration);
       mc_rtc_config("animate_adjacent_divide_num", animate_adjacent_divide_num);
       mc_rtc_config("animate_ik_loop_num", animate_ik_loop_num);
+      mc_rtc_config("print_duration", print_duration);
     }
   };
 

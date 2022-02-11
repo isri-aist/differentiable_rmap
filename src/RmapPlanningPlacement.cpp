@@ -135,43 +135,64 @@ void RmapPlanningPlacement<SamplingSpaceType>::runOnce(bool publish)
   int collision_ineq_dim = 0;
 
   // Set QP objective matrices
-  qp_coeff_.obj_mat_.setZero();
-  qp_coeff_.obj_vec_.setZero();
-  qp_coeff_.obj_mat_.diagonal().template head<placement_vel_dim_>().setConstant(config_.placement_weight);
-  qp_coeff_.obj_vec_.template head<placement_vel_dim_>() =
-      config_.placement_weight * sampleError<SamplingSpaceType>(target_placement_sample_, current_placement_sample_);
-  for (int i = 0; i < config_.reaching_num; i++) {
-    int row_idx = placement_vel_dim_ + i * vel_dim_;
-    qp_coeff_.obj_mat_.diagonal().template segment<vel_dim_>(row_idx).setConstant(1.0);
-    qp_coeff_.obj_vec_.template segment<vel_dim_>(row_idx) =
-        sampleError<SamplingSpaceType>(target_reaching_sample_list_[i], current_reaching_sample_list_[i]);
+  {
+    auto start_time = std::chrono::system_clock::now();
+
+    qp_coeff_.obj_mat_.setZero();
+    qp_coeff_.obj_vec_.setZero();
+    qp_coeff_.obj_mat_.diagonal().template head<placement_vel_dim_>().setConstant(config_.placement_weight);
+    qp_coeff_.obj_vec_.template head<placement_vel_dim_>() =
+        config_.placement_weight * sampleError<SamplingSpaceType>(target_placement_sample_, current_placement_sample_);
+    for (int i = 0; i < config_.reaching_num; i++) {
+      int row_idx = placement_vel_dim_ + i * vel_dim_;
+      qp_coeff_.obj_mat_.diagonal().template segment<vel_dim_>(row_idx).setConstant(1.0);
+      qp_coeff_.obj_vec_.template segment<vel_dim_>(row_idx) =
+          sampleError<SamplingSpaceType>(target_reaching_sample_list_[i], current_reaching_sample_list_[i]);
+    }
+    qp_coeff_.obj_mat_.diagonal().head(config_dim).array() +=
+        qp_coeff_.obj_vec_.head(config_dim).squaredNorm() + config_.reg_weight;
+    qp_coeff_.obj_mat_.diagonal().tail(svm_ineq_dim + collision_ineq_dim).head(
+        svm_ineq_dim).setConstant(config_.svm_ineq_weight);
+    // qp_coeff_.obj_mat_.diagonal().tail(svm_ineq_dim + collision_ineq_dim).tail(
+    //     collision_ineq_dim).setConstant(config_.collision_ineq_weight);
+
+    double duration = 1e3 * std::chrono::duration_cast<std::chrono::duration<double>>(
+        std::chrono::system_clock::now() - start_time).count();
+    if (config_.print_duration) {
+      ROS_INFO_STREAM("================");
+      ROS_INFO_STREAM("Duration for QP obj mat: " << duration << " [ms]");
+    }
   }
-  qp_coeff_.obj_mat_.diagonal().head(config_dim).array() +=
-      qp_coeff_.obj_vec_.head(config_dim).squaredNorm() + config_.reg_weight;
-  qp_coeff_.obj_mat_.diagonal().tail(svm_ineq_dim + collision_ineq_dim).head(
-      svm_ineq_dim).setConstant(config_.svm_ineq_weight);
-  // qp_coeff_.obj_mat_.diagonal().tail(svm_ineq_dim + collision_ineq_dim).tail(
-  //     collision_ineq_dim).setConstant(config_.collision_ineq_weight);
 
   // Set QP inequality matrices of reachability
-  qp_coeff_.ineq_mat_.setZero();
-  qp_coeff_.ineq_vec_.setZero();
-  for (int i = 0; i < config_.reaching_num; i++) {
-    const PlacementSampleType& pre_sample = current_placement_sample_;
-    const SampleType& suc_sample = current_reaching_sample_list_[i];
-    const SampleType& rel_sample = relSample<SamplingSpaceType>(pre_sample, suc_sample);
-    const SampleType& svm_grad = this->calcSVMGrad(rel_sample);
-    const SampleToSampleMat<SamplingSpaceType>& rel_sample_mat_pre =
-        relSampleToSampleMat<SamplingSpaceType>(pre_sample, suc_sample, false);
-    const SampleToSampleMat<SamplingSpaceType>& rel_sample_mat_suc =
-        relSampleToSampleMat<SamplingSpaceType>(pre_sample, suc_sample, true);
-    qp_coeff_.ineq_mat_.template block<1, placement_vel_dim_>(i, 0) =
-        -1 * svm_grad.transpose() * rel_sample_mat_pre * sampleToVelMat<SamplingSpaceType>(pre_sample).transpose();
-    qp_coeff_.ineq_mat_.template block<1, vel_dim_>(i, placement_vel_dim_ + i * vel_dim_) =
-        -1 * svm_grad.transpose() * rel_sample_mat_suc * sampleToVelMat<SamplingSpaceType>(suc_sample).transpose();
-    qp_coeff_.ineq_vec_.template segment<1>(i) << this->calcSVMValue(rel_sample) - config_.svm_thre;
+  {
+    auto start_time = std::chrono::system_clock::now();
+
+    qp_coeff_.ineq_mat_.setZero();
+    qp_coeff_.ineq_vec_.setZero();
+    for (int i = 0; i < config_.reaching_num; i++) {
+      const PlacementSampleType& pre_sample = current_placement_sample_;
+      const SampleType& suc_sample = current_reaching_sample_list_[i];
+      const SampleType& rel_sample = relSample<SamplingSpaceType>(pre_sample, suc_sample);
+      const SampleType& svm_grad = this->calcSVMGrad(rel_sample);
+      const SampleToSampleMat<SamplingSpaceType>& rel_sample_mat_pre =
+          relSampleToSampleMat<SamplingSpaceType>(pre_sample, suc_sample, false);
+      const SampleToSampleMat<SamplingSpaceType>& rel_sample_mat_suc =
+          relSampleToSampleMat<SamplingSpaceType>(pre_sample, suc_sample, true);
+      qp_coeff_.ineq_mat_.template block<1, placement_vel_dim_>(i, 0) =
+          -1 * svm_grad.transpose() * rel_sample_mat_pre * sampleToVelMat<SamplingSpaceType>(pre_sample).transpose();
+      qp_coeff_.ineq_mat_.template block<1, vel_dim_>(i, placement_vel_dim_ + i * vel_dim_) =
+          -1 * svm_grad.transpose() * rel_sample_mat_suc * sampleToVelMat<SamplingSpaceType>(suc_sample).transpose();
+      qp_coeff_.ineq_vec_.template segment<1>(i) << this->calcSVMValue(rel_sample) - config_.svm_thre;
+    }
+    qp_coeff_.ineq_mat_.rightCols(svm_ineq_dim + collision_ineq_dim).diagonal().head(svm_ineq_dim).setConstant(-1);
+
+    double duration = 1e3 * std::chrono::duration_cast<std::chrono::duration<double>>(
+        std::chrono::system_clock::now() - start_time).count();
+    if (config_.print_duration) {
+      ROS_INFO_STREAM("Duration for QP ineq mat: " << duration << " [ms]");
+    }
   }
-  qp_coeff_.ineq_mat_.rightCols(svm_ineq_dim + collision_ineq_dim).diagonal().head(svm_ineq_dim).setConstant(-1);
 
   // ROS_INFO_STREAM("qp_coeff_.obj_mat_:\n" << qp_coeff_.obj_mat_);
   // ROS_INFO_STREAM("qp_coeff_.obj_vec_:\n" << qp_coeff_.obj_vec_.transpose());
@@ -179,25 +200,54 @@ void RmapPlanningPlacement<SamplingSpaceType>::runOnce(bool publish)
   // ROS_INFO_STREAM("qp_coeff_.ineq_vec_:\n" << qp_coeff_.ineq_vec_.transpose());
 
   // Solve QP
-  Eigen::VectorXd vel_all = qp_solver_->solve(qp_coeff_);
-  if (qp_solver_->solve_failed_) {
-    vel_all.setZero();
+  Eigen::VectorXd vel_all;
+  {
+    auto start_time = std::chrono::system_clock::now();
+
+    vel_all = qp_solver_->solve(qp_coeff_);
+    if (qp_solver_->solve_failed_) {
+      vel_all.setZero();
+    }
+
+    double duration = 1e3 * std::chrono::duration_cast<std::chrono::duration<double>>(
+        std::chrono::system_clock::now() - start_time).count();
+    if (config_.print_duration) {
+      ROS_INFO_STREAM("Duration for QP solve: " << duration << " [ms]");
+    }
   }
 
   // Integrate
-  integrateVelToSample<PlacementSamplingSpaceType>(
-      current_placement_sample_,
-      vel_all.template head<placement_vel_dim_>());
-  for (int i = 0; i < config_.reaching_num; i++) {
-    integrateVelToSample<SamplingSpaceType>(
-        current_reaching_sample_list_[i],
-        vel_all.template segment<vel_dim_>(placement_vel_dim_ + i * vel_dim_));
+  {
+    auto start_time = std::chrono::system_clock::now();
+
+    integrateVelToSample<PlacementSamplingSpaceType>(
+        current_placement_sample_,
+        vel_all.template head<placement_vel_dim_>());
+    for (int i = 0; i < config_.reaching_num; i++) {
+      integrateVelToSample<SamplingSpaceType>(
+          current_reaching_sample_list_[i],
+          vel_all.template segment<vel_dim_>(placement_vel_dim_ + i * vel_dim_));
+    }
+
+    double duration = 1e3 * std::chrono::duration_cast<std::chrono::duration<double>>(
+        std::chrono::system_clock::now() - start_time).count();
+    if (config_.print_duration) {
+      ROS_INFO_STREAM("Duration for integrate: " << duration << " [ms]");
+    }
   }
 
+  // Publish
   if (publish) {
-    // Publish
+    auto start_time = std::chrono::system_clock::now();
+
     publishMarkerArray();
     publishCurrentState();
+
+    double duration = 1e3 * std::chrono::duration_cast<std::chrono::duration<double>>(
+        std::chrono::system_clock::now() - start_time).count();
+    if (config_.print_duration) {
+      ROS_INFO_STREAM("Duration for publish: " << duration << " [ms]");
+    }
   }
 }
 

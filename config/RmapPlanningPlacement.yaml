@@ -51,3 +51,6 @@ animate_adjacent_divide_num: 100
 
 # Number of IK loop for animation
 animate_ik_loop_num: 5
+
+# Wehther to print computation duration
+print_duration: false
