@@ -375,6 +375,35 @@ inline SampleToSampleMat<SamplingSpace::SE3> relSampleToSampleMat<SamplingSpace:
       sampleDim<SamplingSpace::R3>(), sampleDim<SamplingSpace::R3>()) =
       relSampleToSampleMat<SamplingSpace::SO3>(pre_sample.tail<4>(), suc_sample.tail<4>(), wrt_suc);
 
+  if (!wrt_suc) {
+    double qx = pre_sample.tail<4>().x();
+    double qy = pre_sample.tail<4>().y();
+    double qz = pre_sample.tail<4>().z();
+    double qw = pre_sample.tail<4>().w();
+
+    Eigen::MatrixXd quat_mat(9, 4);
+    quat_mat <<
+        0, -2*qy, -2*qz, 0,
+        qy, qx, -qw, -qz,
+        qz, qw, qx, qy,
+        qy, qx, qw, qz,
+        -2*qx, 0, -2*qz, 0,
+        -qw, qz, qy, -qx,
+        qz, -qw, qx, -qy,
+        qw, qz, qy, qx,
+        -2*qx, -2*qy, 0, 0;
+    quat_mat *= 2;
+
+    Eigen::Vector3d rel_pos = suc_sample.head<3>() - pre_sample.head<3>();
+
+    for (int j = 0; j < 3; j++) {
+      for (int k = 0; k < 3; k++) {
+        mat.block<sampleDim<SamplingSpace::R3>(), sampleDim<SamplingSpace::SO3>()>(
+            0, sampleDim<SamplingSpace::R3>()).row(j) += rel_pos[k] * quat_mat.row(j + k * 3);
+      }
+    }
+  }
+
   return mat;
 }
 }
