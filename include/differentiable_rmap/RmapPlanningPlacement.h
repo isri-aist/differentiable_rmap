@@ -53,6 +53,9 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
     //! Radius of target trajectory [m]
     double target_traj_radius = 0.5;
 
+    //! Angle of target trajectory [rad] ([deg] in YAML file)
+    double target_traj_angle = M_PI;
+
     //! Regularization weight
     double reg_weight = 1e-6;
 
@@ -96,6 +99,10 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
 
       mc_rtc_config("reaching_num", reaching_num);
       mc_rtc_config("target_traj_radius", target_traj_radius);
+      if (mc_rtc_config.has("target_traj_angle")) {
+        mc_rtc_config("target_traj_angle", target_traj_angle);
+        target_traj_angle = mc_rtc::constants::toRad(target_traj_angle);
+      }
       mc_rtc_config("reg_weight", reg_weight);
       mc_rtc_config("placement_weight", placement_weight);
       mc_rtc_config("svm_ineq_weight", svm_ineq_weight);

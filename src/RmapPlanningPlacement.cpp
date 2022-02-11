@@ -371,7 +371,7 @@ void RmapPlanningPlacement<SamplingSpaceType>::transCallback(
   } else if (frame_id == "target") {
     sva::PTransformd center_pose = OmgCore::toSvaPTransform(trans_st_msg->transform);
     for (int i = 0; i < config_.reaching_num; i++) {
-      double angle = M_PI * i / (config_.reaching_num - 1);
+      double angle = config_.target_traj_angle * i / (config_.reaching_num - 1);
       sva::PTransformd target_pose(
           center_pose.rotation(),
           (sva::PTransformd(Eigen::Vector3d(config_.target_traj_radius, 0, 0)) *
