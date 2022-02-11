@@ -220,7 +220,7 @@ Sample<SamplingSpaceType> relSample(const Sample<SamplingSpaceType>& pre_sample,
 }
 
 template <>
-Sample<SamplingSpace::SO3> relSample<SamplingSpace::SO3>(
+inline Sample<SamplingSpace::SO3> relSample<SamplingSpace::SO3>(
     const Sample<SamplingSpace::SO3>& pre_sample,
     const Sample<SamplingSpace::SO3>& suc_sample)
 {
@@ -232,7 +232,7 @@ Sample<SamplingSpace::SO3> relSample<SamplingSpace::SO3>(
 }
 
 template <>
-Sample<SamplingSpace::SE3> relSample<SamplingSpace::SE3>(
+inline Sample<SamplingSpace::SE3> relSample<SamplingSpace::SE3>(
     const Sample<SamplingSpace::SE3>& pre_sample,
     const Sample<SamplingSpace::SE3>& suc_sample)
 {
