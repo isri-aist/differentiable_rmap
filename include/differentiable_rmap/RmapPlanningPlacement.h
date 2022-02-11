@@ -59,8 +59,8 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
     //! Regularization weight
     double reg_weight = 1e-6;
 
-    //! QP objective weight for placement
-    double placement_weight = 1e-3;
+    //! QP objective weight vector for placement
+    Vel<SamplingSpaceType> placement_weight_vec = Vel<SamplingSpaceType>::Constant(1e-3);
 
     //! QP objective weight for SVM inequality error
     double svm_ineq_weight = 1e6;
@@ -104,7 +104,11 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
         target_traj_angle = mc_rtc::constants::toRad(target_traj_angle);
       }
       mc_rtc_config("reg_weight", reg_weight);
-      mc_rtc_config("placement_weight", placement_weight);
+      if (mc_rtc_config.has("placement_weight_vec")) {
+        placement_weight_vec = static_cast<Eigen::VectorXd>(mc_rtc_config("placement_weight_vec"));
+      } else if (mc_rtc_config.has("placement_weight")) {
+        placement_weight_vec.setConstant(static_cast<double>(mc_rtc_config("placement_weight")));
+      }
       mc_rtc_config("svm_ineq_weight", svm_ineq_weight);
       mc_rtc_config("ik_body_name", ik_body_name);
       mc_rtc_config("ik_exclude_joint_name_list", ik_exclude_joint_name_list);

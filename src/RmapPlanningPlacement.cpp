@@ -140,9 +140,9 @@ void RmapPlanningPlacement<SamplingSpaceType>::runOnce(bool publish)
 
     qp_coeff_.obj_mat_.setZero();
     qp_coeff_.obj_vec_.setZero();
-    qp_coeff_.obj_mat_.diagonal().template head<placement_vel_dim_>().setConstant(config_.placement_weight);
+    qp_coeff_.obj_mat_.diagonal().template head<placement_vel_dim_>() = config_.placement_weight_vec;
     qp_coeff_.obj_vec_.template head<placement_vel_dim_>() =
-        config_.placement_weight * sampleError<SamplingSpaceType>(target_placement_sample_, current_placement_sample_);
+        config_.placement_weight_vec.cwiseProduct(sampleError<SamplingSpaceType>(target_placement_sample_, current_placement_sample_));
     for (int i = 0; i < config_.reaching_num; i++) {
       int row_idx = placement_vel_dim_ + i * vel_dim_;
       qp_coeff_.obj_mat_.diagonal().template segment<vel_dim_>(row_idx).setConstant(1.0);
