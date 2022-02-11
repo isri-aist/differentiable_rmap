@@ -144,7 +144,7 @@ void testCalcSVMGradRel(const std::string& bag_path)
 BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradRelR2) { testCalcSVMGradRel<SamplingSpace::R2>("rmap_sample_set_R2_test.bag"); }
 BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradRelSE2) { testCalcSVMGradRel<SamplingSpace::SE2>("rmap_sample_set_SE2_test.bag"); }
 BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradRelR3) { testCalcSVMGradRel<SamplingSpace::R3>("rmap_sample_set_R3_test.bag"); }
-// BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradRelSE3) { testCalcSVMGradRel<SamplingSpace::SE3>("rmap_sample_set_SE3_test.bag"); }
+BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradRelSE3) { testCalcSVMGradRel<SamplingSpace::SE3>("rmap_sample_set_SE3_test.bag"); }
 
 template <SamplingSpace SamplingSpaceType>
 void testInputToVelMat()
