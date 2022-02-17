@@ -32,6 +32,13 @@ jobs:
     env:
       ROS_DISTRO: melodic
     steps:
+      - name: Install mc_rtc
+        run: |
+          set -x
+          set -e
+          curl -1sLf 'https://dl.cloudsmith.io/public/mc-rtc/head/setup.deb.sh' | sudo -E bash
+          sudo apt-get update -qq
+          sudo apt-get install -qq libmc-rtc-dev
       - name: Install ROS
         run: |
           set -e
