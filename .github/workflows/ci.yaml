@@ -43,6 +43,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: jrl-umi3218/jrl-qp
+          submodules: recursive
           path: jrl-qp
       - name: Install jrl-qp
         run: |
@@ -72,6 +73,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
         with:
+          submodules: recursive
           path: catkin_ws/src/differentiable_rmap
       - name: Check out repository code of optmotiongen
         uses: actions/checkout@v2
@@ -79,6 +81,7 @@ jobs:
           repository: isri-aist/optmotiongen
           ref: ver2
           token: ${{ secrets.CI_TOKEN }}
+          submodules: recursive
           path: catkin_ws/src/optmotiongen
       - name: Rosdep install
         run: |
@@ -95,7 +98,7 @@ jobs:
           set -x
           cd ${GITHUB_WORKSPACE}/catkin_ws
           . devel/setup.bash
-          catkin build -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -DENABLE_JRLQP
+          catkin build -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -DENABLE_JRLQP=ON
       - name: Run tests
         run: |
           set -e
