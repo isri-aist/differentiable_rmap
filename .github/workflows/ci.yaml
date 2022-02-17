@@ -22,3 +22,48 @@ jobs:
       - name: Run clang-format-check
         run: |
           ./.clang-format-check.sh
+
+  build-and-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        build-type: [Debug, RelWithDebInfo]
+    runs-on: ubuntu-18.04
+    env:
+      ROS_DISTRO: melodic
+    steps:
+      - name: Install ROS
+        run: |
+          set -e
+          set -x
+          sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+          wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
+          sudo apt-get update -qq
+          sudo apt-get install -qq ros-${ROS_DISTRO}-ros-base python-catkin-tools python-rosdep
+      - name: Setup catkin workspace
+        run: |
+          mkdir -p ${GITHUB_WORKSPACE}/catkin_ws/src/
+          cd ${GITHUB_WORKSPACE}/catkin_ws
+          . /opt/ros/${ROS_DISTRO}/setup.bash
+          catkin init
+          catkin build
+      - name: Check out repository code
+        uses: actions/checkout@v2
+        with:
+          path: catkin_ws/src/differentiable_rmap
+      - name: Rosdep install
+        run: |
+          set -e
+          set -x
+          cd ${GITHUB_WORKSPACE}/catkin_ws
+          . devel/setup.bash
+          sudo rosdep init
+          rosdep update
+          rosdep install -y -r --from-paths src --ignore-src
+      - name: Catkin build
+        run: |
+          set -e
+          set -x
+          cd ${GITHUB_WORKSPACE}/catkin_ws
+          . devel/setup.bash
+          catkin build -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
