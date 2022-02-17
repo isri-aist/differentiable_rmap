@@ -1,5 +1,5 @@
 <launch>
   <test test-name="test_svm_utils"
-        name="test_svm_utils"
-        pkg="differentiable_rmap" type="TestSVMUtils" />
+        name="test_svm_utils" pkg="differentiable_rmap" type="TestSVMUtils"
+        time-limit="180.0" />
 </launch>
