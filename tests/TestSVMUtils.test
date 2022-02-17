@@ -1,0 +1,5 @@
+<launch>
+  <test test-name="test_svm_utils"
+        name="test_svm_utils"
+        pkg="differentiable_rmap" type="TestSVMUtils" />
+</launch>

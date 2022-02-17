@@ -166,7 +166,7 @@ TEST(TestBaselineUtils, ConvexInsideClassification)
   //     << "  replot \"\" every :::2::2 u 1:2:3 t \"test\" pt 7 ps 2 palette" << std::endl;
 }
 
-int main(int argc, char **argv)
+int main(int argc, char ** argv)
 {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

@@ -424,7 +424,7 @@ TEST(TestSVMUtils, RelSampleToSampleMatSE3)
   testRelSampleToSampleMat<SamplingSpace::SE3>();
 }
 
-int main(int argc, char **argv)
+int main(int argc, char ** argv)
 {
   ros::init(argc, argv, "test_svm_utils");
   testing::InitGoogleTest(&argc, argv);
