@@ -43,6 +43,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: jrl-umi3218/jrl-qp
+          ref: topic/BlockStructure
           submodules: recursive
           path: jrl-qp
       - name: Install jrl-qp
