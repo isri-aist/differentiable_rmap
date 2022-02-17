@@ -1,0 +1,24 @@
+name: CI of differentiable_rmap
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+
+  clang-format:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Install clang-format-10
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get -qq install clang-format-10
+      - name: Run clang-format-check
+        run: |
+          ./.clang-format-check.sh
