@@ -67,3 +67,10 @@ jobs:
           cd ${GITHUB_WORKSPACE}/catkin_ws
           . devel/setup.bash
           catkin build -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
+      - name: Run tests
+        run: |
+          set -e
+          set -x
+          cd ${GITHUB_WORKSPACE}/catkin_ws
+          catkin build --catkin-make-args run_tests
+          catkin_test_results --verbose build
