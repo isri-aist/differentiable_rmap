@@ -1,4 +1,4 @@
-#include <boost/test/unit_test.hpp>
+#include <gtest/gtest.h>
 
 #include <mc_rtc/logging.h>
 
@@ -6,7 +6,7 @@
 
 using namespace DiffRmap;
 
-BOOST_AUTO_TEST_CASE(TestGridUtilsIdxsRatios)
+TEST(TestGridUtils, IdxsRatios)
 {
   int grid_dim = 5;
   Eigen::VectorXi divide_nums = Eigen::VectorXi(grid_dim);
@@ -38,8 +38,8 @@ BOOST_AUTO_TEST_CASE(TestGridUtilsIdxsRatios)
     // std::cout << "  restored_divide_ratios: " << restored_divide_ratios.transpose() << std::endl;
     // std::cout << "  error: " << (divide_ratios - restored_divide_ratios).norm() << std::endl;
 
-    BOOST_CHECK((divide_idxs == restored_divide_idxs));
-    BOOST_CHECK((divide_ratios - restored_divide_ratios).norm() < 1e-10);
+    EXPECT_TRUE((divide_idxs == restored_divide_idxs));
+    EXPECT_TRUE((divide_ratios - restored_divide_ratios).norm() < 1e-10);
   }
 }
 
@@ -64,48 +64,48 @@ void testGridPos()
     if constexpr(SamplingSpaceType == SamplingSpace::SO3)
     {
       // Quaternion multiplied by -1 represents the same rotation
-      BOOST_CHECK((sample - restored_sample).norm() < 1e-10 || (sample + restored_sample).norm() < 1e-10);
+      EXPECT_TRUE((sample - restored_sample).norm() < 1e-10 || (sample + restored_sample).norm() < 1e-10);
     }
     else if constexpr(SamplingSpaceType == SamplingSpace::SE3)
     {
-      BOOST_CHECK((sample.template head<3>() - restored_sample.template head<3>()).norm() < 1e-10);
+      EXPECT_TRUE((sample.template head<3>() - restored_sample.template head<3>()).norm() < 1e-10);
       // Quaternion multiplied by -1 represents the same rotation
-      BOOST_CHECK((sample.template tail<4>() - restored_sample.template tail<4>()).norm() < 1e-10
+      EXPECT_TRUE((sample.template tail<4>() - restored_sample.template tail<4>()).norm() < 1e-10
                   || (sample.template tail<4>() + restored_sample.template tail<4>()).norm() < 1e-10);
     }
     else
     {
-      BOOST_CHECK((sample - restored_sample).norm() < 1e-10);
+      EXPECT_TRUE((sample - restored_sample).norm() < 1e-10);
     }
   }
 }
 
-BOOST_AUTO_TEST_CASE(TestGridUtilsGridPosR2)
+TEST(TestGridUtils, GridPosR2)
 {
   testGridPos<SamplingSpace::R2>();
 }
-BOOST_AUTO_TEST_CASE(TestGridUtilsGridPosSO2)
+TEST(TestGridUtils, GridPosSO2)
 {
   testGridPos<SamplingSpace::SO2>();
 }
-BOOST_AUTO_TEST_CASE(TestGridUtilsGridPosSE2)
+TEST(TestGridUtils, GridPosSE2)
 {
   testGridPos<SamplingSpace::SE2>();
 }
-BOOST_AUTO_TEST_CASE(TestGridUtilsGridPosR3)
+TEST(TestGridUtils, GridPosR3)
 {
   testGridPos<SamplingSpace::R3>();
 }
-BOOST_AUTO_TEST_CASE(TestGridUtilsGridPosSO3)
+TEST(TestGridUtils, GridPosSO3)
 {
   testGridPos<SamplingSpace::SO3>();
 }
-BOOST_AUTO_TEST_CASE(TestGridUtilsGridPosSE3)
+TEST(TestGridUtils, GridPosSE3)
 {
   testGridPos<SamplingSpace::SE3>();
 }
 
-BOOST_AUTO_TEST_CASE(TestGridUtilsLoopGrid)
+TEST(TestGridUtils, LoopGrid)
 {
   GridIdxs<SamplingSpace::SE2> divide_nums = GridIdxs<SamplingSpace::SE2>(5, 2, 3);
 
@@ -130,14 +130,14 @@ BOOST_AUTO_TEST_CASE(TestGridUtilsLoopGrid)
 
                                  // std::cout << "  grid_idx: " << grid_idx << ", prev_grid_idx: " << prev_grid_idx <<
                                  // std::endl; Check that index increases by one
-                                 BOOST_CHECK(grid_idx - prev_grid_idx == 1);
+                                 EXPECT_TRUE(grid_idx - prev_grid_idx == 1);
 
                                  // std::cout << "sample: " << sample.transpose() << std::endl;
                                  // std::cout << "sample_min: " << sample_min.transpose() << std::endl;
                                  // std::cout << "sample_max: " << sample_max.transpose() << std::endl;
                                  // Check that sample is between sample_min and sample_max
-                                 BOOST_CHECK(((sample - sample_min).array() >= -1e-10).all());
-                                 BOOST_CHECK(((sample_max - sample).array() >= -1e-10).all());
+                                 EXPECT_TRUE(((sample - sample_min).array() >= -1e-10).all());
+                                 EXPECT_TRUE(((sample_max - sample).array() >= -1e-10).all());
 
                                  prev_grid_idx = grid_idx;
                                  total_grid_num1++;
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE(TestGridUtilsLoopGrid)
   }
   // std::cout << "  total_grid_num1: " << total_grid_num1 << ", total_grid_num2: " << total_grid_num2 << std::endl;
   // Check that the number of grids accessed is correct
-  BOOST_CHECK(total_grid_num1 == total_grid_num2);
+  EXPECT_TRUE(total_grid_num1 == total_grid_num2);
 
   // std::cout << "  sample_min: " << sample_min.transpose() << std::endl;
   // std::cout << "  sample_first: " << sample_first.transpose() << std::endl;
@@ -159,6 +159,12 @@ BOOST_AUTO_TEST_CASE(TestGridUtilsLoopGrid)
   // std::cout << "  sample_last: " << sample_last.transpose() << std::endl;
   // std::cout << "  error: " << (sample_last - sample_max).norm() << std::endl;
   // Check that the loop starts with sample_min and ends with sample_max
-  BOOST_CHECK((sample_first - sample_min).norm() < 1e-10);
-  BOOST_CHECK((sample_last - sample_max).norm() < 1e-10);
+  EXPECT_TRUE((sample_first - sample_min).norm() < 1e-10);
+  EXPECT_TRUE((sample_last - sample_max).norm() < 1e-10);
+}
+
+int main(int argc, char **argv)
+{
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }

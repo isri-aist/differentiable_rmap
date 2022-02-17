@@ -34,5 +34,7 @@
   <exec_depend>rospy</exec_depend>
   <exec_depend>rqt_ez_publisher</exec_depend>
 
+  <test_depend>rosunit</test_depend>
+
   <doc_depend>doxygen</doc_depend>
 </package>

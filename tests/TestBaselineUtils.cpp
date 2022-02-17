@@ -1,7 +1,7 @@
+#include <gtest/gtest.h>
+
 #include <fstream>
 #include <iostream>
-
-#include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
 
@@ -9,7 +9,7 @@
 
 using namespace DiffRmap;
 
-BOOST_AUTO_TEST_CASE(TestOCNN)
+TEST(TestBaselineUtils, OCNN)
 {
   constexpr size_t N = 2;
 
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(TestOCNN)
     }
     double failure_rate = static_cast<double>(failure_num) / test_sample_num;
     // std::cout << "[TestOCNN] thre: " << dist_ratio_thre << ", failure_rate: " << failure_rate << std::endl;
-    BOOST_CHECK(failure_rate < 0.3);
+    EXPECT_TRUE(failure_rate < 0.3);
   }
 
   // std::cout << "[TestOCNN] Plot samples by the following gnuplot commands:" << std::endl;
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE(TestOCNN)
   // std::cout << "  replot sin(4 * x) lw 4" << std::endl;
 }
 
-BOOST_AUTO_TEST_CASE(TestKNN)
+TEST(TestBaselineUtils, KNN)
 {
   constexpr size_t N = 2;
 
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(TestKNN)
     }
     double failure_rate = static_cast<double>(failure_num) / test_sample_num;
     // std::cout << "[TestKNN] K: " << K << ", failure_rate: " << failure_rate << std::endl;
-    BOOST_CHECK(failure_rate < 0.1);
+    EXPECT_TRUE(failure_rate < 0.1);
   }
 
   // std::cout << "[TestKNN] Plot samples by the following gnuplot commands:" << std::endl;
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(TestKNN)
   // std::cout << "  replot sin(4 * x) lw 4" << std::endl;
 }
 
-BOOST_AUTO_TEST_CASE(TestConvexInsideClassification)
+TEST(TestBaselineUtils, ConvexInsideClassification)
 {
   std::ofstream ofs("/tmp/data_convex_inside_classification.txt");
 
@@ -150,11 +150,11 @@ BOOST_AUTO_TEST_CASE(TestConvexInsideClassification)
     ofs << point.transpose() << " " << static_cast<int>(convex_inside_class.classify(point)) << std::endl;
   }
 
-  BOOST_CHECK(convex_inside_class.classify(Eigen::Vector2d::Zero()));
-  BOOST_CHECK(!convex_inside_class.classify(Eigen::Vector2d(1.1, 0)));
-  BOOST_CHECK(!convex_inside_class.classify(Eigen::Vector2d(-1.1, 0)));
-  BOOST_CHECK(!convex_inside_class.classify(Eigen::Vector2d(0, 1.1)));
-  BOOST_CHECK(!convex_inside_class.classify(Eigen::Vector2d(0, -1.1)));
+  EXPECT_TRUE(convex_inside_class.classify(Eigen::Vector2d::Zero()));
+  EXPECT_TRUE(!convex_inside_class.classify(Eigen::Vector2d(1.1, 0)));
+  EXPECT_TRUE(!convex_inside_class.classify(Eigen::Vector2d(-1.1, 0)));
+  EXPECT_TRUE(!convex_inside_class.classify(Eigen::Vector2d(0, 1.1)));
+  EXPECT_TRUE(!convex_inside_class.classify(Eigen::Vector2d(0, -1.1)));
 
   // std::cout
   //     << "[TestConvexInsideClassification] Plot samples by the following gnuplot commands:" << std::endl
@@ -164,4 +164,10 @@ BOOST_AUTO_TEST_CASE(TestConvexInsideClassification)
   //     \"blue\"" << std::endl
   //     << "  replot \"\" every :::1::1 u 1:2 with lines t \"convex\" lw 2 lc rgb \"blue\"" << std::endl
   //     << "  replot \"\" every :::2::2 u 1:2:3 t \"test\" pt 7 ps 2 palette" << std::endl;
+}
+
+int main(int argc, char **argv)
+{
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }

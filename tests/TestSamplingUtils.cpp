@@ -1,4 +1,4 @@
-#include <boost/test/unit_test.hpp>
+#include <gtest/gtest.h>
 
 #include <differentiable_rmap/SamplingUtils.h>
 
@@ -18,38 +18,38 @@ void testConversion()
     Sample<SamplingSpaceType> restored_sample = inputToSample<SamplingSpaceType>(input);
     sva::PTransformd restored_pose2 = sampleToPose<SamplingSpaceType>(restored_sample);
 
-    BOOST_CHECK((sample - restored_sample).norm() < 1e-10);
-    BOOST_CHECK(sva::transformError(pose, restored_pose).vector().norm() < 1e-10);
-    BOOST_CHECK(sva::transformError(pose, restored_pose2).vector().norm() < 1e-10);
+    EXPECT_TRUE((sample - restored_sample).norm() < 1e-10);
+    EXPECT_TRUE(sva::transformError(pose, restored_pose).vector().norm() < 1e-10);
+    EXPECT_TRUE(sva::transformError(pose, restored_pose2).vector().norm() < 1e-10);
   }
 }
 
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsConversionR2)
+TEST(TestSamplingUtils, ConversionR2)
 {
   testConversion<SamplingSpace::R2>();
 }
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsConversionSO2)
+TEST(TestSamplingUtils, ConversionSO2)
 {
   testConversion<SamplingSpace::SO2>();
 }
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsConversionSE2)
+TEST(TestSamplingUtils, ConversionSE2)
 {
   testConversion<SamplingSpace::SE2>();
 }
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsConversionR3)
+TEST(TestSamplingUtils, ConversionR3)
 {
   testConversion<SamplingSpace::R3>();
 }
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsConversionSO3)
+TEST(TestSamplingUtils, ConversionSO3)
 {
   testConversion<SamplingSpace::SO3>();
 }
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsConversionSE3)
+TEST(TestSamplingUtils, ConversionSE3)
 {
   testConversion<SamplingSpace::SE3>();
 }
 
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsConversionRot3D)
+TEST(TestSamplingUtils, ConversionRot3D)
 {
   int test_num = 1000;
   for(int i = 0; i < test_num; i++)
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(TestSamplingUtilsConversionRot3D)
 
     for(int i = 0; i < 3; i++)
     {
-      BOOST_CHECK((rot.row(i).transpose() - input.segment<3>(3 * i)).norm() < 1e-10);
+      EXPECT_TRUE((rot.row(i).transpose() - input.segment<3>(3 * i)).norm() < 1e-10);
     }
   }
 }
@@ -139,33 +139,33 @@ void testIntegrate()
     if constexpr(SamplingSpaceType == SamplingSpace::SO2)
     {
       // Allow 2 pi deviation for Yaw
-      BOOST_CHECK(std::fmod(integrated_sample[0] - integrated_sample2[0], 2 * M_PI) < 1e-10);
+      EXPECT_TRUE(std::fmod(integrated_sample[0] - integrated_sample2[0], 2 * M_PI) < 1e-10);
     }
     else if constexpr(SamplingSpaceType == SamplingSpace::SE2)
     {
-      BOOST_CHECK((integrated_sample.template head<2>() - integrated_sample2.template head<2>()).norm() < 1e-10);
+      EXPECT_TRUE((integrated_sample.template head<2>() - integrated_sample2.template head<2>()).norm() < 1e-10);
       // Allow 2 pi deviation for Yaw
-      BOOST_CHECK(std::fmod(integrated_sample[2] - integrated_sample2[2], 2 * M_PI) < 1e-10);
+      EXPECT_TRUE(std::fmod(integrated_sample[2] - integrated_sample2[2], 2 * M_PI) < 1e-10);
     }
     else if constexpr(SamplingSpaceType == SamplingSpace::SO3)
     {
       // Quaternion multiplied by -1 represents the same rotation
-      BOOST_CHECK((integrated_sample - integrated_sample2).norm() < 1e-10
+      EXPECT_TRUE((integrated_sample - integrated_sample2).norm() < 1e-10
                   || (integrated_sample + integrated_sample2).norm() < 1e-10);
     }
     else if constexpr(SamplingSpaceType == SamplingSpace::SE3)
     {
-      BOOST_CHECK((integrated_sample.template head<3>() - integrated_sample2.template head<3>()).norm() < 1e-10);
+      EXPECT_TRUE((integrated_sample.template head<3>() - integrated_sample2.template head<3>()).norm() < 1e-10);
       // Quaternion multiplied by -1 represents the same rotation
-      BOOST_CHECK((integrated_sample.template tail<4>() - integrated_sample2.template tail<4>()).norm() < 1e-10
+      EXPECT_TRUE((integrated_sample.template tail<4>() - integrated_sample2.template tail<4>()).norm() < 1e-10
                   || (integrated_sample.template tail<4>() + integrated_sample2.template tail<4>()).norm() < 1e-10);
     }
     else
     {
-      BOOST_CHECK((integrated_sample - integrated_sample2).norm() < 1e-10);
+      EXPECT_TRUE((integrated_sample - integrated_sample2).norm() < 1e-10);
     }
 
-    BOOST_CHECK(sva::transformError(sampleToPose<SamplingSpaceType>(integrated_sample),
+    EXPECT_TRUE(sva::transformError(sampleToPose<SamplingSpaceType>(integrated_sample),
                                     sampleToPose<SamplingSpaceType>(integrated_sample2))
                     .vector()
                     .norm()
@@ -178,31 +178,31 @@ void testIntegrate()
     Sample<SamplingSpaceType> sample = poseToSample<SamplingSpaceType>(getRandomPose<SamplingSpaceType>());
     Sample<SamplingSpaceType> integrated_sample = sample;
     integrateVelToSample<SamplingSpaceType>(integrated_sample, Vel<SamplingSpaceType>::Zero());
-    BOOST_CHECK((sample - integrated_sample).norm() < 1e-10);
+    EXPECT_TRUE((sample - integrated_sample).norm() < 1e-10);
   }
 }
 
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsIntegrateR2)
+TEST(TestSamplingUtils, IntegrateR2)
 {
   testIntegrate<SamplingSpace::R2>();
 }
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsIntegrateSO2)
+TEST(TestSamplingUtils, IntegrateSO2)
 {
   testIntegrate<SamplingSpace::SO2>();
 }
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsIntegrateSE2)
+TEST(TestSamplingUtils, IntegrateSE2)
 {
   testIntegrate<SamplingSpace::SE2>();
 }
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsIntegrateR3)
+TEST(TestSamplingUtils, IntegrateR3)
 {
   testIntegrate<SamplingSpace::R3>();
 }
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsIntegrateSO3)
+TEST(TestSamplingUtils, IntegrateSO3)
 {
   testIntegrate<SamplingSpace::SO3>();
 }
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsIntegrateSE3)
+TEST(TestSamplingUtils, IntegrateSE3)
 {
   testIntegrate<SamplingSpace::SE3>();
 }
@@ -225,31 +225,37 @@ void testSampleError()
     // std::endl; std::cout << "  error: " << (vel - sampleError<SamplingSpaceType>(sample, integrated_sample)).norm()
     // << std::endl;
 
-    BOOST_CHECK((vel - sampleError<SamplingSpaceType>(sample, integrated_sample)).norm() < 1e-10);
+    EXPECT_TRUE((vel - sampleError<SamplingSpaceType>(sample, integrated_sample)).norm() > 1e-10);
   }
 }
 
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsSampleErrorR2)
+TEST(TestSamplingUtils, SampleErrorR2)
 {
   testSampleError<SamplingSpace::R2>();
 }
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsSampleErrorSO2)
+TEST(TestSamplingUtils, SampleErrorSO2)
 {
   testSampleError<SamplingSpace::SO2>();
 }
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsSampleErrorSE2)
+TEST(TestSamplingUtils, SampleErrorSE2)
 {
   testSampleError<SamplingSpace::SE2>();
 }
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsSampleErrorR3)
+TEST(TestSamplingUtils, SampleErrorR3)
 {
   testSampleError<SamplingSpace::R3>();
 }
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsSampleErrorSO3)
+TEST(TestSamplingUtils, SampleErrorSO3)
 {
   testSampleError<SamplingSpace::SO3>();
 }
-BOOST_AUTO_TEST_CASE(TestSamplingUtilsSampleErrorSE3)
+TEST(TestSamplingUtils, SampleErrorSE3)
 {
   testSampleError<SamplingSpace::SE3>();
+}
+
+int main(int argc, char **argv)
+{
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
