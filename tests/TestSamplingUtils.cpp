@@ -225,7 +225,7 @@ void testSampleError()
     // std::endl; std::cout << "  error: " << (vel - sampleError<SamplingSpaceType>(sample, integrated_sample)).norm()
     // << std::endl;
 
-    EXPECT_TRUE((vel - sampleError<SamplingSpaceType>(sample, integrated_sample)).norm() > 1e-10);
+    EXPECT_TRUE((vel - sampleError<SamplingSpaceType>(sample, integrated_sample)).norm() < 1e-10);
   }
 }
 

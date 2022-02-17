@@ -1,4 +1,4 @@
-#include <boost/test/unit_test.hpp>
+#include <gtest/gtest.h>
 
 #include <ros/package.h>
 
@@ -11,7 +11,7 @@ template<SamplingSpace SamplingSpaceType>
 std::shared_ptr<RmapTraining<SamplingSpaceType>> setupSVM(const std::string & bag_path)
 {
   auto rmap_training = std::make_shared<RmapTraining<SamplingSpaceType>>(
-      ros::package::getPath("differentiable_rmap") + "/test/data/" + bag_path, "/tmp/rmap_svm_model.libsvm", false);
+      ros::package::getPath("differentiable_rmap") + "/tests/data/" + bag_path, "/tmp/rmap_svm_model.libsvm", false);
 
   mc_rtc::Configuration mc_rtc_config;
   // Set grid map resolution large to reduce the number of prediction
@@ -27,10 +27,6 @@ std::shared_ptr<RmapTraining<SamplingSpaceType>> setupSVM(const std::string & ba
 template<SamplingSpace SamplingSpaceType>
 void testCalcSVMValue(const std::string & bag_path)
 {
-  int argc = 0;
-  char ** argv = nullptr;
-  ros::init(argc, argv, "test_calc_svm_value_" + bag_path.substr(0, bag_path.size() - std::string(".bag").size()));
-
   auto rmap_sampling = setupSVM<SamplingSpaceType>(bag_path);
 
   int test_num = 1000;
@@ -41,40 +37,40 @@ void testCalcSVMValue(const std::string & bag_path)
     rmap_sampling->testCalcSVMValue(svm_value_libsvm, svm_value_eigen,
                                     poseToSample<SamplingSpaceType>(getRandomPose<SamplingSpaceType>()));
 
-    BOOST_CHECK(std::fabs(svm_value_libsvm - svm_value_eigen) < 1e-10);
+    EXPECT_TRUE(std::fabs(svm_value_libsvm - svm_value_eigen) < 1e-10);
   }
 }
 
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueR2)
+TEST(TestSVMUtils, CalcSVMValueR2)
 {
   testCalcSVMValue<SamplingSpace::R2>("rmap_sample_set_R2_test.bag");
 }
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueSE2)
+TEST(TestSVMUtils, CalcSVMValueSE2)
 {
   testCalcSVMValue<SamplingSpace::SE2>("rmap_sample_set_SE2_test.bag");
 }
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueR3)
+TEST(TestSVMUtils, CalcSVMValueR3)
 {
   testCalcSVMValue<SamplingSpace::R3>("rmap_sample_set_R3_test.bag");
 }
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueSE3)
+TEST(TestSVMUtils, CalcSVMValueSE3)
 {
   testCalcSVMValue<SamplingSpace::SE3>("rmap_sample_set_SE3_test.bag");
 }
 
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueR2IK)
+TEST(TestSVMUtils, CalcSVMValueR2IK)
 {
   testCalcSVMValue<SamplingSpace::R2>("rmap_sample_set_R2_test_ik.bag");
 }
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueSE2IK)
+TEST(TestSVMUtils, CalcSVMValueSE2IK)
 {
   testCalcSVMValue<SamplingSpace::SE2>("rmap_sample_set_SE2_test_ik.bag");
 }
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueR3IK)
+TEST(TestSVMUtils, CalcSVMValueR3IK)
 {
   testCalcSVMValue<SamplingSpace::R3>("rmap_sample_set_R3_test_ik.bag");
 }
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueSE3IK)
+TEST(TestSVMUtils, CalcSVMValueSE3IK)
 {
   testCalcSVMValue<SamplingSpace::SE3>("rmap_sample_set_SE3_test_ik.bag");
 }
@@ -82,10 +78,6 @@ BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMValueSE3IK)
 template<SamplingSpace SamplingSpaceType>
 void testCalcSVMGrad(const std::string & bag_path)
 {
-  int argc = 0;
-  char ** argv = nullptr;
-  ros::init(argc, argv, "test_calc_svm_grad_" + bag_path.substr(0, bag_path.size() - std::string(".bag").size()));
-
   auto rmap_sampling = setupSVM<SamplingSpaceType>(bag_path);
 
   int test_num = 1000;
@@ -101,40 +93,40 @@ void testCalcSVMGrad(const std::string & bag_path)
     // std::cout << "  svm_grad_numerical: " << svm_grad_numerical.transpose() << std::endl;
     // std::cout << "  error: " << (svm_grad_analytical - svm_grad_numerical).norm() << std::endl;
 
-    BOOST_CHECK((svm_grad_analytical - svm_grad_numerical).norm() < 1e-3);
+    EXPECT_TRUE((svm_grad_analytical - svm_grad_numerical).norm() < 1e-3);
   }
 }
 
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradR2)
+TEST(TestSVMUtils, CalcSVMGradR2)
 {
   testCalcSVMGrad<SamplingSpace::R2>("rmap_sample_set_R2_test.bag");
 }
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradSE2)
+TEST(TestSVMUtils, CalcSVMGradSE2)
 {
   testCalcSVMGrad<SamplingSpace::SE2>("rmap_sample_set_SE2_test.bag");
 }
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradR3)
+TEST(TestSVMUtils, CalcSVMGradR3)
 {
   testCalcSVMGrad<SamplingSpace::R3>("rmap_sample_set_R3_test.bag");
 }
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradSE3)
+TEST(TestSVMUtils, CalcSVMGradSE3)
 {
   testCalcSVMGrad<SamplingSpace::SE3>("rmap_sample_set_SE3_test.bag");
 }
 
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradR2IK)
+TEST(TestSVMUtils, CalcSVMGradR2IK)
 {
   testCalcSVMGrad<SamplingSpace::R2>("rmap_sample_set_R2_test_ik.bag");
 }
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradSE2IK)
+TEST(TestSVMUtils, CalcSVMGradSE2IK)
 {
   testCalcSVMGrad<SamplingSpace::SE2>("rmap_sample_set_SE2_test_ik.bag");
 }
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradR3IK)
+TEST(TestSVMUtils, CalcSVMGradR3IK)
 {
   testCalcSVMGrad<SamplingSpace::R3>("rmap_sample_set_R3_test_ik.bag");
 }
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradSE3IK)
+TEST(TestSVMUtils, CalcSVMGradSE3IK)
 {
   testCalcSVMGrad<SamplingSpace::SE3>("rmap_sample_set_SE3_test_ik.bag");
 }
@@ -142,10 +134,6 @@ BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradSE3IK)
 template<SamplingSpace SamplingSpaceType>
 void testCalcSVMGradRel(const std::string & bag_path)
 {
-  int argc = 0;
-  char ** argv = nullptr;
-  ros::init(argc, argv, "test_calc_svm_grad_rel_" + bag_path.substr(0, bag_path.size() - std::string(".bag").size()));
-
   auto rmap_sampling = setupSVM<SamplingSpaceType>(bag_path);
 
   int test_num = 1000;
@@ -167,24 +155,24 @@ void testCalcSVMGradRel(const std::string & bag_path)
     // std::cout << "  suc_grad_numerical: " << suc_grad_numerical.transpose() << std::endl;
     // std::cout << "  suc_error: " << (suc_grad_analytical - suc_grad_numerical).norm() << std::endl;
 
-    BOOST_CHECK((pre_grad_analytical - pre_grad_numerical).norm() < 1e-3);
-    BOOST_CHECK((suc_grad_analytical - suc_grad_numerical).norm() < 1e-3);
+    EXPECT_TRUE((pre_grad_analytical - pre_grad_numerical).norm() < 1e-3);
+    EXPECT_TRUE((suc_grad_analytical - suc_grad_numerical).norm() < 1e-3);
   }
 }
 
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradRelR2)
+TEST(TestSVMUtils, CalcSVMGradRelR2)
 {
   testCalcSVMGradRel<SamplingSpace::R2>("rmap_sample_set_R2_test.bag");
 }
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradRelSE2)
+TEST(TestSVMUtils, CalcSVMGradRelSE2)
 {
   testCalcSVMGradRel<SamplingSpace::SE2>("rmap_sample_set_SE2_test.bag");
 }
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradRelR3)
+TEST(TestSVMUtils, CalcSVMGradRelR3)
 {
   testCalcSVMGradRel<SamplingSpace::R3>("rmap_sample_set_R3_test.bag");
 }
-BOOST_AUTO_TEST_CASE(TestSVMUtilsCalcSVMGradRelSE3)
+TEST(TestSVMUtils, CalcSVMGradRelSE3)
 {
   testCalcSVMGradRel<SamplingSpace::SE3>("rmap_sample_set_SE3_test.bag");
 }
@@ -221,31 +209,31 @@ void testInputToVelMat()
     // std::cout << "  mat_numerical:\n" << mat_numerical << std::endl;
     // std::cout << "  error: " << (mat_analytical - mat_numerical).norm() << std::endl;
 
-    BOOST_CHECK((mat_analytical - mat_numerical).norm() < 1e-8);
+    EXPECT_TRUE((mat_analytical - mat_numerical).norm() < 1e-8);
   }
 }
 
-BOOST_AUTO_TEST_CASE(TestInputToVelMatR2)
+TEST(TestSVMUtils, InputToVelMatR2)
 {
   testInputToVelMat<SamplingSpace::R2>();
 }
-BOOST_AUTO_TEST_CASE(TestInputToVelMatSO2)
+TEST(TestSVMUtils, InputToVelMatSO2)
 {
   testInputToVelMat<SamplingSpace::SO2>();
 }
-BOOST_AUTO_TEST_CASE(TestInputToVelMatSE2)
+TEST(TestSVMUtils, InputToVelMatSE2)
 {
   testInputToVelMat<SamplingSpace::SE2>();
 }
-BOOST_AUTO_TEST_CASE(TestInputToVelMatR3)
+TEST(TestSVMUtils, InputToVelMatR3)
 {
   testInputToVelMat<SamplingSpace::R3>();
 }
-BOOST_AUTO_TEST_CASE(TestInputToVelMatSO3)
+TEST(TestSVMUtils, InputToVelMatSO3)
 {
   testInputToVelMat<SamplingSpace::SO3>();
 }
-BOOST_AUTO_TEST_CASE(TestInputToVelMatSE3)
+TEST(TestSVMUtils, InputToVelMatSE3)
 {
   testInputToVelMat<SamplingSpace::SE3>();
 }
@@ -272,43 +260,43 @@ void testRelSample()
     if constexpr(SamplingSpaceType == SamplingSpace::SO3)
     {
       // Quaternion multiplied by -1 represents the same rotation
-      BOOST_CHECK((rel_sample1 - rel_sample2).norm() < 1e-8 || (rel_sample1 + rel_sample2).norm() < 1e-8);
+      EXPECT_TRUE((rel_sample1 - rel_sample2).norm() < 1e-8 || (rel_sample1 + rel_sample2).norm() < 1e-8);
     }
     else if constexpr(SamplingSpaceType == SamplingSpace::SE3)
     {
-      BOOST_CHECK((rel_sample1.template head<3>() - rel_sample2.template head<3>()).norm() < 1e-8);
+      EXPECT_TRUE((rel_sample1.template head<3>() - rel_sample2.template head<3>()).norm() < 1e-8);
       // Quaternion multiplied by -1 represents the same rotation
-      BOOST_CHECK((rel_sample1.template tail<4>() - rel_sample2.template tail<4>()).norm() < 1e-8
+      EXPECT_TRUE((rel_sample1.template tail<4>() - rel_sample2.template tail<4>()).norm() < 1e-8
                   || (rel_sample1.template tail<4>() + rel_sample2.template tail<4>()).norm() < 1e-8);
     }
     else
     {
-      BOOST_CHECK((rel_sample1 - rel_sample2).norm() < 1e-8);
+      EXPECT_TRUE((rel_sample1 - rel_sample2).norm() < 1e-8);
     }
   }
 }
 
-BOOST_AUTO_TEST_CASE(TestRelSampleR2)
+TEST(TestSVMUtils, RelSampleR2)
 {
   testRelSample<SamplingSpace::R2>();
 }
-BOOST_AUTO_TEST_CASE(TestRelSampleSO2)
+TEST(TestSVMUtils, RelSampleSO2)
 {
   testRelSample<SamplingSpace::SO2>();
 }
-BOOST_AUTO_TEST_CASE(TestRelSampleSE2)
+TEST(TestSVMUtils, RelSampleSE2)
 {
   testRelSample<SamplingSpace::SE2>();
 }
-BOOST_AUTO_TEST_CASE(TestRelSampleR3)
+TEST(TestSVMUtils, RelSampleR3)
 {
   testRelSample<SamplingSpace::R3>();
 }
-BOOST_AUTO_TEST_CASE(TestRelSampleSO3)
+TEST(TestSVMUtils, RelSampleSO3)
 {
   testRelSample<SamplingSpace::SO3>();
 }
-BOOST_AUTO_TEST_CASE(TestRelSampleSE3)
+TEST(TestSVMUtils, RelSampleSE3)
 {
   testRelSample<SamplingSpace::SE3>();
 }
@@ -332,31 +320,31 @@ void testMidSample()
     // std::cout << "  mid_sample2: " << mid_sample2.transpose() << std::endl;
     // std::cout << "  error: " << (mid_sample1 - mid_sample2).norm() << std::endl;
 
-    BOOST_CHECK((mid_sample1 - mid_sample2).norm() < 1e-8);
+    EXPECT_TRUE((mid_sample1 - mid_sample2).norm() < 1e-8);
   }
 }
 
-BOOST_AUTO_TEST_CASE(TestMidSampleR2)
+TEST(TestSVMUtils, MidSampleR2)
 {
   testMidSample<SamplingSpace::R2>();
 }
-BOOST_AUTO_TEST_CASE(TestMidSampleSO2)
+TEST(TestSVMUtils, MidSampleSO2)
 {
   testMidSample<SamplingSpace::SO2>();
 }
-BOOST_AUTO_TEST_CASE(TestMidSampleSE2)
+TEST(TestSVMUtils, MidSampleSE2)
 {
   testMidSample<SamplingSpace::SE2>();
 }
-BOOST_AUTO_TEST_CASE(TestMidSampleR3)
+TEST(TestSVMUtils, MidSampleR3)
 {
   testMidSample<SamplingSpace::R3>();
 }
-BOOST_AUTO_TEST_CASE(TestMidSampleSO3)
+TEST(TestSVMUtils, MidSampleSO3)
 {
   testMidSample<SamplingSpace::SO3>();
 }
-BOOST_AUTO_TEST_CASE(TestMidSampleSE3)
+TEST(TestSVMUtils, MidSampleSE3)
 {
   testMidSample<SamplingSpace::SE3>();
 }
@@ -406,32 +394,39 @@ void testRelSampleToSampleMat()
     // std::cout << "  suc_mat_numerical:\n" << suc_mat_numerical << std::endl;
     // std::cout << "  suc_error: " << (suc_mat_analytical - suc_mat_numerical).norm() << std::endl;
 
-    BOOST_CHECK((pre_mat_analytical - pre_mat_numerical).norm() < 1e-8);
-    BOOST_CHECK((suc_mat_analytical - suc_mat_numerical).norm() < 1e-8);
+    EXPECT_TRUE((pre_mat_analytical - pre_mat_numerical).norm() < 1e-8);
+    EXPECT_TRUE((suc_mat_analytical - suc_mat_numerical).norm() < 1e-8);
   }
 }
 
-BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatR2)
+TEST(TestSVMUtils, RelSampleToSampleMatR2)
 {
   testRelSampleToSampleMat<SamplingSpace::R2>();
 }
-BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatSO2)
+TEST(TestSVMUtils, RelSampleToSampleMatSO2)
 {
   testRelSampleToSampleMat<SamplingSpace::SO2>();
 }
-BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatSE2)
+TEST(TestSVMUtils, RelSampleToSampleMatSE2)
 {
   testRelSampleToSampleMat<SamplingSpace::SE2>();
 }
-BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatR3)
+TEST(TestSVMUtils, RelSampleToSampleMatR3)
 {
   testRelSampleToSampleMat<SamplingSpace::R3>();
 }
-BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatSO3)
+TEST(TestSVMUtils, RelSampleToSampleMatSO3)
 {
   testRelSampleToSampleMat<SamplingSpace::SO3>();
 }
-BOOST_AUTO_TEST_CASE(TestRelSampleToSampleMatSE3)
+TEST(TestSVMUtils, RelSampleToSampleMatSE3)
 {
   testRelSampleToSampleMat<SamplingSpace::SE3>();
+}
+
+int main(int argc, char **argv)
+{
+  ros::init(argc, argv, "test_svm_utils");
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
