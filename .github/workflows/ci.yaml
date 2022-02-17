@@ -39,6 +39,21 @@ jobs:
           curl -1sLf 'https://dl.cloudsmith.io/public/mc-rtc/head/setup.deb.sh' | sudo -E bash
           sudo apt-get update -qq
           sudo apt-get install -qq libmc-rtc-dev
+      - name: Check out repository code of jrl-qp
+        uses: actions/checkout@v2
+        with:
+          repository: jrl-umi3218/jrl-qp
+          path: jrl-qp
+      - name: Install jrl-qp
+        run: |
+          set -x
+          set -e
+          cd ${GITHUB_WORKSPACE}/jrl-qp
+          mkdir build
+          cd build
+          cmake ..
+          make
+          sudo make install
       - name: Install ROS
         run: |
           set -e
@@ -80,7 +95,7 @@ jobs:
           set -x
           cd ${GITHUB_WORKSPACE}/catkin_ws
           . devel/setup.bash
-          catkin build -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
+          catkin build -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -DENABLE_JRLQP
       - name: Run tests
         run: |
           set -e
