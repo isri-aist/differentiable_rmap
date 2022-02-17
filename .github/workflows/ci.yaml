@@ -52,7 +52,7 @@ jobs:
           cd ${GITHUB_WORKSPACE}/jrl-qp
           mkdir build
           cd build
-          cmake ..
+          cmake .. -DBUILD_TESTING=OFF -DBUILD_BENCHMARKS=OFF
           make
           sudo make install
       - name: Install ROS
