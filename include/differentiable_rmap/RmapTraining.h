@@ -4,17 +4,16 @@
 
 #include <mc_rtc/Configuration.h>
 
+#include <grid_map_msgs/GridMap.h>
 #include <ros/ros.h>
-#include <std_srvs/Empty.h>
 #include <std_msgs/Float64.h>
 #include <grid_map_ros/grid_map_ros.hpp>
-#include <grid_map_msgs/GridMap.h>
+#include <std_srvs/Empty.h>
 
 #include <libsvm/svm.h>
 
-#include <differentiable_rmap/SamplingUtils.h>
 #include <differentiable_rmap/RosUtils.h>
-
+#include <differentiable_rmap/SamplingUtils.h>
 
 namespace DiffRmap
 {
@@ -23,11 +22,11 @@ class ConvexInsideClassification;
 /** \brief Virtual base class to train SVM for differentiable reachability map. */
 class RmapTrainingBase
 {
- public:
+public:
   /** \brief Configure from mc_rtc configuration.
       \param mc_rtc_config mc_rtc configuration
    */
-  virtual void configure(const mc_rtc::Configuration& mc_rtc_config) = 0;
+  virtual void configure(const mc_rtc::Configuration & mc_rtc_config) = 0;
 
   /** \brief Setup SVM training. */
   virtual void setup() = 0;
@@ -42,10 +41,10 @@ class RmapTrainingBase
 /** \brief Class to train SVM for differentiable reachability map.
     \tparam SamplingSpaceType sampling space
 */
-template <SamplingSpace SamplingSpaceType>
-class RmapTraining: public RmapTrainingBase
+template<SamplingSpace SamplingSpaceType>
+class RmapTraining : public RmapTrainingBase
 {
- public:
+public:
   /*! \brief Configuration. */
   struct Configuration
   {
@@ -83,7 +82,7 @@ class RmapTraining: public RmapTrainingBase
     std::vector<size_t> knn_K_list = {1, 3, 5, 7, 9};
 
     /*! \brief Load mc_rtc configuration. */
-    inline void load(const mc_rtc::Configuration& mc_rtc_config)
+    inline void load(const mc_rtc::Configuration & mc_rtc_config)
     {
       mc_rtc_config("grid_map_margin_ratio", grid_map_margin_ratio);
       mc_rtc_config("grid_map_resolution", grid_map_resolution);
@@ -99,7 +98,7 @@ class RmapTraining: public RmapTrainingBase
     }
   };
 
- public:
+public:
   /*! \brief Dimension of sample. */
   static constexpr int sample_dim_ = sampleDim<SamplingSpaceType>();
 
@@ -112,7 +111,7 @@ class RmapTraining: public RmapTrainingBase
   //! Whether to use libsvm function for SVM prediction
   static constexpr bool use_libsvm_prediction_ = false;
 
- public:
+public:
   /*! \brief Type of sample vector. */
   using SampleType = Sample<SamplingSpaceType>;
 
@@ -123,19 +122,19 @@ class RmapTraining: public RmapTrainingBase
   using VelType = Vel<SamplingSpaceType>;
 
   /*! \brief Type of function to predict once. */
-  using PredictOnceFuncType = std::function<bool(const SampleType&)>;
+  using PredictOnceFuncType = std::function<bool(const SampleType &)>;
 
   /*! \brief Type of function to setup prediction. */
   using PredictSetupFuncType = std::function<void(void)>;
 
- public:
+public:
   /** \brief Constructor.
       \param bag_path path of ROS bag file
       \param svm_path path of SVM model file (file for output if load_svm is false, input otherwise)
       \param load_svm whether to load SVM model from file
    */
-  RmapTraining(const std::string& bag_path = "/tmp/rmap_sample_set.bag",
-               const std::string& svm_path = "/tmp/rmap_svm_model.libsvm",
+  RmapTraining(const std::string & bag_path = "/tmp/rmap_sample_set.bag",
+               const std::string & svm_path = "/tmp/rmap_svm_model.libsvm",
                bool load_svm = false);
 
   /** \brief Destructor. */
@@ -144,7 +143,7 @@ class RmapTraining: public RmapTrainingBase
   /** \brief Configure from mc_rtc configuration.
       \param mc_rtc_config mc_rtc configuration
    */
-  virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
+  virtual void configure(const mc_rtc::Configuration & mc_rtc_config) override;
 
   /** \brief Setup SVM training. */
   virtual void setup() override;
@@ -160,18 +159,16 @@ class RmapTraining: public RmapTrainingBase
       \param predict_once_func function to predict once
       \param predict_setup_func function to setup prediction
    */
-  void evaluateAccuracy(const std::string& bag_path,
-                        const PredictOnceFuncType& predict_once_func,
-                        const PredictSetupFuncType& predict_setup_func = nullptr);
+  void evaluateAccuracy(const std::string & bag_path,
+                        const PredictOnceFuncType & predict_once_func,
+                        const PredictSetupFuncType & predict_setup_func = nullptr);
 
   /** \brief Test SVM value calculation.
       \param[out] svm_value_libsvm SVM value calculated by libsvm
       \param[out] svm_value_eigen  SVM value calculated by Eigen
       \param[in] sample sample
    */
-  void testCalcSVMValue(double& svm_value_libsvm,
-                        double& svm_value_eigen,
-                        const SampleType& sample) const;
+  void testCalcSVMValue(double & svm_value_libsvm, double & svm_value_eigen, const SampleType & sample) const;
 
   /** \brief Test SVM grad calculation.
       \param[out] svm_grad_analytical SVM grad calculated analytically
@@ -180,7 +177,7 @@ class RmapTraining: public RmapTrainingBase
    */
   void testCalcSVMGrad(Eigen::Ref<Vel<SamplingSpaceType>> svm_grad_analytical,
                        Eigen::Ref<Vel<SamplingSpaceType>> svm_grad_numerical,
-                       const SampleType& sample) const;
+                       const SampleType & sample) const;
 
   /** \brief Test SVM grad calculation for relative sample.
       \param[out] pre_grad_analytical analytical gradient w.r.t. predecessor sample
@@ -194,10 +191,10 @@ class RmapTraining: public RmapTrainingBase
                           Eigen::Ref<Vel<SamplingSpaceType>> suc_grad_analytical,
                           Eigen::Ref<Vel<SamplingSpaceType>> pre_grad_numerical,
                           Eigen::Ref<Vel<SamplingSpaceType>> suc_grad_numerical,
-                          const SampleType& pre_sample,
-                          const SampleType& suc_sample) const;
+                          const SampleType & pre_sample,
+                          const SampleType & suc_sample) const;
 
- protected:
+protected:
   /** \brief Setup SVM parameter. */
   void setupSVMParam();
 
@@ -211,7 +208,7 @@ class RmapTraining: public RmapTrainingBase
   void setupGridMap();
 
   /** \brief Load sample set from ROS bag. */
-  void loadSampleSet(const std::string& bag_path);
+  void loadSampleSet(const std::string & bag_path);
 
   /** \brief Save SVM model. */
   void loadSVM();
@@ -222,29 +219,29 @@ class RmapTraining: public RmapTrainingBase
   /** \brief Calculate SVM value.
       \param sample sample
   */
-  double calcSVMValue(const SampleType& sample) const;
+  double calcSVMValue(const SampleType & sample) const;
 
   /** \brief Calculate gradient of SVM value.
       \param sample sample
   */
-  SampleType calcSVMGrad(const SampleType& sample) const;
+  SampleType calcSVMGrad(const SampleType & sample) const;
 
   /** \brief Calculate gradient of SVM value w.r.t. vel.
       \param sample sample
   */
-  VelType calcSVMGradWithVel(const SampleType& sample) const;
+  VelType calcSVMGradWithVel(const SampleType & sample) const;
 
   /** \brief Predict once by SVM. */
-  bool predictOnceSVM(const SampleType& sample, double svm_thre) const;
+  bool predictOnceSVM(const SampleType & sample, double svm_thre) const;
 
   /** \brief Predict once by one-class nearest neighbor to reachable samples. */
-  bool predictOnceOCNN(const SampleType& sample, double dist_ratio_thre) const;
+  bool predictOnceOCNN(const SampleType & sample, double dist_ratio_thre) const;
 
   /** \brief Predict once by k-nearest neighbor method. */
-  bool predictOnceKNN(const SampleType& sample, size_t K) const;
+  bool predictOnceKNN(const SampleType & sample, size_t K) const;
 
   /** \brief Predict once by SVM */
-  bool predictOnceConvex(const SampleType& sample) const;
+  bool predictOnceConvex(const SampleType & sample) const;
 
   /** \brief Predict SVM on grid map. */
   void predictOnSlicePlane();
@@ -256,10 +253,9 @@ class RmapTraining: public RmapTrainingBase
   void publishMarkerArray() const;
 
   /** \brief Callback to evaluate SVM. */
-  bool evaluateCallback(std_srvs::Empty::Request& req,
-                        std_srvs::Empty::Response& res);
+  bool evaluateCallback(std_srvs::Empty::Request & req, std_srvs::Empty::Response & res);
 
- protected:
+protected:
   //! mc_rtc Configuration
   mc_rtc::Configuration mc_rtc_config_;
 
@@ -285,13 +281,13 @@ class RmapTraining: public RmapTrainingBase
   std::string svm_path_;
 
   //! SVM input node list which is used for training
-  svm_node* all_input_nodes_;
+  svm_node * all_input_nodes_;
   //! SVM problem
   svm_problem svm_prob_;
   //! SVM parameter
   svm_parameter svm_param_;
   //! SVM model
-  svm_model* svm_mo_;
+  svm_model * svm_mo_;
 
   //! Support vector coefficients
   Eigen::VectorXd svm_coeff_vec_;
@@ -342,9 +338,8 @@ class RmapTraining: public RmapTrainingBase
     \param svm_path path of SVM model file (file for output if load_svm is false, input otherwise)
     \param load_svm whether to load SVM model from file
 */
-std::shared_ptr<RmapTrainingBase> createRmapTraining(
-    SamplingSpace sampling_space,
-    const std::string& bag_path = "/tmp/rmap_sample_set.bag",
-    const std::string& svm_path = "/tmp/rmap_svm_model.libsvm",
-    bool load_svm = false);
-}
+std::shared_ptr<RmapTrainingBase> createRmapTraining(SamplingSpace sampling_space,
+                                                     const std::string & bag_path = "/tmp/rmap_sample_set.bag",
+                                                     const std::string & svm_path = "/tmp/rmap_svm_model.libsvm",
+                                                     bool load_svm = false);
+} // namespace DiffRmap

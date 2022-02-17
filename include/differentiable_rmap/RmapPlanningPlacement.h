@@ -4,19 +4,18 @@
 
 #include <std_srvs/Empty.h>
 
-#include <optmotiongen/Utils/RobotUtils.h>
 #include <optmotiongen/Problem/IterativeQpProblem.h>
 #include <optmotiongen/Task/BodyTask.h>
+#include <optmotiongen/Utils/RobotUtils.h>
 
 #include <differentiable_rmap/RmapPlanning.h>
-
 
 namespace DiffRmap
 {
 /** \brief Get sampling space of placement depending on sampling space of reaching
     \tparam SamplingSpaceType sampling space of reaching
 */
-template <SamplingSpace SamplingSpaceType>
+template<SamplingSpace SamplingSpaceType>
 constexpr SamplingSpace placementSamplingSpace()
 {
   return SamplingSpaceType;
@@ -25,27 +24,27 @@ constexpr SamplingSpace placementSamplingSpace()
 /** \brief Virtual base class to plan manipulator placement based on differentiable reachability map. */
 class RmapPlanningPlacementBase
 {
- public:
+public:
   /** \brief Setup planning.
       \param rb robot to be used for posture generation
   */
-  virtual void setup(const std::shared_ptr<OmgCore::Robot>& rb) = 0;
+  virtual void setup(const std::shared_ptr<OmgCore::Robot> & rb) = 0;
 
   /** \brief Setup and run planning loop.
       \param rb robot to be used for posture generation
   */
-  virtual void runLoop(const std::shared_ptr<OmgCore::Robot>& rb) = 0;
+  virtual void runLoop(const std::shared_ptr<OmgCore::Robot> & rb) = 0;
 };
 
 /** \brief Class to plan manipulator placement based on differentiable reachability map.
     \tparam SamplingSpaceType sampling space of reaching
 */
-template <SamplingSpace SamplingSpaceType>
-class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public RmapPlanningPlacementBase
+template<SamplingSpace SamplingSpaceType>
+class RmapPlanningPlacement : public RmapPlanning<SamplingSpaceType>, public RmapPlanningPlacementBase
 {
- public:
+public:
   /*! \brief Configuration. */
-  struct Configuration: public RmapPlanning<SamplingSpaceType>::Configuration
+  struct Configuration : public RmapPlanning<SamplingSpaceType>::Configuration
   {
     //! Number of reaching points
     int reaching_num = 2;
@@ -93,20 +92,24 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
     bool print_duration = false;
 
     /*! \brief Load mc_rtc configuration. */
-    inline void load(const mc_rtc::Configuration& mc_rtc_config)
+    inline void load(const mc_rtc::Configuration & mc_rtc_config)
     {
       RmapPlanning<SamplingSpaceType>::Configuration::load(mc_rtc_config);
 
       mc_rtc_config("reaching_num", reaching_num);
       mc_rtc_config("target_traj_radius", target_traj_radius);
-      if (mc_rtc_config.has("target_traj_angle")) {
+      if(mc_rtc_config.has("target_traj_angle"))
+      {
         mc_rtc_config("target_traj_angle", target_traj_angle);
         target_traj_angle = mc_rtc::constants::toRad(target_traj_angle);
       }
       mc_rtc_config("reg_weight", reg_weight);
-      if (mc_rtc_config.has("placement_weight_vec")) {
+      if(mc_rtc_config.has("placement_weight_vec"))
+      {
         placement_weight_vec = static_cast<Eigen::VectorXd>(mc_rtc_config("placement_weight_vec"));
-      } else if (mc_rtc_config.has("placement_weight")) {
+      }
+      else if(mc_rtc_config.has("placement_weight"))
+      {
         placement_weight_vec.setConstant(static_cast<double>(mc_rtc_config("placement_weight")));
       }
       mc_rtc_config("svm_ineq_weight", svm_ineq_weight);
@@ -122,7 +125,7 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
     }
   };
 
- public:
+public:
   /*! \brief Sampling space of placement. */
   static constexpr SamplingSpace PlacementSamplingSpaceType = placementSamplingSpace<SamplingSpaceType>();
 
@@ -144,7 +147,7 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
   /*! \brief Dimension of velocity of placement. */
   static constexpr int placement_vel_dim_ = velDim<PlacementSamplingSpaceType>();
 
- public:
+public:
   /*! \brief Type of sample vector of reaching. */
   using SampleType = Sample<SamplingSpaceType>;
 
@@ -163,13 +166,13 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
   /*! \brief Type of velocity vector of placement. */
   using PlacementVelType = Vel<PlacementSamplingSpaceType>;
 
- public:
+public:
   /** \brief Constructor.
       \param svm_path path of SVM model file
       \param bag_path path of ROS bag file of grid set (empty for no grid set)
    */
-  RmapPlanningPlacement(const std::string& svm_path = "/tmp/rmap_svm_model.libsvm",
-                        const std::string& bag_path = "/tmp/rmap_grid_set.bag");
+  RmapPlanningPlacement(const std::string & svm_path = "/tmp/rmap_svm_model.libsvm",
+                        const std::string & bag_path = "/tmp/rmap_grid_set.bag");
 
   /** \brief Destructor. */
   ~RmapPlanningPlacement();
@@ -177,7 +180,7 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
   /** \brief Configure from mc_rtc configuration.
       \param mc_rtc_config mc_rtc configuration
    */
-  virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
+  virtual void configure(const mc_rtc::Configuration & mc_rtc_config) override;
 
   /** \brief Setup planning. */
   inline virtual void setup() override
@@ -188,7 +191,7 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
   /** \brief Setup planning.
       \param rb robot to be used for posture generation
   */
-  virtual void setup(const std::shared_ptr<OmgCore::Robot>& rb);
+  virtual void setup(const std::shared_ptr<OmgCore::Robot> & rb);
 
   /** \brief Run planning once.
       \param publish whether to publish message
@@ -204,9 +207,9 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
   /** \brief Setup and run planning loop.
       \param rb robot to be used for posture generation
   */
-  virtual void runLoop(const std::shared_ptr<OmgCore::Robot>& rb);
+  virtual void runLoop(const std::shared_ptr<OmgCore::Robot> & rb);
 
- protected:
+protected:
   /** \brief Publish marker array. */
   virtual void publishMarkerArray() const override;
 
@@ -214,17 +217,15 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
   virtual void publishCurrentState() const override;
 
   /** \brief Transform topic callback. */
-  virtual void transCallback(const geometry_msgs::TransformStamped::ConstPtr& trans_st_msg) override;
+  virtual void transCallback(const geometry_msgs::TransformStamped::ConstPtr & trans_st_msg) override;
 
   /** \brief Callback to generate robot posture. */
-  bool postureCallback(std_srvs::Empty::Request& req,
-                       std_srvs::Empty::Response& res);
+  bool postureCallback(std_srvs::Empty::Request & req, std_srvs::Empty::Response & res);
 
   /** \brief Callback to animate. */
-  bool animateCallback(std_srvs::Empty::Request& req,
-                       std_srvs::Empty::Response& res);
+  bool animateCallback(std_srvs::Empty::Request & req, std_srvs::Empty::Response & res);
 
- protected:
+protected:
   //! Sample of reaching corresponding to identity pose
   static inline const SampleType identity_sample_ = poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
 
@@ -232,7 +233,7 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
   static inline const PlacementSampleType identity_placement_sample_ =
       poseToSample<PlacementSamplingSpaceType>(sva::PTransformd::Identity());
 
- protected:
+protected:
   //! Configuration
   Configuration config_;
 
@@ -266,7 +267,7 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
   ros::ServiceServer posture_srv_;
   ros::ServiceServer animate_srv_;
 
- protected:
+protected:
   // See https://stackoverflow.com/a/6592617
   using RmapPlanning<SamplingSpaceType>::mc_rtc_config_;
 
@@ -298,6 +299,6 @@ class RmapPlanningPlacement: public RmapPlanning<SamplingSpaceType>, public Rmap
 */
 std::shared_ptr<RmapPlanningBase> createRmapPlanningPlacement(
     SamplingSpace sampling_space,
-    const std::string& svm_path = "/tmp/rmap_svm_model.libsvm",
-    const std::string& bag_path = "/tmp/rmap_grid_set.bag");
-}
+    const std::string & svm_path = "/tmp/rmap_svm_model.libsvm",
+    const std::string & bag_path = "/tmp/rmap_grid_set.bag");
+} // namespace DiffRmap

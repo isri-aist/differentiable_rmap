@@ -10,28 +10,26 @@
 
 #include <libsvm/svm.h>
 
-#include <differentiable_rmap/SamplingUtils.h>
-#include <differentiable_rmap/RosUtils.h>
 #include <differentiable_rmap/GridUtils.h>
-
+#include <differentiable_rmap/RosUtils.h>
+#include <differentiable_rmap/SamplingUtils.h>
 
 namespace DiffRmap
 {
 /** \brief Virtual base class to plan in sample space based on differentiable reachability map. */
 class RmapVisualizationBase
 {
- public:
+public:
   /** \brief Configure from mc_rtc configuration.
       \param mc_rtc_config mc_rtc configuration
    */
-  virtual void configure(const mc_rtc::Configuration& mc_rtc_config) = 0;
+  virtual void configure(const mc_rtc::Configuration & mc_rtc_config) = 0;
 
   /** \brief Setup visualization.
       \param grid_bag_path path of ROS bag file of grid set (file for output if load_grid is false, input otherwise)
       \param load_grid whether to load grid set from file
    */
-  virtual void setup(const std::string& grid_bag_path = "/tmp/rmap_grid_set.bag",
-                     bool load_grid = false) = 0;
+  virtual void setup(const std::string & grid_bag_path = "/tmp/rmap_grid_set.bag", bool load_grid = false) = 0;
 
   /** \brief Run visualization once. */
   virtual void runOnce() = 0;
@@ -40,17 +38,16 @@ class RmapVisualizationBase
       \param grid_bag_path path of ROS bag file of grid set (file for output if load_grid is false, input otherwise)
       \param load_grid whether to load grid set from file
    */
-  virtual void runLoop(const std::string& grid_bag_path = "/tmp/rmap_grid_set.bag",
-                       bool load_grid = false) = 0;
+  virtual void runLoop(const std::string & grid_bag_path = "/tmp/rmap_grid_set.bag", bool load_grid = false) = 0;
 };
 
 /** \brief Class to plan in sample space based on differentiable reachability map.
     \tparam SamplingSpaceType sampling space
 */
-template <SamplingSpace SamplingSpaceType>
-class RmapVisualization: public RmapVisualizationBase
+template<SamplingSpace SamplingSpaceType>
+class RmapVisualization : public RmapVisualizationBase
 {
- public:
+public:
   /*! \brief Configuration. */
   struct Configuration
   {
@@ -67,7 +64,7 @@ class RmapVisualization: public RmapVisualizationBase
     std::array<double, 4> grid_color = {0.8, 0.0, 0.0, 1.0};
 
     /*! \brief Load mc_rtc configuration. */
-    inline void load(const mc_rtc::Configuration& mc_rtc_config)
+    inline void load(const mc_rtc::Configuration & mc_rtc_config)
     {
       mc_rtc_config("svm_thre", svm_thre);
       mc_rtc_config("pos_resolution", pos_resolution);
@@ -76,7 +73,7 @@ class RmapVisualization: public RmapVisualizationBase
     }
   };
 
- public:
+public:
   /*! \brief Dimension of sample. */
   static constexpr int sample_dim_ = sampleDim<SamplingSpaceType>();
 
@@ -86,7 +83,7 @@ class RmapVisualization: public RmapVisualizationBase
   /*! \brief Dimension of grid. */
   static constexpr int grid_dim_ = gridDim<SamplingSpaceType>();
 
- public:
+public:
   /*! \brief Type of sample vector. */
   using SampleType = Sample<SamplingSpaceType>;
 
@@ -96,13 +93,13 @@ class RmapVisualization: public RmapVisualizationBase
   /*! \brief Type of grid position. */
   using GridPosType = GridPos<SamplingSpaceType>;
 
- public:
+public:
   /** \brief Constructor.
       \param sample_bag_path path of ROS bag file of sample set
       \param svm_path path of SVM model file
    */
-  RmapVisualization(const std::string& sample_bag_path = "/tmp/rmap_sample_set.bag",
-                    const std::string& svm_path = "/tmp/rmap_svm_model.libsvm");
+  RmapVisualization(const std::string & sample_bag_path = "/tmp/rmap_sample_set.bag",
+                    const std::string & svm_path = "/tmp/rmap_svm_model.libsvm");
 
   /** \brief Destructor. */
   ~RmapVisualization();
@@ -110,14 +107,13 @@ class RmapVisualization: public RmapVisualizationBase
   /** \brief Configure from mc_rtc configuration.
       \param mc_rtc_config mc_rtc configuration
    */
-  virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
+  virtual void configure(const mc_rtc::Configuration & mc_rtc_config) override;
 
   /** \brief Setup visualization.
       \param grid_bag_path path of ROS bag file of grid set (file for output if load_grid is false, input otherwise)
       \param load_grid whether to load grid set from file
    */
-  virtual void setup(const std::string& grid_bag_path = "/tmp/rmap_grid_set.bag",
-                     bool load_grid = false) override;
+  virtual void setup(const std::string & grid_bag_path = "/tmp/rmap_grid_set.bag", bool load_grid = false) override;
 
   /** \brief Run visualization once. */
   virtual void runOnce() override;
@@ -126,21 +122,20 @@ class RmapVisualization: public RmapVisualizationBase
       \param grid_bag_path path of ROS bag file of grid set (file for output if load_grid is false, input otherwise)
       \param load_grid whether to load grid set from file
    */
-  virtual void runLoop(const std::string& grid_bag_path = "/tmp/rmap_grid_set.bag",
-                       bool load_grid = false) override;
+  virtual void runLoop(const std::string & grid_bag_path = "/tmp/rmap_grid_set.bag", bool load_grid = false) override;
 
- protected:
+protected:
   /** \brief Load sample set from ROS bag. */
-  void loadSampleSet(const std::string& sample_bag_path);
+  void loadSampleSet(const std::string & sample_bag_path);
 
   /** \brief Save SVM model. */
-  void loadSVM(const std::string& svm_path);
+  void loadSVM(const std::string & svm_path);
 
   /** \brief Load grid set. */
-  void loadGridSet(const std::string& grid_bag_path);
+  void loadGridSet(const std::string & grid_bag_path);
 
   /** \brief Dump generated grid set to ROS bag. */
-  void dumpGridSet(const std::string& grid_bag_path);
+  void dumpGridSet(const std::string & grid_bag_path);
 
   /** \brief Update origin of slicing. */
   void updateSliceOrigin();
@@ -148,7 +143,7 @@ class RmapVisualization: public RmapVisualizationBase
   /** \brief Publish marker array. */
   void publishMarkerArray() const;
 
- protected:
+protected:
   //! mc_rtc Configuration
   mc_rtc::Configuration mc_rtc_config_;
 
@@ -160,7 +155,7 @@ class RmapVisualization: public RmapVisualizationBase
   SampleType sample_max_;
 
   //! SVM model
-  svm_model *svm_mo_;
+  svm_model * svm_mo_;
 
   //! Support vector coefficients
   Eigen::VectorXd svm_coeff_vec_;
@@ -190,6 +185,6 @@ class RmapVisualization: public RmapVisualizationBase
 */
 std::shared_ptr<RmapVisualizationBase> createRmapVisualization(
     SamplingSpace sampling_space,
-    const std::string& sample_bag_path = "/tmp/rmap_sample_set.bag",
-    const std::string& svm_path = "/tmp/rmap_svm_model.libsvm");
-}
+    const std::string & sample_bag_path = "/tmp/rmap_sample_set.bag",
+    const std::string & svm_path = "/tmp/rmap_svm_model.libsvm");
+} // namespace DiffRmap

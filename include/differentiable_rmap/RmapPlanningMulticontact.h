@@ -8,16 +8,16 @@
 #include <differentiable_rmap/RmapPlanning.h>
 #include <differentiable_rmap/RobotUtils.h>
 
-
 namespace DiffRmap
 {
 /** \brief Class to plan multi-contact motion based on differentiable reachability map.
 
-    This class does not inherit RmapPlanning because it has many differences from RmapPlanning (e.g., it holds multiple SVM models).
+    This class does not inherit RmapPlanning because it has many differences from RmapPlanning (e.g., it holds multiple
+   SVM models).
  */
 class RmapPlanningMulticontact
 {
- public:
+public:
   /*! \brief Configuration. */
   struct Configuration
   {
@@ -34,12 +34,10 @@ class RmapPlanningMulticontact
     double delta_config_limit = 0.1;
 
     //! Initial sample pose list
-    std::map<Limb, sva::PTransformd> initial_sample_pose_list = {
-      {Limb::LeftFoot, sva::PTransformd::Identity()},
-      {Limb::RightFoot, sva::PTransformd::Identity()},
-      {Limb::LeftHand, sva::PTransformd::Identity()},
-      {Limb::RightHand, sva::PTransformd::Identity()}
-    };
+    std::map<Limb, sva::PTransformd> initial_sample_pose_list = {{Limb::LeftFoot, sva::PTransformd::Identity()},
+                                                                 {Limb::RightFoot, sva::PTransformd::Identity()},
+                                                                 {Limb::LeftHand, sva::PTransformd::Identity()},
+                                                                 {Limb::RightHand, sva::PTransformd::Identity()}};
 
     //! Number of footsteps
     int motion_len = 3;
@@ -60,14 +58,12 @@ class RmapPlanningMulticontact
     double svm_ineq_weight = 1e6;
 
     //! Lower and upper limit of hand position [m]
-    std::pair<Eigen::Vector3d, Eigen::Vector3d> foot_pos_limits = {
-      Eigen::Vector3d(-1e20, -1e20, -1e20), Eigen::Vector3d(1e20, 1e20, 1e20)
-    };
+    std::pair<Eigen::Vector3d, Eigen::Vector3d> foot_pos_limits = {Eigen::Vector3d(-1e20, -1e20, -1e20),
+                                                                   Eigen::Vector3d(1e20, 1e20, 1e20)};
 
     //! Lower and upper limit of foot position [m]
-    std::pair<Eigen::Vector3d, Eigen::Vector3d> hand_pos_limits = {
-      Eigen::Vector3d(-1e20, -1e20, -1e20), Eigen::Vector3d(1e20, 1e20, 1e20)
-    };
+    std::pair<Eigen::Vector3d, Eigen::Vector3d> hand_pos_limits = {Eigen::Vector3d(-1e20, -1e20, -1e20),
+                                                                   Eigen::Vector3d(1e20, 1e20, 1e20)};
 
     //! Waist height [m]
     double waist_height = 0.8;
@@ -76,15 +72,11 @@ class RmapPlanningMulticontact
     double hand_lateral_pos = 0.5;
 
     //! Vertices of foot marker
-    std::vector<Eigen::Vector3d> foot_vertices = {
-      Eigen::Vector3d(-0.1, -0.05, 0.0),
-      Eigen::Vector3d(0.1, -0.05, 0.0),
-      Eigen::Vector3d(0.1, 0.05, 0.0),
-      Eigen::Vector3d(-0.1, 0.05, 0.0)
-    };
+    std::vector<Eigen::Vector3d> foot_vertices = {Eigen::Vector3d(-0.1, -0.05, 0.0), Eigen::Vector3d(0.1, -0.05, 0.0),
+                                                  Eigen::Vector3d(0.1, 0.05, 0.0), Eigen::Vector3d(-0.1, 0.05, 0.0)};
 
     /*! \brief Load mc_rtc configuration. */
-    inline void load(const mc_rtc::Configuration& mc_rtc_config)
+    inline void load(const mc_rtc::Configuration & mc_rtc_config)
     {
       mc_rtc_config("loop_rate", loop_rate);
       mc_rtc_config("publish_interval", publish_interval);
@@ -93,7 +85,8 @@ class RmapPlanningMulticontact
 
       std::map<std::string, sva::PTransformd> tmp_initial_sample_pose_list;
       mc_rtc_config("initial_sample_pose_list", tmp_initial_sample_pose_list);
-      for (const auto& tmp_initial_sample_pose_kv : tmp_initial_sample_pose_list) {
+      for(const auto & tmp_initial_sample_pose_kv : tmp_initial_sample_pose_list)
+      {
         initial_sample_pose_list[strToLimb(tmp_initial_sample_pose_kv.first)] = tmp_initial_sample_pose_kv.second;
       }
 
@@ -111,7 +104,7 @@ class RmapPlanningMulticontact
     }
   };
 
- public:
+public:
   /*! \brief Sampling space for foot. */
   static constexpr SamplingSpace FootSamplingSpaceType = SamplingSpace::SE2;
 
@@ -121,16 +114,20 @@ class RmapPlanningMulticontact
   /*! \brief Get sampling space for specified limb.
       \tparam limb limb
    */
-  template <Limb limb>
+  template<Limb limb>
   static inline constexpr SamplingSpace samplingSpaceType()
   {
-    if constexpr (limb == Limb::LeftFoot || limb == Limb::RightFoot) {
-        return FootSamplingSpaceType;
-      } else if constexpr (limb == Limb::LeftHand || limb == Limb::RightHand) {
-        return HandSamplingSpaceType;
-      } else {
-      static_assert(static_cast<bool>(static_cast<int>(limb)) && false,
-                    "[samplingSpaceType] unsupported limb.");
+    if constexpr(limb == Limb::LeftFoot || limb == Limb::RightFoot)
+    {
+      return FootSamplingSpaceType;
+    }
+    else if constexpr(limb == Limb::LeftHand || limb == Limb::RightHand)
+    {
+      return HandSamplingSpaceType;
+    }
+    else
+    {
+      static_assert(static_cast<bool>(static_cast<int>(limb)) && false, "[samplingSpaceType] unsupported limb.");
     }
   }
 
@@ -152,7 +149,7 @@ class RmapPlanningMulticontact
   /*! \brief Dimension of velocity for hand. */
   static constexpr int hand_vel_dim_ = velDim<HandSamplingSpaceType>();
 
- public:
+public:
   /*! \brief Type of sample vector for foot. */
   using FootSampleType = Sample<FootSamplingSpaceType>;
 
@@ -171,13 +168,13 @@ class RmapPlanningMulticontact
   /*! \brief Type of velocity vector for hand. */
   using HandVelType = Vel<HandSamplingSpaceType>;
 
- public:
+public:
   /** \brief Constructor.
       \param svm_path_list path list of SVM model file
       \param bag_path_list path list of ROS bag file of grid set (empty for no grid set)
    */
-  RmapPlanningMulticontact(const std::unordered_map<Limb, std::string>& svm_path_list,
-                           const std::unordered_map<Limb, std::string>& bag_path_list);
+  RmapPlanningMulticontact(const std::unordered_map<Limb, std::string> & svm_path_list,
+                           const std::unordered_map<Limb, std::string> & bag_path_list);
 
   /** \brief Destructor. */
   ~RmapPlanningMulticontact();
@@ -185,7 +182,7 @@ class RmapPlanningMulticontact
   /** \brief Configure from mc_rtc configuration.
       \param mc_rtc_config mc_rtc configuration
    */
-  void configure(const mc_rtc::Configuration& mc_rtc_config);
+  void configure(const mc_rtc::Configuration & mc_rtc_config);
 
   /** \brief Setup planning. */
   void setup();
@@ -198,15 +195,14 @@ class RmapPlanningMulticontact
   /** \brief Setup and run planning loop. */
   void runLoop();
 
- protected:
+protected:
   /** \brief Get rmap planning for specified limb.
       \tparam limb limb
    */
-  template <Limb limb>
+  template<Limb limb>
   inline std::shared_ptr<RmapPlanning<samplingSpaceType<limb>()>> rmapPlanning() const
   {
-    return std::dynamic_pointer_cast<RmapPlanning<samplingSpaceType<limb>()>>(
-        rmap_planning_list_.at(limb));
+    return std::dynamic_pointer_cast<RmapPlanning<samplingSpaceType<limb>()>>(rmap_planning_list_.at(limb));
   }
 
   /** \brief Publish marker array. */
@@ -216,9 +212,9 @@ class RmapPlanningMulticontact
   void publishCurrentState() const;
 
   /** \brief Transform topic callback. */
-  void transCallback(const geometry_msgs::TransformStamped::ConstPtr& trans_st_msg);
+  void transCallback(const geometry_msgs::TransformStamped::ConstPtr & trans_st_msg);
 
- protected:
+protected:
   //! Sample corresponding to identity pose for foot
   static inline const Sample<FootSamplingSpaceType> identity_foot_sample_ =
       poseToSample<FootSamplingSpaceType>(sva::PTransformd::Identity());
@@ -227,7 +223,7 @@ class RmapPlanningMulticontact
   static inline const Sample<HandSamplingSpaceType> identity_hand_sample_ =
       poseToSample<HandSamplingSpaceType>(sva::PTransformd::Identity());
 
- protected:
+protected:
   //! mc_rtc Configuration
   mc_rtc::Configuration mc_rtc_config_;
 
@@ -283,4 +279,4 @@ class RmapPlanningMulticontact
   // Use cloud message to visualize sphere at hand position
   ros::Publisher current_cloud_pub_;
 };
-}
+} // namespace DiffRmap

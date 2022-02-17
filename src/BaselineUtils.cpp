@@ -8,42 +8,39 @@
 
 using namespace DiffRmap;
 
-
 class ConvexInsideClassification::Impl
 {
- protected:
+protected:
   /** \brief Multi-point class specialized with Eigen vector. */
   using BGMultiPointType = boost::geometry::model::multi_point<Eigen::Vector2d>;
 
   /** \brief Polygon class specialized with Eigen vector. */
   using BGPolygonType = boost::geometry::model::polygon<Eigen::Vector2d>;
 
- public:
-  Impl(const std::vector<Eigen::Vector2d>& points)
+public:
+  Impl(const std::vector<Eigen::Vector2d> & points)
   {
-    for (const auto& point : points) {
+    for(const auto & point : points)
+    {
       boost::geometry::append(bg_points_, point);
     }
 
     boost::geometry::convex_hull(bg_points_, bg_hull_);
   }
 
-  bool classify(const Eigen::Vector2d& point) const
+  bool classify(const Eigen::Vector2d & point) const
   {
     return boost::geometry::within(point, bg_hull_);
   }
 
-  void setConvexVertices(std::vector<Eigen::Vector2d>& convex_vertices) const
+  void setConvexVertices(std::vector<Eigen::Vector2d> & convex_vertices) const
   {
     convex_vertices.clear();
     boost::geometry::for_each_point(
-        bg_hull_.outer(),
-        [&convex_vertices](const Eigen::Vector2d& point) {
-          convex_vertices.push_back(point);
-        });
+        bg_hull_.outer(), [&convex_vertices](const Eigen::Vector2d & point) { convex_vertices.push_back(point); });
   }
 
- protected:
+protected:
   //! Training points
   BGMultiPointType bg_points_;
 
@@ -51,8 +48,7 @@ class ConvexInsideClassification::Impl
   BGPolygonType bg_hull_;
 };
 
-ConvexInsideClassification::ConvexInsideClassification(
-    const std::vector<Eigen::Vector2d>& points)
+ConvexInsideClassification::ConvexInsideClassification(const std::vector<Eigen::Vector2d> & points)
 {
   impl_.reset(new Impl(points));
   impl_->setConvexVertices(convex_vertices_);
@@ -63,7 +59,7 @@ ConvexInsideClassification::~ConvexInsideClassification()
   impl_.reset(nullptr);
 }
 
-bool ConvexInsideClassification::classify(const Eigen::Vector2d& point) const
+bool ConvexInsideClassification::classify(const Eigen::Vector2d & point) const
 {
   return impl_->classify(point);
 }

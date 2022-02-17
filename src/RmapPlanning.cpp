@@ -10,33 +10,29 @@
 
 #include <optmotiongen/Utils/RosUtils.h>
 
+#include <differentiable_rmap/GridUtils.h>
 #include <differentiable_rmap/RmapPlanning.h>
 #include <differentiable_rmap/SVMUtils.h>
-#include <differentiable_rmap/GridUtils.h>
 #include <differentiable_rmap/libsvm_hotfix.h>
 
 using namespace DiffRmap;
 
-
-template <SamplingSpace SamplingSpaceType>
-RmapPlanning<SamplingSpaceType>::RmapPlanning(const std::string& svm_path,
-                                              const std::string& bag_path):
-    RmapPlanning<SamplingSpaceType>::RmapPlanning(svm_path, bag_path, true)
+template<SamplingSpace SamplingSpaceType>
+RmapPlanning<SamplingSpaceType>::RmapPlanning(const std::string & svm_path, const std::string & bag_path)
+: RmapPlanning<SamplingSpaceType>::RmapPlanning(svm_path, bag_path, true)
 {
 }
 
-template <SamplingSpace SamplingSpaceType>
-RmapPlanning<SamplingSpaceType>::RmapPlanning(const std::string& svm_path,
-                                              const std::string& bag_path,
+template<SamplingSpace SamplingSpaceType>
+RmapPlanning<SamplingSpaceType>::RmapPlanning(const std::string & svm_path,
+                                              const std::string & bag_path,
                                               bool setup_ros)
 {
   // Setup ROS
-  if (setup_ros) {
-    trans_sub_ = nh_.subscribe(
-        "interactive_marker_transform",
-        100,
-        &RmapPlanning<SamplingSpaceType>::transCallback,
-        this);
+  if(setup_ros)
+  {
+    trans_sub_ =
+        nh_.subscribe("interactive_marker_transform", 100, &RmapPlanning<SamplingSpaceType>::transCallback, this);
     marker_arr_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("marker_arr", 1, true);
     grid_map_pub_ = nh_.advertise<grid_map_msgs::GridMap>("grid_map", 1, true);
     current_pos_pub_ = nh_.advertise<geometry_msgs::PointStamped>("current_pos", 1, true);
@@ -47,27 +43,29 @@ RmapPlanning<SamplingSpaceType>::RmapPlanning(const std::string& svm_path,
   loadSVM(svm_path);
 
   // Load grid set
-  if (!bag_path.empty()) {
+  if(!bag_path.empty())
+  {
     loadGridSet(bag_path);
   }
 }
 
-template <SamplingSpace SamplingSpaceType>
+template<SamplingSpace SamplingSpaceType>
 RmapPlanning<SamplingSpaceType>::~RmapPlanning()
 {
-  if (svm_mo_) {
+  if(svm_mo_)
+  {
     delete svm_mo_;
   }
 }
 
-template <SamplingSpace SamplingSpaceType>
-void RmapPlanning<SamplingSpaceType>::configure(const mc_rtc::Configuration& mc_rtc_config)
+template<SamplingSpace SamplingSpaceType>
+void RmapPlanning<SamplingSpaceType>::configure(const mc_rtc::Configuration & mc_rtc_config)
 {
   mc_rtc_config_ = mc_rtc_config;
   config_.load(mc_rtc_config);
 }
 
-template <SamplingSpace SamplingSpaceType>
+template<SamplingSpace SamplingSpaceType>
 void RmapPlanning<SamplingSpaceType>::setup()
 {
   // Setup grid map
@@ -82,7 +80,7 @@ void RmapPlanning<SamplingSpaceType>::setup()
   current_sample_ = poseToSample<SamplingSpaceType>(config_.initial_sample_pose);
 }
 
-template <SamplingSpace SamplingSpaceType>
+template<SamplingSpace SamplingSpaceType>
 void RmapPlanning<SamplingSpaceType>::runOnce(bool publish)
 {
   // Set QP coefficients
@@ -93,31 +91,34 @@ void RmapPlanning<SamplingSpaceType>::runOnce(bool publish)
   qp_coeff_.ineq_vec_ << calcSVMValue(current_sample_) - config_.svm_thre;
 
   // Solve QP
-  const VelType& vel = qp_solver_->solve(qp_coeff_);
+  const VelType & vel = qp_solver_->solve(qp_coeff_);
 
   // Integrate
   integrateVelToSample<SamplingSpaceType>(current_sample_, vel);
 
-  if (publish) {
+  if(publish)
+  {
     // Publish
     publishMarkerArray();
     publishCurrentState();
 
     // Predict SVM
-    if (config_.grid_map_prediction) {
+    if(config_.grid_map_prediction)
+    {
       predictOnSlicePlane();
     }
   }
 }
 
-template <SamplingSpace SamplingSpaceType>
+template<SamplingSpace SamplingSpaceType>
 void RmapPlanning<SamplingSpaceType>::runLoop()
 {
   setup();
 
   ros::Rate rate(config_.loop_rate);
   int loop_idx = 0;
-  while (ros::ok()) {
+  while(ros::ok())
+  {
     runOnce(loop_idx % config_.publish_interval == 0);
 
     rate.sleep();
@@ -126,38 +127,25 @@ void RmapPlanning<SamplingSpaceType>::runLoop()
   }
 }
 
-template <SamplingSpace SamplingSpaceType>
-double RmapPlanning<SamplingSpaceType>::calcSVMValue(
-    const SampleType& sample) const
+template<SamplingSpace SamplingSpaceType>
+double RmapPlanning<SamplingSpaceType>::calcSVMValue(const SampleType & sample) const
 {
-  return DiffRmap::calcSVMValue<SamplingSpaceType>(
-      sample,
-      svm_mo_->param,
-      svm_mo_,
-      svm_coeff_vec_,
-      svm_sv_mat_);
+  return DiffRmap::calcSVMValue<SamplingSpaceType>(sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_);
 }
 
-template <SamplingSpace SamplingSpaceType>
-Sample<SamplingSpaceType> RmapPlanning<SamplingSpaceType>::calcSVMGrad(
-    const SampleType& sample) const
+template<SamplingSpace SamplingSpaceType>
+Sample<SamplingSpaceType> RmapPlanning<SamplingSpaceType>::calcSVMGrad(const SampleType & sample) const
 {
-  return DiffRmap::calcSVMGrad<SamplingSpaceType>(
-          sample,
-          svm_mo_->param,
-          svm_mo_,
-          svm_coeff_vec_,
-          svm_sv_mat_);
+  return DiffRmap::calcSVMGrad<SamplingSpaceType>(sample, svm_mo_->param, svm_mo_, svm_coeff_vec_, svm_sv_mat_);
 }
 
-template <SamplingSpace SamplingSpaceType>
-Vel<SamplingSpaceType> RmapPlanning<SamplingSpaceType>::calcSVMGradWithVel(
-    const SampleType& sample) const
+template<SamplingSpace SamplingSpaceType>
+Vel<SamplingSpaceType> RmapPlanning<SamplingSpaceType>::calcSVMGradWithVel(const SampleType & sample) const
 {
   return sampleToVelMat<SamplingSpaceType>(sample) * calcSVMGrad(sample);
 }
 
-template <SamplingSpace SamplingSpaceType>
+template<SamplingSpace SamplingSpaceType>
 void RmapPlanning<SamplingSpaceType>::setupGridMap()
 {
   grid_map_ = std::make_shared<grid_map::GridMap>(std::vector<std::string>{"svm_value"});
@@ -165,13 +153,12 @@ void RmapPlanning<SamplingSpaceType>::setupGridMap()
   SampleType sample_center = (sample_min_ + sample_max_) / 2;
   SampleType sample_range = (1 + config_.grid_map_margin_ratio) * (sample_max_ - sample_min_);
   grid_map_->setFrameId("world");
-  grid_map_->setGeometry(grid_map::Length(sample_range[0], sample_range[1]),
-                         config_.grid_map_resolution,
+  grid_map_->setGeometry(grid_map::Length(sample_range[0], sample_range[1]), config_.grid_map_resolution,
                          grid_map::Position(sample_center[0], sample_center[1]));
 }
 
-template <SamplingSpace SamplingSpaceType>
-void RmapPlanning<SamplingSpaceType>::loadSVM(const std::string& svm_path)
+template<SamplingSpace SamplingSpaceType>
+void RmapPlanning<SamplingSpaceType>::loadSVM(const std::string & svm_path)
 {
   ROS_INFO_STREAM("Load SVM model from " << svm_path);
   svm_mo_ = svm_load_model(svm_path.c_str());
@@ -182,26 +169,27 @@ void RmapPlanning<SamplingSpaceType>::loadSVM(const std::string& svm_path)
   setSVMPredictionMat<SamplingSpaceType>(svm_coeff_vec_, svm_sv_mat_, svm_mo_);
 }
 
-template <SamplingSpace SamplingSpaceType>
-void RmapPlanning<SamplingSpaceType>::loadGridSet(const std::string& bag_path)
+template<SamplingSpace SamplingSpaceType>
+void RmapPlanning<SamplingSpaceType>::loadGridSet(const std::string & bag_path)
 {
   ROS_INFO_STREAM("Load grid set from " << bag_path);
 
   grid_set_msg_ = loadBag<differentiable_rmap::RmapGridSet>(bag_path);
 
-  if (grid_set_msg_->type != static_cast<size_t>(SamplingSpaceType)) {
-    mc_rtc::log::error_and_throw<std::runtime_error>(
-        "SamplingSpace does not match with message: {} != {}",
-        grid_set_msg_->type, static_cast<size_t>(SamplingSpaceType));
+  if(grid_set_msg_->type != static_cast<size_t>(SamplingSpaceType))
+  {
+    mc_rtc::log::error_and_throw<std::runtime_error>("SamplingSpace does not match with message: {} != {}",
+                                                     grid_set_msg_->type, static_cast<size_t>(SamplingSpaceType));
   }
 
-  for (int i = 0; i < sample_dim_; i++) {
+  for(int i = 0; i < sample_dim_; i++)
+  {
     sample_min_[i] = grid_set_msg_->min[i];
     sample_max_[i] = grid_set_msg_->max[i];
   }
 }
 
-template <SamplingSpace SamplingSpaceType>
+template<SamplingSpace SamplingSpaceType>
 void RmapPlanning<SamplingSpaceType>::predictOnSlicePlane()
 {
   // Predict
@@ -212,15 +200,17 @@ void RmapPlanning<SamplingSpaceType>::predictOnSlicePlane()
 
     size_t grid_idx = 0;
     SampleType origin_sample = poseToSample<SamplingSpaceType>(slice_origin);
-    for (grid_map::GridMapIterator it(*grid_map_); !it.isPastEnd(); ++it) {
+    for(grid_map::GridMapIterator it(*grid_map_); !it.isPastEnd(); ++it)
+    {
       grid_map::Position pos;
       grid_map_->getPosition(*it, pos);
 
       SampleType sample = origin_sample;
       sample.x() = pos.x();
-      if constexpr (sample_dim_ > 1) {
-          sample.y() = pos.y();
-        }
+      if constexpr(sample_dim_ > 1)
+      {
+        sample.y() = pos.y();
+      }
 
       // Calculate SVM value
       double svm_value = calcSVMValue(sample);
@@ -229,11 +219,12 @@ void RmapPlanning<SamplingSpaceType>::predictOnSlicePlane()
       grid_idx++;
     }
 
-    double duration = 1e3 * std::chrono::duration_cast<std::chrono::duration<double>>(
-        std::chrono::system_clock::now() - start_time).count();
-    ROS_INFO_STREAM_THROTTLE(
-        10, "SVM predict duration: " << duration << " [ms] (predict-one: " <<
-        duration / grid_idx <<" [ms])");
+    double duration =
+        1e3
+        * std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::system_clock::now() - start_time)
+              .count();
+    ROS_INFO_STREAM_THROTTLE(10, "SVM predict duration: " << duration << " [ms] (predict-one: " << duration / grid_idx
+                                                          << " [ms])");
   }
 
   // Publish
@@ -245,7 +236,7 @@ void RmapPlanning<SamplingSpaceType>::predictOnSlicePlane()
   }
 }
 
-template <SamplingSpace SamplingSpaceType>
+template<SamplingSpace SamplingSpaceType>
 void RmapPlanning<SamplingSpaceType>::publishMarkerArray() const
 {
   std_msgs::Header header_msg;
@@ -273,12 +264,13 @@ void RmapPlanning<SamplingSpaceType>::publishMarkerArray() const
   xy_plane_marker.scale.x = 100.0;
   xy_plane_marker.scale.y = 100.0;
   xy_plane_marker.scale.z = plane_thickness;
-  xy_plane_marker.pose = OmgCore::toPoseMsg(
-      sva::PTransformd(Eigen::Vector3d(0, 0, config_.svm_thre - 0.5 * plane_thickness)));
+  xy_plane_marker.pose =
+      OmgCore::toPoseMsg(sva::PTransformd(Eigen::Vector3d(0, 0, config_.svm_thre - 0.5 * plane_thickness)));
   marker_arr_msg.markers.push_back(xy_plane_marker);
 
   // Reachable grids marker
-  if (grid_set_msg_) {
+  if(grid_set_msg_)
+  {
     visualization_msgs::Marker grids_marker;
     grids_marker.header = header_msg;
     grids_marker.ns = "reachable_grids";
@@ -289,13 +281,13 @@ void RmapPlanning<SamplingSpaceType>::publishMarkerArray() const
         calcGridCubeScale<SamplingSpaceType>(grid_set_msg_->divide_nums, sample_max_ - sample_min_));
     grids_marker.pose = OmgCore::toPoseMsg(sva::PTransformd::Identity());
     loopGrid<SamplingSpaceType>(
-        grid_set_msg_->divide_nums,
-        getGridPosMin<SamplingSpaceType>(sample_min_),
+        grid_set_msg_->divide_nums, getGridPosMin<SamplingSpaceType>(sample_min_),
         getGridPosRange<SamplingSpaceType>(sample_min_, sample_max_),
-        [&](int grid_idx, const GridPos<SamplingSpaceType>& grid_pos) {
-          if (grid_set_msg_->values[grid_idx] > config_.svm_thre) {
-            grids_marker.points.push_back(OmgCore::toPointMsg(
-                sampleToCloudPos<SamplingSpaceType>(gridPosToSample<SamplingSpaceType>(grid_pos))));
+        [&](int grid_idx, const GridPos<SamplingSpaceType> & grid_pos) {
+          if(grid_set_msg_->values[grid_idx] > config_.svm_thre)
+          {
+            grids_marker.points.push_back(
+                OmgCore::toPointMsg(sampleToCloudPos<SamplingSpaceType>(gridPosToSample<SamplingSpaceType>(grid_pos))));
           }
         });
     marker_arr_msg.markers.push_back(grids_marker);
@@ -304,7 +296,7 @@ void RmapPlanning<SamplingSpaceType>::publishMarkerArray() const
   marker_arr_pub_.publish(marker_arr_msg);
 }
 
-template <SamplingSpace SamplingSpaceType>
+template<SamplingSpace SamplingSpaceType>
 void RmapPlanning<SamplingSpaceType>::publishCurrentState() const
 {
   std_msgs::Header header_msg;
@@ -324,35 +316,47 @@ void RmapPlanning<SamplingSpaceType>::publishCurrentState() const
   current_pose_pub_.publish(pose_msg);
 }
 
-template <SamplingSpace SamplingSpaceType>
-void RmapPlanning<SamplingSpaceType>::transCallback(
-    const geometry_msgs::TransformStamped::ConstPtr& trans_st_msg)
+template<SamplingSpace SamplingSpaceType>
+void RmapPlanning<SamplingSpaceType>::transCallback(const geometry_msgs::TransformStamped::ConstPtr & trans_st_msg)
 {
-  if (trans_st_msg->child_frame_id == "target") {
+  if(trans_st_msg->child_frame_id == "target")
+  {
     target_sample_ = poseToSample<SamplingSpaceType>(OmgCore::toSvaPTransform(trans_st_msg->transform));
   }
 }
 
-std::shared_ptr<RmapPlanningBase> DiffRmap::createRmapPlanning(
-    SamplingSpace sampling_space,
-    const std::string& svm_path,
-    const std::string& bag_path)
+std::shared_ptr<RmapPlanningBase> DiffRmap::createRmapPlanning(SamplingSpace sampling_space,
+                                                               const std::string & svm_path,
+                                                               const std::string & bag_path)
 {
-  if (sampling_space == SamplingSpace::R2) {
+  if(sampling_space == SamplingSpace::R2)
+  {
     return std::make_shared<RmapPlanning<SamplingSpace::R2>>(svm_path, bag_path);
-  } else if (sampling_space == SamplingSpace::SO2) {
+  }
+  else if(sampling_space == SamplingSpace::SO2)
+  {
     return std::make_shared<RmapPlanning<SamplingSpace::SO2>>(svm_path, bag_path);
-  } else if (sampling_space == SamplingSpace::SE2) {
+  }
+  else if(sampling_space == SamplingSpace::SE2)
+  {
     return std::make_shared<RmapPlanning<SamplingSpace::SE2>>(svm_path, bag_path);
-  } else if (sampling_space == SamplingSpace::R3) {
+  }
+  else if(sampling_space == SamplingSpace::R3)
+  {
     return std::make_shared<RmapPlanning<SamplingSpace::R3>>(svm_path, bag_path);
-  } else if (sampling_space == SamplingSpace::SO3) {
+  }
+  else if(sampling_space == SamplingSpace::SO3)
+  {
     return std::make_shared<RmapPlanning<SamplingSpace::SO3>>(svm_path, bag_path);
-  } else if (sampling_space == SamplingSpace::SE3) {
+  }
+  else if(sampling_space == SamplingSpace::SE3)
+  {
     return std::make_shared<RmapPlanning<SamplingSpace::SE3>>(svm_path, bag_path);
-  } else {
-    mc_rtc::log::error_and_throw<std::runtime_error>(
-        "[createRmapPlanning] Unsupported SamplingSpace: {}", std::to_string(sampling_space));
+  }
+  else
+  {
+    mc_rtc::log::error_and_throw<std::runtime_error>("[createRmapPlanning] Unsupported SamplingSpace: {}",
+                                                     std::to_string(sampling_space));
   }
 }
 

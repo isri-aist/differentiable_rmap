@@ -7,18 +7,17 @@
 
 #include <differentiable_rmap/RmapSampling.h>
 
-
 namespace DiffRmap
 {
 /** \brief Class to generate samples for reachability map based on inverse kinematics.
     \tparam SamplingSpaceType sampling space
 */
-template <SamplingSpace SamplingSpaceType>
-class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
+template<SamplingSpace SamplingSpaceType>
+class RmapSamplingIK : public RmapSampling<SamplingSpaceType>
 {
- public:
+public:
   /*! \brief Configuration. */
-  struct Configuration: public RmapSampling<SamplingSpaceType>::Configuration
+  struct Configuration : public RmapSampling<SamplingSpaceType>::Configuration
   {
     //! Number of samples to make bounding box
     int bbox_sample_num = 1000;
@@ -45,13 +44,14 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
     std::pair<double, double> reachable_sample_ratio_limits = {0.0, 1.0};
 
     /*! \brief Load mc_rtc configuration. */
-    inline virtual void load(const mc_rtc::Configuration& mc_rtc_config) override
+    inline virtual void load(const mc_rtc::Configuration & mc_rtc_config) override
     {
       RmapSampling<SamplingSpaceType>::Configuration::load(mc_rtc_config);
 
       mc_rtc_config("bbox_sample_num", bbox_sample_num);
       mc_rtc_config("bbox_padding_rate", bbox_padding_rate);
-      if (mc_rtc_config.has("body_yaw_limits")) {
+      if(mc_rtc_config.has("body_yaw_limits"))
+      {
         mc_rtc_config("body_yaw_limits", body_yaw_limits);
         body_yaw_limits.first = mc_rtc::constants::toRad(body_yaw_limits.first);
         body_yaw_limits.second = mc_rtc::constants::toRad(body_yaw_limits.second);
@@ -64,42 +64,42 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
     }
   };
 
- public:
+public:
   /*! \brief Dimension of sample. */
   static constexpr int sample_dim_ = sampleDim<SamplingSpaceType>();
 
- public:
+public:
   /*! \brief Type of sample vector. */
   using SampleType = Sample<SamplingSpaceType>;
 
- public:
+public:
   /** \brief Constructor.
       \param rb robot
       \param body_name name of body whose pose is sampled
       \param joint_name_list name list of joints whose position is changed
   */
-  RmapSamplingIK(const std::shared_ptr<OmgCore::Robot>& rb,
-                 const std::string& body_name,
-                 const std::vector<std::string>& joint_name_list);
+  RmapSamplingIK(const std::shared_ptr<OmgCore::Robot> & rb,
+                 const std::string & body_name,
+                 const std::vector<std::string> & joint_name_list);
 
   /** \brief Configure from mc_rtc configuration.
       \param mc_rtc_config mc_rtc configuration
    */
-  virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
+  virtual void configure(const mc_rtc::Configuration & mc_rtc_config) override;
 
   /** \brief Set additional task list in IK
       \param additional_task_list additional task list in IK
   */
-  inline void setAdditionalTaskList(const std::vector<std::shared_ptr<OmgCore::TaskBase>>& additional_task_list)
+  inline void setAdditionalTaskList(const std::vector<std::shared_ptr<OmgCore::TaskBase>> & additional_task_list)
   {
     additional_task_list_ = additional_task_list;
   }
 
- protected:
+protected:
   /** \brief Constructor.
       \param rb robot
   */
-  RmapSamplingIK(const std::shared_ptr<OmgCore::Robot>& rb);
+  RmapSamplingIK(const std::shared_ptr<OmgCore::Robot> & rb);
 
   /** \brief Setup. */
   virtual void setup() override;
@@ -115,7 +115,7 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
   /** \brief Publish ROS message. */
   virtual void publish() override;
 
- protected:
+protected:
   //! Configuration
   Configuration config_;
 
@@ -143,7 +143,7 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
   //! Number of reachabe samples
   size_t reachable_sample_num_ = 0;
 
- protected:
+protected:
   // See https://stackoverflow.com/a/6592617
   using RmapSampling<SamplingSpaceType>::rb_arr_;
   using RmapSampling<SamplingSpaceType>::rbc_arr_;
@@ -180,9 +180,8 @@ class RmapSamplingIK: public RmapSampling<SamplingSpaceType>
     \param body_name name of body whose pose is sampled
     \param joint_name_list name list of joints whose position is changed
 */
-std::shared_ptr<RmapSamplingBase> createRmapSamplingIK(
-    SamplingSpace sampling_space,
-    const std::shared_ptr<OmgCore::Robot>& rb,
-    const std::string& body_name,
-    const std::vector<std::string>& joint_name_list);
-}
+std::shared_ptr<RmapSamplingBase> createRmapSamplingIK(SamplingSpace sampling_space,
+                                                       const std::shared_ptr<OmgCore::Robot> & rb,
+                                                       const std::string & body_name,
+                                                       const std::vector<std::string> & joint_name_list);
+} // namespace DiffRmap

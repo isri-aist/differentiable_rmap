@@ -4,30 +4,29 @@
 
 #include <mc_rtc/Configuration.h>
 
-#include <ros/ros.h>
 #include <geometry_msgs/TransformStamped.h>
-#include <grid_map_ros/grid_map_ros.hpp>
 #include <grid_map_msgs/GridMap.h>
+#include <ros/ros.h>
 #include <differentiable_rmap/RmapGridSet.h>
+#include <grid_map_ros/grid_map_ros.hpp>
 
 #include <libsvm/svm.h>
 
 #include <optmotiongen/Utils/QpUtils.h>
 
-#include <differentiable_rmap/SamplingUtils.h>
 #include <differentiable_rmap/RosUtils.h>
-
+#include <differentiable_rmap/SamplingUtils.h>
 
 namespace DiffRmap
 {
 /** \brief Virtual base class to plan in sample space based on differentiable reachability map. */
 class RmapPlanningBase
 {
- public:
+public:
   /** \brief Configure from mc_rtc configuration.
       \param mc_rtc_config mc_rtc configuration
    */
-  virtual void configure(const mc_rtc::Configuration& mc_rtc_config) = 0;
+  virtual void configure(const mc_rtc::Configuration & mc_rtc_config) = 0;
 
   /** \brief Setup planning. */
   virtual void setup() = 0;
@@ -44,10 +43,10 @@ class RmapPlanningBase
 /** \brief Class to plan in sample space based on differentiable reachability map.
     \tparam SamplingSpaceType sampling space
 */
-template <SamplingSpace SamplingSpaceType>
-class RmapPlanning: public RmapPlanningBase
+template<SamplingSpace SamplingSpaceType>
+class RmapPlanning : public RmapPlanningBase
 {
- public:
+public:
   /*! \brief Configuration. */
   struct Configuration
   {
@@ -79,7 +78,7 @@ class RmapPlanning: public RmapPlanningBase
     double grid_map_height_scale = 1.0;
 
     /*! \brief Load mc_rtc configuration. */
-    inline void load(const mc_rtc::Configuration& mc_rtc_config)
+    inline void load(const mc_rtc::Configuration & mc_rtc_config)
     {
       mc_rtc_config("loop_rate", loop_rate);
       mc_rtc_config("publish_interval", publish_interval);
@@ -93,7 +92,7 @@ class RmapPlanning: public RmapPlanningBase
     }
   };
 
- public:
+public:
   /*! \brief Dimension of sample. */
   static constexpr int sample_dim_ = sampleDim<SamplingSpaceType>();
 
@@ -103,7 +102,7 @@ class RmapPlanning: public RmapPlanningBase
   /*! \brief Dimension of velocity. */
   static constexpr int vel_dim_ = velDim<SamplingSpaceType>();
 
- public:
+public:
   /*! \brief Type of sample vector. */
   using SampleType = Sample<SamplingSpaceType>;
 
@@ -113,22 +112,20 @@ class RmapPlanning: public RmapPlanningBase
   /*! \brief Type of velocity vector. */
   using VelType = Vel<SamplingSpaceType>;
 
- public:
+public:
   /** \brief Constructor.
       \param svm_path path of SVM model file
       \param bag_path path of ROS bag file of grid set (empty for no grid set)
   */
-  RmapPlanning(const std::string& svm_path = "/tmp/rmap_svm_model.libsvm",
-               const std::string& bag_path = "/tmp/rmap_grid_set.bag");
+  RmapPlanning(const std::string & svm_path = "/tmp/rmap_svm_model.libsvm",
+               const std::string & bag_path = "/tmp/rmap_grid_set.bag");
 
   /** \brief Constructor.
       \param svm_path path of SVM model file
       \param bag_path path of ROS bag file of grid set (empty for no grid set)
       \param setup_ros whether to setup ROS
    */
-  RmapPlanning(const std::string& svm_path,
-               const std::string& bag_path,
-               bool setup_ros);
+  RmapPlanning(const std::string & svm_path, const std::string & bag_path, bool setup_ros);
 
   /** \brief Destructor. */
   ~RmapPlanning();
@@ -136,7 +133,7 @@ class RmapPlanning: public RmapPlanningBase
   /** \brief Configure from mc_rtc configuration.
       \param mc_rtc_config mc_rtc configuration
    */
-  virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
+  virtual void configure(const mc_rtc::Configuration & mc_rtc_config) override;
 
   /** \brief Setup planning. */
   virtual void setup() override;
@@ -152,27 +149,27 @@ class RmapPlanning: public RmapPlanningBase
   /** \brief Calculate SVM value.
       \param sample sample
   */
-  double calcSVMValue(const SampleType& sample) const;
+  double calcSVMValue(const SampleType & sample) const;
 
   /** \brief Calculate gradient of SVM value.
       \param sample sample
   */
-  SampleType calcSVMGrad(const SampleType& sample) const;
+  SampleType calcSVMGrad(const SampleType & sample) const;
 
   /** \brief Calculate gradient of SVM value w.r.t. vel.
       \param sample sample
   */
-  VelType calcSVMGradWithVel(const SampleType& sample) const;
+  VelType calcSVMGradWithVel(const SampleType & sample) const;
 
- protected:
+protected:
   /** \brief Setup grid map. */
   void setupGridMap();
 
   /** \brief Load SVM model. */
-  void loadSVM(const std::string& svm_path);
+  void loadSVM(const std::string & svm_path);
 
   /** \brief Load grid set. */
-  void loadGridSet(const std::string& bag_path);
+  void loadGridSet(const std::string & bag_path);
 
   /** \brief Predict SVM on grid map. */
   void predictOnSlicePlane();
@@ -184,15 +181,15 @@ class RmapPlanning: public RmapPlanningBase
   virtual void publishCurrentState() const;
 
   /** \brief Transform topic callback. */
-  virtual void transCallback(const geometry_msgs::TransformStamped::ConstPtr& trans_st_msg);
+  virtual void transCallback(const geometry_msgs::TransformStamped::ConstPtr & trans_st_msg);
 
- public:
+public:
   //! Min/max position of samples
   SampleType sample_min_ = SampleType::Constant(-1.0);
   SampleType sample_max_ = SampleType::Constant(1.0);
 
   //! SVM model
-  svm_model* svm_mo_;
+  svm_model * svm_mo_;
 
   //! Support vector coefficients
   Eigen::VectorXd svm_coeff_vec_;
@@ -203,7 +200,7 @@ class RmapPlanning: public RmapPlanningBase
   //! Grid set message
   differentiable_rmap::RmapGridSet::ConstPtr grid_set_msg_;
 
- protected:
+protected:
   //! mc_rtc Configuration
   mc_rtc::Configuration mc_rtc_config_;
 
@@ -240,8 +237,7 @@ class RmapPlanning: public RmapPlanningBase
     \param svm_path path of SVM model file
     \param bag_path path of ROS bag file of grid set (empty for no grid set)
 */
-std::shared_ptr<RmapPlanningBase> createRmapPlanning(
-    SamplingSpace sampling_space,
-    const std::string& svm_path = "/tmp/rmap_svm_model.libsvm",
-    const std::string& bag_path = "/tmp/rmap_grid_set.bag");
-}
+std::shared_ptr<RmapPlanningBase> createRmapPlanning(SamplingSpace sampling_space,
+                                                     const std::string & svm_path = "/tmp/rmap_svm_model.libsvm",
+                                                     const std::string & bag_path = "/tmp/rmap_grid_set.bag");
+} // namespace DiffRmap

@@ -7,40 +7,37 @@
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud.h>
 
-#include <optmotiongen/Utils/RobotUtils.h>
 #include <optmotiongen/Task/CollisionTask.h>
+#include <optmotiongen/Utils/RobotUtils.h>
 
 #include <differentiable_rmap/SamplingUtils.h>
-
 
 namespace DiffRmap
 {
 /** \brief Virtual base class to generate samples for reachability map. */
 class RmapSamplingBase
 {
- public:
+public:
   /** \brief Configure from mc_rtc configuration.
       \param mc_rtc_config mc_rtc configuration
    */
-  virtual void configure(const mc_rtc::Configuration& mc_rtc_config) = 0;
+  virtual void configure(const mc_rtc::Configuration & mc_rtc_config) = 0;
 
   /** \brief Run sample generation
       \param bag_path path of ROS bag file
       \param sample_num number of samples to be generated
       \param sleep_rate rate of sleep druing sample generation. zero for no sleep
   */
-  virtual void run(const std::string& bag_path,
-                   int sample_num,
-                   double sleep_rate) = 0;
+  virtual void run(const std::string & bag_path, int sample_num, double sleep_rate) = 0;
 };
 
 /** \brief Class to generate samples for reachability map.
     \tparam SamplingSpaceType sampling space
 */
-template <SamplingSpace SamplingSpaceType>
-class RmapSampling: public RmapSamplingBase
+template<SamplingSpace SamplingSpaceType>
+class RmapSampling : public RmapSamplingBase
 {
- public:
+public:
   /*! \brief Configuration. */
   struct Configuration
   {
@@ -63,73 +60,75 @@ class RmapSampling: public RmapSamplingBase
     double collision_task_weight = 1.0;
 
     /*! \brief Load mc_rtc configuration. */
-    inline virtual void load(const mc_rtc::Configuration& mc_rtc_config)
+    inline virtual void load(const mc_rtc::Configuration & mc_rtc_config)
     {
       mc_rtc_config("random_seed", random_seed);
       mc_rtc_config("publish_loop_interval", publish_loop_interval);
       mc_rtc_config("root_pose", root_pose);
       mc_rtc_config("body_pose_offset", body_pose_offset);
-      if (mc_rtc_config.has("collision_body_names_list")) {
+      if(mc_rtc_config.has("collision_body_names_list"))
+      {
         std::vector<std::string> collision_body_names_list_flat = mc_rtc_config("collision_body_names_list");
-        if (collision_body_names_list_flat.size() % 2 != 0) {
+        if(collision_body_names_list_flat.size() % 2 != 0)
+        {
           mc_rtc::log::error_and_throw<std::runtime_error>(
               "collision_body_names_list size must be a multiple of 2, but is {}",
               collision_body_names_list_flat.size());
         }
         collision_body_names_list.clear();
-        for (size_t i = 0; i < collision_body_names_list_flat.size() / 2; i++) {
-          collision_body_names_list.push_back(OmgCore::Twin<std::string>(
-              collision_body_names_list_flat[2 * i],
-              collision_body_names_list_flat[2 * i + 1]));
+        for(size_t i = 0; i < collision_body_names_list_flat.size() / 2; i++)
+        {
+          collision_body_names_list.push_back(OmgCore::Twin<std::string>(collision_body_names_list_flat[2 * i],
+                                                                         collision_body_names_list_flat[2 * i + 1]));
         }
       }
       mc_rtc_config("collision_task_weight", collision_task_weight);
     }
   };
 
- public:
+public:
   /*! \brief Dimension of sample. */
   static constexpr int sample_dim_ = sampleDim<SamplingSpaceType>();
 
- public:
+public:
   /*! \brief Type of sample vector. */
   using SampleType = Sample<SamplingSpaceType>;
 
- public:
+public:
   /** \brief Constructor.
       \param rb robot
       \param body_name name of body whose pose is sampled
       \param joint_name_list name list of joints whose position is changed
   */
-  RmapSampling(const std::shared_ptr<OmgCore::Robot>& rb,
-               const std::string& body_name,
-               const std::vector<std::string>& joint_name_list);
+  RmapSampling(const std::shared_ptr<OmgCore::Robot> & rb,
+               const std::string & body_name,
+               const std::vector<std::string> & joint_name_list);
 
   /** \brief Configure from mc_rtc configuration.
       \param mc_rtc_config mc_rtc configuration
    */
-  virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
+  virtual void configure(const mc_rtc::Configuration & mc_rtc_config) override;
 
   /** \brief Run sample generation
       \param bag_path path of ROS bag file
       \param sample_num number of samples to be generated
       \param sleep_rate rate of sleep druing sample generation. zero for no sleep
   */
-  virtual void run(const std::string& bag_path = "/tmp/rmap_sample_set.bag",
+  virtual void run(const std::string & bag_path = "/tmp/rmap_sample_set.bag",
                    int sample_num = 10000,
                    double sleep_rate = 0) override;
 
   /** \brief Accessor to Robot array. */
-  inline const OmgCore::RobotArray& rbArr() const
+  inline const OmgCore::RobotArray & rbArr() const
   {
     return rb_arr_;
   }
 
- protected:
+protected:
   /** \brief Constructor.
       \param rb robot
   */
-  RmapSampling(const std::shared_ptr<OmgCore::Robot>& rb);
+  RmapSampling(const std::shared_ptr<OmgCore::Robot> & rb);
 
   /** \brief Setup. */
   virtual void setup();
@@ -149,13 +148,12 @@ class RmapSampling: public RmapSamplingBase
   virtual void publish();
 
   /** \brief Publish collision marker. */
-  void publishCollisionMarker(
-      const std::vector<std::shared_ptr<OmgCore::CollisionTask>>& collision_task_list);
+  void publishCollisionMarker(const std::vector<std::shared_ptr<OmgCore::CollisionTask>> & collision_task_list);
 
   /** \brief Dump generated sample set to ROS bag. */
-  void dumpSampleSet(const std::string& bag_path) const;
+  void dumpSampleSet(const std::string & bag_path) const;
 
- protected:
+protected:
   //! mc_rtc Configuration
   mc_rtc::Configuration mc_rtc_config_;
 
@@ -210,9 +208,8 @@ class RmapSampling: public RmapSamplingBase
     \param body_name name of body whose pose is sampled
     \param joint_name_list name list of joints whose position is changed
 */
-std::shared_ptr<RmapSamplingBase> createRmapSampling(
-    SamplingSpace sampling_space,
-    const std::shared_ptr<OmgCore::Robot>& rb,
-    const std::string& body_name,
-    const std::vector<std::string>& joint_name_list);
-}
+std::shared_ptr<RmapSamplingBase> createRmapSampling(SamplingSpace sampling_space,
+                                                     const std::shared_ptr<OmgCore::Robot> & rb,
+                                                     const std::string & body_name,
+                                                     const std::vector<std::string> & joint_name_list);
+} // namespace DiffRmap

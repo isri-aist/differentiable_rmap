@@ -6,22 +6,21 @@
 
 #include <differentiable_rmap/RmapSamplingIK.h>
 
-
 namespace DiffRmap
 {
 /** \brief Class to generate samples for reachability map for footstep planning.
     \tparam SamplingSpaceType sampling space
 */
-template <SamplingSpace SamplingSpaceType>
-class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
+template<SamplingSpace SamplingSpaceType>
+class RmapSamplingFootstep : public RmapSamplingIK<SamplingSpaceType>
 {
- public:
+public:
   /*! \brief Type of footstep position. */
   using FootstepPos = Sample<SamplingSpace::SE2>;
 
- public:
+public:
   /*! \brief Configuration. */
-  struct Configuration: public RmapSamplingIK<SamplingSpaceType>::Configuration
+  struct Configuration : public RmapSamplingIK<SamplingSpaceType>::Configuration
   {
     //! Upper limit of footstep sampling position [m], [rad]
     FootstepPos upper_footstep_pos = FootstepPos(0.2, 0.3, mc_rtc::constants::toRad(20));
@@ -36,15 +35,17 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
     std::map<std::string, double> initial_posture;
 
     /*! \brief Load mc_rtc configuration. */
-    inline virtual void load(const mc_rtc::Configuration& mc_rtc_config) override
+    inline virtual void load(const mc_rtc::Configuration & mc_rtc_config) override
     {
       RmapSamplingIK<SamplingSpaceType>::Configuration::load(mc_rtc_config);
 
-      if (mc_rtc_config.has("upper_footstep_pos")) {
+      if(mc_rtc_config.has("upper_footstep_pos"))
+      {
         mc_rtc_config("upper_footstep_pos", upper_footstep_pos);
         upper_footstep_pos.z() = mc_rtc::constants::toRad(upper_footstep_pos.z());
       }
-      if (mc_rtc_config.has("lower_footstep_pos")) {
+      if(mc_rtc_config.has("lower_footstep_pos"))
+      {
         mc_rtc_config("lower_footstep_pos", lower_footstep_pos);
         lower_footstep_pos.z() = mc_rtc::constants::toRad(lower_footstep_pos.z());
       }
@@ -53,32 +54,32 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
     }
   };
 
- public:
+public:
   /*! \brief Dimension of sample. */
   static constexpr int sample_dim_ = sampleDim<SamplingSpaceType>();
 
- public:
+public:
   /*! \brief Type of sample vector. */
   using SampleType = Sample<SamplingSpaceType>;
 
- public:
+public:
   /** \brief Constructor.
       \param rb robot
       \param support_foot_body_name name of support foot body
       \param swing_foot_body_name name of swing foot body
       \param waist_body_name name of waist body
   */
-  RmapSamplingFootstep(const std::shared_ptr<OmgCore::Robot>& rb,
-                       const std::string& support_foot_body_name,
-                       const std::string& swing_foot_body_name,
-                       const std::string& waist_body_name);
+  RmapSamplingFootstep(const std::shared_ptr<OmgCore::Robot> & rb,
+                       const std::string & support_foot_body_name,
+                       const std::string & swing_foot_body_name,
+                       const std::string & waist_body_name);
 
   /** \brief Configure from mc_rtc configuration.
       \param mc_rtc_config mc_rtc configuration
    */
-  virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
+  virtual void configure(const mc_rtc::Configuration & mc_rtc_config) override;
 
- protected:
+protected:
   /** \brief Setup sampling. */
   virtual void setupSampling() override;
 
@@ -87,7 +88,7 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
   */
   virtual bool sampleOnce(int sample_idx) override;
 
- protected:
+protected:
   //! Configuration
   Configuration config_;
 
@@ -109,7 +110,7 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
   //! Footstep position offset to make sample from [-1:1] random value
   FootstepPos footstep_pos_offset_;
 
- protected:
+protected:
   // See https://stackoverflow.com/a/6592617
   using RmapSamplingIK<SamplingSpaceType>::rb_arr_;
   using RmapSamplingIK<SamplingSpaceType>::rbc_arr_;
@@ -152,10 +153,9 @@ class RmapSamplingFootstep: public RmapSamplingIK<SamplingSpaceType>
     \param swing_foot_body_name name of swing foot body
     \param waist_body_name name of waist body
 */
-std::shared_ptr<RmapSamplingBase> createRmapSamplingFootstep(
-    SamplingSpace sampling_space,
-    const std::shared_ptr<OmgCore::Robot>& rb,
-    const std::string& support_foot_body_name,
-    const std::string& swing_foot_body_name,
-    const std::string& waist_body_name);
-}
+std::shared_ptr<RmapSamplingBase> createRmapSamplingFootstep(SamplingSpace sampling_space,
+                                                             const std::shared_ptr<OmgCore::Robot> & rb,
+                                                             const std::string & support_foot_body_name,
+                                                             const std::string & swing_foot_body_name,
+                                                             const std::string & waist_body_name);
+} // namespace DiffRmap

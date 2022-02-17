@@ -7,16 +7,15 @@
 
 #include <differentiable_rmap/RmapPlanning.h>
 
-
 namespace DiffRmap
 {
 /** \brief Class to plan footstep sequence based on differentiable reachability map.
     \tparam SamplingSpaceType sampling space
 */
-template <SamplingSpace SamplingSpaceType>
-class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
+template<SamplingSpace SamplingSpaceType>
+class RmapPlanningFootstep : public RmapPlanning<SamplingSpaceType>
 {
- public:
+public:
   /*! \brief Configuration of collision shape. */
   struct CollisionShapeConfiguration
   {
@@ -27,7 +26,7 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
     Eigen::Vector3d scale = Eigen::Vector3d::Ones();
 
     /*! \brief Load mc_rtc configuration. */
-    inline void load(const mc_rtc::Configuration& mc_rtc_config)
+    inline void load(const mc_rtc::Configuration & mc_rtc_config)
     {
       mc_rtc_config("pose", pose);
       mc_rtc_config("scale", scale);
@@ -35,7 +34,7 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
   };
 
   /*! \brief Configuration. */
-  struct Configuration: public RmapPlanning<SamplingSpaceType>::Configuration
+  struct Configuration : public RmapPlanning<SamplingSpaceType>::Configuration
   {
     //! Number of footsteps
     int footstep_num = 3;
@@ -69,15 +68,11 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
     double collision_visualization_dist_thre = 1.0;
 
     //! Vertices of foot marker
-    std::vector<Eigen::Vector3d> foot_vertices = {
-      Eigen::Vector3d(-0.1, -0.05, 0.0),
-      Eigen::Vector3d(0.1, -0.05, 0.0),
-      Eigen::Vector3d(0.1, 0.05, 0.0),
-      Eigen::Vector3d(-0.1, 0.05, 0.0)
-    };
+    std::vector<Eigen::Vector3d> foot_vertices = {Eigen::Vector3d(-0.1, -0.05, 0.0), Eigen::Vector3d(0.1, -0.05, 0.0),
+                                                  Eigen::Vector3d(0.1, 0.05, 0.0), Eigen::Vector3d(-0.1, 0.05, 0.0)};
 
     /*! \brief Load mc_rtc configuration. */
-    inline void load(const mc_rtc::Configuration& mc_rtc_config)
+    inline void load(const mc_rtc::Configuration & mc_rtc_config)
     {
       RmapPlanning<SamplingSpaceType>::Configuration::load(mc_rtc_config);
 
@@ -88,11 +83,14 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
       mc_rtc_config("collision_margin", collision_margin);
       mc_rtc_config("svm_ineq_weight", svm_ineq_weight);
       mc_rtc_config("collision_ineq_weight", collision_ineq_weight);
-      if (mc_rtc_config.has("foot_shape_config")) {
+      if(mc_rtc_config.has("foot_shape_config"))
+      {
         foot_shape_config.load(mc_rtc_config("foot_shape_config"));
       }
-      if (mc_rtc_config.has("obst_shape_config_list")) {
-        for (const mc_rtc::Configuration& mc_rtc_obst_config : mc_rtc_config("obst_shape_config_list")) {
+      if(mc_rtc_config.has("obst_shape_config_list"))
+      {
+        for(const mc_rtc::Configuration & mc_rtc_obst_config : mc_rtc_config("obst_shape_config_list"))
+        {
           CollisionShapeConfiguration obst_config;
           obst_config.load(mc_rtc_obst_config);
           obst_shape_config_list.push_back(obst_config);
@@ -103,7 +101,7 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
     }
   };
 
- public:
+public:
   /*! \brief Dimension of sample. */
   static constexpr int sample_dim_ = sampleDim<SamplingSpaceType>();
 
@@ -113,7 +111,7 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
   /*! \brief Dimension of velocity. */
   static constexpr int vel_dim_ = velDim<SamplingSpaceType>();
 
- public:
+public:
   /*! \brief Type of sample vector. */
   using SampleType = Sample<SamplingSpaceType>;
 
@@ -123,13 +121,13 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
   /*! \brief Type of velocity vector. */
   using VelType = Vel<SamplingSpaceType>;
 
- public:
+public:
   /** \brief Constructor.
       \param svm_path path of SVM model file
       \param bag_path path of ROS bag file of grid set (empty for no grid set)
    */
-  RmapPlanningFootstep(const std::string& svm_path = "/tmp/rmap_svm_model.libsvm",
-                       const std::string& bag_path = "/tmp/rmap_grid_set.bag");
+  RmapPlanningFootstep(const std::string & svm_path = "/tmp/rmap_svm_model.libsvm",
+                       const std::string & bag_path = "/tmp/rmap_grid_set.bag");
 
   /** \brief Destructor. */
   ~RmapPlanningFootstep();
@@ -137,7 +135,7 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
   /** \brief Configure from mc_rtc configuration.
       \param mc_rtc_config mc_rtc configuration
    */
-  virtual void configure(const mc_rtc::Configuration& mc_rtc_config) override;
+  virtual void configure(const mc_rtc::Configuration & mc_rtc_config) override;
 
   /** \brief Setup planning. */
   virtual void setup() override;
@@ -147,7 +145,7 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
    */
   virtual void runOnce(bool publish) override;
 
- protected:
+protected:
   /** \brief Publish marker array. */
   virtual void publishMarkerArray() const override;
 
@@ -160,11 +158,11 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
     return SamplingSpaceType == SamplingSpace::SE2;
   }
 
- protected:
+protected:
   //! Sample corresponding to identity pose
   static inline const SampleType identity_sample_ = poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
 
- protected:
+protected:
   //! Configuration
   Configuration config_;
 
@@ -199,7 +197,7 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
   ros::Publisher current_left_poly_arr_pub_;
   ros::Publisher current_right_poly_arr_pub_;
 
- protected:
+protected:
   // See https://stackoverflow.com/a/6592617
   using RmapPlanning<SamplingSpaceType>::mc_rtc_config_;
 
@@ -230,6 +228,6 @@ class RmapPlanningFootstep: public RmapPlanning<SamplingSpaceType>
 */
 std::shared_ptr<RmapPlanningBase> createRmapPlanningFootstep(
     SamplingSpace sampling_space,
-    const std::string& svm_path = "/tmp/rmap_svm_model.libsvm",
-    const std::string& bag_path = "/tmp/rmap_grid_set.bag");
-}
+    const std::string & svm_path = "/tmp/rmap_svm_model.libsvm",
+    const std::string & bag_path = "/tmp/rmap_grid_set.bag");
+} // namespace DiffRmap

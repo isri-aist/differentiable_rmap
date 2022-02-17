@@ -10,16 +10,16 @@
 #include <differentiable_rmap/RmapPlanning.h>
 #include <differentiable_rmap/RobotUtils.h>
 
-
 namespace DiffRmap
 {
 /** \brief Class to plan loco-manipulation motion based on differentiable reachability map.
 
-    This class does not inherit RmapPlanning because it has many differences from RmapPlanning (e.g., it holds multiple SVM models).
+    This class does not inherit RmapPlanning because it has many differences from RmapPlanning (e.g., it holds multiple
+   SVM models).
  */
 class RmapPlanningLocomanip
 {
- public:
+public:
   /*! \brief Configuration. */
   struct Configuration
   {
@@ -36,12 +36,10 @@ class RmapPlanningLocomanip
     double delta_config_limit = 0.1;
 
     //! Initial sample pose list
-    std::map<Limb, sva::PTransformd> initial_sample_pose_list = {
-      {Limb::LeftFoot, sva::PTransformd::Identity()},
-      {Limb::RightFoot, sva::PTransformd::Identity()},
-      {Limb::LeftHand, sva::PTransformd::Identity()},
-      {Limb::RightHand, sva::PTransformd::Identity()}
-    };
+    std::map<Limb, sva::PTransformd> initial_sample_pose_list = {{Limb::LeftFoot, sva::PTransformd::Identity()},
+                                                                 {Limb::RightFoot, sva::PTransformd::Identity()},
+                                                                 {Limb::LeftHand, sva::PTransformd::Identity()},
+                                                                 {Limb::RightHand, sva::PTransformd::Identity()}};
 
     //! Number of footsteps
     int motion_len = 3;
@@ -68,24 +66,22 @@ class RmapPlanningLocomanip
     double hand_marker_height = 0.0;
 
     //! Vertices of foot marker
-    std::vector<Eigen::Vector3d> foot_vertices = {
-      Eigen::Vector3d(-0.1, -0.05, 0.0),
-      Eigen::Vector3d(0.1, -0.05, 0.0),
-      Eigen::Vector3d(0.1, 0.05, 0.0),
-      Eigen::Vector3d(-0.1, 0.05, 0.0)
-    };
+    std::vector<Eigen::Vector3d> foot_vertices = {Eigen::Vector3d(-0.1, -0.05, 0.0), Eigen::Vector3d(0.1, -0.05, 0.0),
+                                                  Eigen::Vector3d(0.1, 0.05, 0.0), Eigen::Vector3d(-0.1, 0.05, 0.0)};
 
     /*! \brief Load mc_rtc configuration. */
-    inline void load(const mc_rtc::Configuration& mc_rtc_config)
+    inline void load(const mc_rtc::Configuration & mc_rtc_config)
     {
       mc_rtc_config("loop_rate", loop_rate);
       mc_rtc_config("publish_interval", publish_interval);
       mc_rtc_config("svm_thre", svm_thre);
       mc_rtc_config("delta_config_limit", delta_config_limit);
-      if (mc_rtc_config.has("initial_sample_pose_list")) {
+      if(mc_rtc_config.has("initial_sample_pose_list"))
+      {
         std::map<std::string, sva::PTransformd> tmp_initial_sample_pose_list;
         mc_rtc_config("initial_sample_pose_list", tmp_initial_sample_pose_list);
-        for (const auto& tmp_initial_sample_pose_kv : tmp_initial_sample_pose_list) {
+        for(const auto & tmp_initial_sample_pose_kv : tmp_initial_sample_pose_list)
+        {
           initial_sample_pose_list[strToLimb(tmp_initial_sample_pose_kv.first)] = tmp_initial_sample_pose_kv.second;
         }
       }
@@ -95,7 +91,8 @@ class RmapPlanningLocomanip
       mc_rtc_config("svm_ineq_weight", svm_ineq_weight);
       mc_rtc_config("hand_traj_center", hand_traj_center);
       mc_rtc_config("hand_traj_radius", hand_traj_radius);
-      if (mc_rtc_config.has("target_hand_traj_angles")) {
+      if(mc_rtc_config.has("target_hand_traj_angles"))
+      {
         mc_rtc_config("target_hand_traj_angles", target_hand_traj_angles);
         target_hand_traj_angles.first = mc_rtc::constants::toRad(target_hand_traj_angles.first);
         target_hand_traj_angles.second = mc_rtc::constants::toRad(target_hand_traj_angles.second);
@@ -105,7 +102,7 @@ class RmapPlanningLocomanip
     }
   };
 
- public:
+public:
   /*! \brief Sampling space. */
   static constexpr SamplingSpace SamplingSpaceType = SamplingSpace::SE2;
 
@@ -118,7 +115,7 @@ class RmapPlanningLocomanip
   /*! \brief Dimension of velocity. */
   static constexpr int vel_dim_ = velDim<SamplingSpaceType>();
 
- public:
+public:
   /*! \brief Type of sample vector. */
   using SampleType = Sample<SamplingSpaceType>;
 
@@ -128,13 +125,13 @@ class RmapPlanningLocomanip
   /*! \brief Type of velocity vector. */
   using VelType = Vel<SamplingSpaceType>;
 
- public:
+public:
   /** \brief Constructor.
       \param svm_path_list path list of SVM model file
       \param bag_path_list path list of ROS bag file of grid set (empty for no grid set)
    */
-  RmapPlanningLocomanip(const std::unordered_map<Limb, std::string>& svm_path_list,
-                        const std::unordered_map<Limb, std::string>& bag_path_list);
+  RmapPlanningLocomanip(const std::unordered_map<Limb, std::string> & svm_path_list,
+                        const std::unordered_map<Limb, std::string> & bag_path_list);
 
   /** \brief Destructor. */
   ~RmapPlanningLocomanip();
@@ -142,7 +139,7 @@ class RmapPlanningLocomanip
   /** \brief Configure from mc_rtc configuration.
       \param mc_rtc_config mc_rtc configuration
    */
-  void configure(const mc_rtc::Configuration& mc_rtc_config);
+  void configure(const mc_rtc::Configuration & mc_rtc_config);
 
   /** \brief Setup planning. */
   void setup();
@@ -155,12 +152,11 @@ class RmapPlanningLocomanip
   /** \brief Setup and run planning loop. */
   void runLoop();
 
- protected:
+protected:
   /** \brief Get rmap planning for specified limb. */
   inline std::shared_ptr<RmapPlanning<SamplingSpaceType>> rmapPlanning(Limb limb) const
   {
-    return std::dynamic_pointer_cast<RmapPlanning<SamplingSpaceType>>(
-        rmap_planning_list_.at(limb));
+    return std::dynamic_pointer_cast<RmapPlanning<SamplingSpaceType>>(rmap_planning_list_.at(limb));
   }
 
   /** \brief Calculate sample from hand trajectory. */
@@ -176,14 +172,14 @@ class RmapPlanningLocomanip
   void publishCurrentState() const;
 
   /** \brief Transform topic callback. */
-  void transCallback(const geometry_msgs::TransformStamped::ConstPtr& trans_st_msg);
+  void transCallback(const geometry_msgs::TransformStamped::ConstPtr & trans_st_msg);
 
- protected:
+protected:
   //! Sample corresponding to identity pose
   static inline const Sample<SamplingSpaceType> identity_sample_ =
       poseToSample<SamplingSpaceType>(sva::PTransformd::Identity());
 
- protected:
+protected:
   //! mc_rtc Configuration
   mc_rtc::Configuration mc_rtc_config_;
 
@@ -235,4 +231,4 @@ class RmapPlanningLocomanip
   // Use cloud message to visualize sphere at hand position
   ros::Publisher current_cloud_pub_;
 };
-}
+} // namespace DiffRmap
