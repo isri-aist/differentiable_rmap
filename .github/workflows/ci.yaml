@@ -63,7 +63,7 @@ jobs:
           sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
           wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
           sudo apt-get update -qq
-          sudo apt-get install -qq ros-${ROS_DISTRO}-ros-base ros-${ROS_DISTRO}-catkin python-catkin-tools python-rosdep
+          sudo apt-get install -qq ros-${ROS_DISTRO}-ros-base python-catkin-tools python-rosdep
       - name: Setup catkin workspace
         run: |
           mkdir -p ${GITHUB_WORKSPACE}/catkin_ws/src/
@@ -105,5 +105,6 @@ jobs:
           set -e
           set -x
           cd ${GITHUB_WORKSPACE}/catkin_ws
+          . devel/setup.bash
           catkin build --limit-status-rate 0.1 --catkin-make-args run_tests -- differentiable_rmap --no-deps
           catkin_test_results --verbose --all build
