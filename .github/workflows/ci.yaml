@@ -99,7 +99,7 @@ jobs:
           set -x
           cd ${GITHUB_WORKSPACE}/catkin_ws
           . devel/setup.bash
-          catkin build --limit-status-rate 0.1 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -DENABLE_JRLQP=ON
+          catkin build --limit-status-rate 0.1 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -DENABLE_JRLQP=ON -DINSTALL_DOCUMENTATION=ON
       - name: Run tests
         run: |
           set -e

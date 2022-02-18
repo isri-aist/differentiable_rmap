@@ -81,6 +81,12 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 
 add_subdirectory(src)
 add_subdirectory(node)
+
 if(CATKIN_ENABLE_TESTING)
   add_subdirectory(tests)
+endif()
+
+OPTION(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
+if(INSTALL_DOCUMENTATION)
+  add_subdirectory(doc)
 endif()
