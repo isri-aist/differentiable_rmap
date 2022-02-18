@@ -11,7 +11,8 @@ svm_thre: -0.1
 delta_config_limit: 0.05
 
 # Initial sample pose
-initial_sample_pose: {}
+initial_sample_pose:
+  translation: [0, 0.5, 0]
 
 # Whether to predict on grid map
 grid_map_prediction: false
