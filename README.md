@@ -1,6 +1,7 @@
 # differentiable_rmap
 
 [![CI](https://github.com/isri-aist/differentiable_rmap/actions/workflows/ci.yaml/badge.svg)](https://github.com/isri-aist/differentiable_rmap/actions/workflows/ci.yaml)
+[![Documentation](https://img.shields.io/badge/doxygen-online-brightgreen?logo=read-the-docs&style=flat)](https://isri-aist.github.io/differentiable_rmap/)
 
 ![eval-all](doc/images/eval-all.gif)
 
