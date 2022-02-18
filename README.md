@@ -6,7 +6,7 @@
 ![eval-all](doc/images/eval-all.gif)
 
 ## Summary
-This is a library for representing the kinematic reachability of robots: differentiable reachability map.
+This is a ROS package for representing the kinematic reachability of robots: differentiable reachability map.
 
 This is a scalar-valued function in task space that is positive only in the region reachable by the robot's end-effector. The main feature is that the scalar-valued function is continuous and differentiable with respect to task-space coordinates. This allows us to formulate the reachability conditions of the robot's end-effectors using reachability maps in continuous optimization for motion planning. The differentiable reachability map is learned using a support vector machine from a sample set of end-effector poses generated from a robot kinematic model.
 
