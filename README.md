@@ -25,12 +25,10 @@ This is a scalar-valued function in task space that is positive only in the regi
 ### Installation procedure
 It is assumed that ROS is installed.
 
-1. Install mc_rtc
-
+1. Install mc_rtc  
 Installation via apt is recommended. See [here](https://jrl-umi3218.github.io/mc_rtc/tutorials/introduction/installation-guide.html#ubuntu-lts-1804-2004).
 
-2. Install jrl-qp
-
+2. Install jrl-qp  
 ```bash
 $ git clone https://github.com/jrl-umi3218/jrl-qp -b topic/BlockStructure --recursive
 $ mkdir build
@@ -40,7 +38,7 @@ $ make
 $ make install
 ```
 
-3. Setup catkin workspace and build
+3. Setup catkin workspace and build  
 ```bash
 $ mkdir -p ~/ros/ws_differentiable_rmap/src
 $ cd ~/ros/ws_differentiable_rmap
