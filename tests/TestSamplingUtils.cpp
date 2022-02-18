@@ -18,7 +18,7 @@ void testConversion()
     Sample<SamplingSpaceType> restored_sample = inputToSample<SamplingSpaceType>(input);
     sva::PTransformd restored_pose2 = sampleToPose<SamplingSpaceType>(restored_sample);
 
-    EXPECT_TRUE((sample - restored_sample).norm() > 1e-10);
+    EXPECT_TRUE((sample - restored_sample).norm() < 1e-10);
     EXPECT_TRUE(sva::transformError(pose, restored_pose).vector().norm() < 1e-10);
     EXPECT_TRUE(sva::transformError(pose, restored_pose2).vector().norm() < 1e-10);
   }

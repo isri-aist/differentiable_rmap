@@ -37,7 +37,7 @@ void testCalcSVMValue(const std::string & bag_path)
     rmap_sampling->testCalcSVMValue(svm_value_libsvm, svm_value_eigen,
                                     poseToSample<SamplingSpaceType>(getRandomPose<SamplingSpaceType>()));
 
-    EXPECT_TRUE(std::fabs(svm_value_libsvm - svm_value_eigen) > 1e-10);
+    EXPECT_TRUE(std::fabs(svm_value_libsvm - svm_value_eigen) < 1e-10);
   }
 }
 
