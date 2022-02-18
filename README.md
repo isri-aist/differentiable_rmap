@@ -84,3 +84,12 @@ $ roslaunch differentiable_rmap rmap_visualization.launch sampling_space:=R2
 ```bash
 $ roslaunch differentiable_rmap rmap_planning.launch sampling_space:=R2
 ```
+
+## Standalone script for scalar field learning examples
+```bash
+$ rosrun differentiable_rmap JointSpaceUniformSampling.py
+$ rosrun differentiable_rmap TaskSpaceDensityEstimation.py
+```
+The following image will be displayed.
+
+![TaskSpaceDensityEstimation](doc/images/TaskSpaceDensityEstimation.png)
