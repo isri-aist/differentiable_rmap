@@ -7,24 +7,15 @@
 
 using namespace DiffRmap;
 
-
 void testGenerateSample(bool use_ik)
 {
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
 
   std::shared_ptr<rbd::parsers::ParserResult> parse_res =
-      OmgCore::parseUrdfFromRosparam(
-          nh,
-          "robot_description",
-          rbd::Joint::Type::Fixed,
-          {});
-  auto rb = std::make_shared<OmgCore::Robot>(
-      parse_res->mb,
-      parse_res->name,
-      parse_res->limits,
-      parse_res->visual,
-      parse_res->collision);
+      OmgCore::parseUrdfFromRosparam(nh, "robot_description", rbd::Joint::Type::Fixed, {});
+  auto rb = std::make_shared<OmgCore::Robot>(parse_res->mb, parse_res->name, parse_res->limits, parse_res->visual,
+                                             parse_res->collision);
   // no velocity limit for the offline posture generator
   rb->jvel_max_scale_ = 1e10;
 
@@ -39,21 +30,17 @@ void testGenerateSample(bool use_ik)
   pnh.param<std::vector<std::string>>("joint_name_list", joint_name_list, joint_name_list);
 
   std::shared_ptr<RmapSamplingBase> rmap_sampling;
-  if (use_ik) {
-    rmap_sampling = createRmapSamplingIK(
-        sampling_space,
-        rb,
-        body_name,
-        joint_name_list);
-  } else {
-    rmap_sampling = createRmapSampling(
-        sampling_space,
-        rb,
-        body_name,
-        joint_name_list);
+  if(use_ik)
+  {
+    rmap_sampling = createRmapSamplingIK(sampling_space, rb, body_name, joint_name_list);
+  }
+  else
+  {
+    rmap_sampling = createRmapSampling(sampling_space, rb, body_name, joint_name_list);
   }
 
-  if (pnh.hasParam("config_path")) {
+  if(pnh.hasParam("config_path"))
+  {
     std::string config_path;
     pnh.getParam("config_path", config_path);
     rmap_sampling->configure(mc_rtc::Configuration(config_path));
@@ -81,7 +68,7 @@ TEST(TestRmapSampling, GenerateSampleR2IK)
   testGenerateSample(true);
 }
 
-int main(int argc, char **argv)
+int main(int argc, char ** argv)
 {
   // Setup ROS
   ros::init(argc, argv, "test_rmap_sampling");
