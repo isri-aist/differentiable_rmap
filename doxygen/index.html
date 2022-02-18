@@ -85,13 +85,8 @@ eval-all</div></div>
 <h3>Installation procedure</h3>
 <p>It is assumed that ROS is installed.</p>
 <ol type="1">
-<li>Install mc_rtc</li>
-</ol>
-<p>Installation via apt is recommended. See <a href="https://jrl-umi3218.github.io/mc_rtc/tutorials/introduction/installation-guide.html#ubuntu-lts-1804-2004">here</a>.</p>
-<ol type="1">
-<li>Install jrl-qp</li>
-</ol>
-<div class="fragment"><div class="line">$ git clone https://github.com/jrl-umi3218/jrl-qp -b topic/BlockStructure --recursive</div><div class="line">$ mkdir build</div><div class="line">$ cd build</div><div class="line">$ cmake .. -DBUILD_TESTING=OFF -DBUILD_BENCHMARKS=OFF</div><div class="line">$ make</div><div class="line">$ make install</div></div><!-- fragment --><ol type="1">
+<li>Install mc_rtc Installation via apt is recommended. See <a href="https://jrl-umi3218.github.io/mc_rtc/tutorials/introduction/installation-guide.html#ubuntu-lts-1804-2004">here</a>.</li>
+<li>Install jrl-qp <div class="fragment"><div class="line">$ git clone https://github.com/jrl-umi3218/jrl-qp -b topic/BlockStructure --recursive</div><div class="line">$ mkdir build</div><div class="line">$ cd build</div><div class="line">$ cmake .. -DBUILD_TESTING=OFF -DBUILD_BENCHMARKS=OFF</div><div class="line">$ make</div><div class="line">$ make install</div></div><!-- fragment --></li>
 <li>Setup catkin workspace and build <div class="fragment"><div class="line">$ mkdir -p ~/ros/ws_differentiable_rmap/src</div><div class="line">$ cd ~/ros/ws_differentiable_rmap</div><div class="line">$ wstool init src</div><div class="line">$ wstool set -t src isri-aist/optmotiongen git@github.com:isri-aist/optmotiongen.git -v ver2 --git -y</div><div class="line">$ wstool set -t src isri-aist/differentiable_rmap git@github.com:isri-aist/differentiable_rmap.git --git -y</div><div class="line">$ wstool update -t src</div><div class="line"></div><div class="line">$ source /opt/ros/${ROS_DISTRO}/setup.bash</div><div class="line">$ rosdep install -y -r --from-paths src --ignore-src</div><div class="line"></div><div class="line">$ catkin build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DENABLE_JRLQP=ON</div></div><!-- fragment --></li>
 </ol>
 <h2>Example with simple 2D manipulator</h2>
