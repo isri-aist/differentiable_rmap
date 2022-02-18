@@ -1,5 +1,9 @@
 /* Author: Masaki Murooka */
 
+/** \file SVMUtils.h
+    Utilities for SVM.
+ */
+
 #pragma once
 
 #include <libsvm/svm.h>

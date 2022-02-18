@@ -1,5 +1,9 @@
 /* Author: Masaki Murooka */
 
+/** \file EvalUtils.h
+    Utilities for evaluation.
+ */
+
 #pragma once
 
 #include <set>

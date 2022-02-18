@@ -1,5 +1,9 @@
 /* Author: Masaki Murooka */
 
+/** \file RosUtils.h
+    ROS utilities.
+ */
+
 #pragma once
 
 #include <rosbag/bag.h>

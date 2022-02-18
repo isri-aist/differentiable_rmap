@@ -1,5 +1,9 @@
 /* Author: Masaki Murooka */
 
+/** \file RobotUtils.h
+    Robot utilities.
+ */
+
 #pragma once
 
 #include <string>
