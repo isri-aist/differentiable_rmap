@@ -21,7 +21,7 @@ using namespace DiffRmap;
 
 template<SamplingSpace SamplingSpaceType>
 RmapTraining<SamplingSpaceType>::RmapTraining(const std::string & bag_path, const std::string & svm_path, bool load_svm)
-:   load_svm_(load_svm), svm_path_(svm_path), train_required_(!load_svm)
+: load_svm_(load_svm), svm_path_(svm_path), train_required_(!load_svm)
 {
   // Setup ROS
   reachable_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("reachable_cloud", 1, true);
