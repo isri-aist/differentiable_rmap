@@ -123,5 +123,10 @@ jobs:
           rm -rf doxygen/
           cp -r ${GITHUB_WORKSPACE}/catkin_ws/build/differentiable_rmap/doc/html/ doxygen
           git add doxygen
-          git commit --quiet -m "Update Doxygen HTML files from commit ${{ github.sha }}"
-          git push origin gh-pages
+          git_status=`git status -s`
+          if test -n "$git_status"; then
+            git commit --quiet -m "Update Doxygen HTML files from commit ${{ github.sha }}"
+            git push origin gh-pages
+          else
+            echo "Github pages documentation is already up-to-date."
+          fi
