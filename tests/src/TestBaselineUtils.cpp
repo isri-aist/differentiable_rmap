@@ -1,3 +1,5 @@
+/* Author: Masaki Murooka */
+
 #include <gtest/gtest.h>
 
 #include <fstream>

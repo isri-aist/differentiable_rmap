@@ -1,0 +1,23 @@
+<launch>
+  <!-- only R2 is supported -->
+  <arg name="sampling_space" value="R2" />
+  <arg name="use_ik" default="false" />
+
+  <!-- load robot description -->
+  <arg name="robot_model_path" value="$(find differentiable_rmap)/urdf/Simple2DoFManipulator.urdf.xacro" />
+  <param name="robot_description" command="$(find xacro)/xacro $(arg robot_model_path)" />
+
+  <test test-name="test_rmap_sampling"
+        pkg="differentiable_rmap" type="TestRmapSampling" name="test_rmap_sampling"
+        time-limit="180.0">
+    <rosparam subst_value="true">
+      sampling_space: $(arg sampling_space)
+      config_path: $(find differentiable_rmap)/config/RmapSampling.yaml
+      bag_path: /tmp/rmap_sample_set_$(arg sampling_space).bag
+      body_name: EEF
+      joint_name_list: [Joint1, Joint2]
+      sample_num: 100
+      sleep_rate: 2000
+    </rosparam>
+  </test>
+</launch>
