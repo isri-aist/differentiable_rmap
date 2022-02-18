@@ -1,7 +1,7 @@
 <map id="DiffRmap::RmapPlanningPlacement&lt; SamplingSpaceType &gt;" name="DiffRmap::RmapPlanningPlacement&lt; SamplingSpaceType &gt;">
-<area shape="rect" id="node2" href="$classDiffRmap_1_1RmapPlanning.html" title="Class to plan in sample space based on differentiable reachability map. " alt="" coords="347,11,518,53"/>
-<area shape="rect" id="node3" href="$classDiffRmap_1_1RmapPlanningBase.html" title="Virtual base class to plan in sample space based on differentiable reachability map. " alt="" coords="5,5,207,32"/>
-<area shape="rect" id="node4" href="$structDiffRmap_1_1RmapPlanning_1_1Configuration.html" title="Configuration. " alt="" coords="21,63,191,119"/>
-<area shape="rect" id="node6" href="$structDiffRmap_1_1RmapPlanningPlacement_1_1Configuration.html" title="Configuration. " alt="" coords="307,77,558,118"/>
-<area shape="rect" id="node5" href="$classDiffRmap_1_1RmapPlanningPlacementBase.html" title="Virtual base class to plan manipulator placement based on differentiable reachability map..." alt="" coords="301,143,564,169"/>
+<area shape="rect" id="node2" href="$classDiffRmap_1_1RmapPlanning.html" title="Class to plan in sample space based on differentiable reachability map. " alt="" coords="374,11,561,53"/>
+<area shape="rect" id="node3" href="$classDiffRmap_1_1RmapPlanningBase.html" title="Virtual base class to plan in sample space based on differentiable reachability map. " alt="" coords="5,5,224,32"/>
+<area shape="rect" id="node4" href="$structDiffRmap_1_1RmapPlanning_1_1Configuration.html" title="Configuration. " alt="" coords="21,63,208,119"/>
+<area shape="rect" id="node6" href="$structDiffRmap_1_1RmapPlanningPlacement_1_1Configuration.html" title="Configuration. " alt="" coords="327,77,607,118"/>
+<area shape="rect" id="node5" href="$classDiffRmap_1_1RmapPlanningPlacementBase.html" title="Virtual base class to plan manipulator placement based on differentiable reachability map..." alt="" coords="324,143,611,169"/>
 </map>

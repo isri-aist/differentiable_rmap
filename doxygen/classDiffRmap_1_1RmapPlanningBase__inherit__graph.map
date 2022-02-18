@@ -1,5 +1,5 @@
 <map id="DiffRmap::RmapPlanningBase" name="DiffRmap::RmapPlanningBase">
-<area shape="rect" id="node2" href="$classDiffRmap_1_1RmapPlanning.html" title="Class to plan in sample space based on differentiable reachability map. " alt="" coords="255,39,425,80"/>
-<area shape="rect" id="node3" href="$classDiffRmap_1_1RmapPlanningFootstep.html" title="Class to plan footstep sequence based on differentiable reachability map. " alt="" coords="479,5,701,47"/>
-<area shape="rect" id="node4" href="$classDiffRmap_1_1RmapPlanningPlacement.html" title="Class to plan manipulator placement based on differentiable reachability map. " alt="" coords="473,71,707,112"/>
+<area shape="rect" id="node2" href="$classDiffRmap_1_1RmapPlanning.html" title="Class to plan in sample space based on differentiable reachability map. " alt="" coords="272,39,459,80"/>
+<area shape="rect" id="node3" href="$classDiffRmap_1_1RmapPlanningFootstep.html" title="Class to plan footstep sequence based on differentiable reachability map. " alt="" coords="513,5,755,47"/>
+<area shape="rect" id="node4" href="$classDiffRmap_1_1RmapPlanningPlacement.html" title="Class to plan manipulator placement based on differentiable reachability map. " alt="" coords="507,71,761,112"/>
 </map>

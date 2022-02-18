@@ -1,6 +1,6 @@
 <map id="DiffRmap::RmapSamplingIK&lt; SamplingSpaceType &gt;" name="DiffRmap::RmapSamplingIK&lt; SamplingSpaceType &gt;">
-<area shape="rect" id="node2" href="$classDiffRmap_1_1RmapSampling.html" title="Class to generate samples for reachability map. " alt="" coords="312,5,487,47"/>
-<area shape="rect" id="node3" href="$classDiffRmap_1_1RmapSamplingBase.html" title="Virtual base class to generate samples for reachability map. " alt="" coords="5,7,211,34"/>
-<area shape="rect" id="node4" href="$structDiffRmap_1_1RmapSampling_1_1Configuration.html" title="Configuration. " alt="" coords="21,65,195,121"/>
-<area shape="rect" id="node5" href="$structDiffRmap_1_1RmapSamplingIK_1_1Configuration.html" title="Configuration. " alt="" coords="305,71,493,127"/>
+<area shape="rect" id="node2" href="$classDiffRmap_1_1RmapSampling.html" title="Class to generate samples for reachability map. " alt="" coords="335,5,525,47"/>
+<area shape="rect" id="node3" href="$classDiffRmap_1_1RmapSamplingBase.html" title="Virtual base class to generate samples for reachability map. " alt="" coords="5,7,228,34"/>
+<area shape="rect" id="node4" href="$structDiffRmap_1_1RmapSampling_1_1Configuration.html" title="Configuration. " alt="" coords="21,65,212,121"/>
+<area shape="rect" id="node5" href="$structDiffRmap_1_1RmapSamplingIK_1_1Configuration.html" title="Configuration. " alt="" coords="328,71,532,127"/>
 </map>

@@ -1,5 +1,5 @@
 <map id="DiffRmap::RmapSampling&lt; SamplingSpaceType &gt;" name="DiffRmap::RmapSampling&lt; SamplingSpaceType &gt;">
-<area shape="rect" id="node3" href="$classDiffRmap_1_1RmapSamplingIK.html" title="Class to generate samples for reachability map based on inverse kinematics. " alt="" coords="25,169,213,211"/>
-<area shape="rect" id="node2" href="$classDiffRmap_1_1RmapSamplingBase.html" title="Virtual base class to generate samples for reachability map. " alt="" coords="16,5,221,32"/>
-<area shape="rect" id="node4" href="$classDiffRmap_1_1RmapSamplingFootstep.html" title="Class to generate samples for reachability map for footstep planning. " alt="" coords="5,259,232,300"/>
+<area shape="rect" id="node3" href="$classDiffRmap_1_1RmapSamplingIK.html" title="Class to generate samples for reachability map based on inverse kinematics. " alt="" coords="27,169,231,211"/>
+<area shape="rect" id="node2" href="$classDiffRmap_1_1RmapSamplingBase.html" title="Virtual base class to generate samples for reachability map. " alt="" coords="17,5,240,32"/>
+<area shape="rect" id="node4" href="$classDiffRmap_1_1RmapSamplingFootstep.html" title="Class to generate samples for reachability map for footstep planning. " alt="" coords="5,259,252,300"/>
 </map>

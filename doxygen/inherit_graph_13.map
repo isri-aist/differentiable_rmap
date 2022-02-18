@@ -1,7 +1,7 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classDiffRmap_1_1RmapPlanningBase.html" title="Virtual base class to plan in sample space based on differentiable reachability map. " alt="" coords="5,17,207,43"/>
-<area shape="rect" id="node2" href="$classDiffRmap_1_1RmapPlanning.html" title="Class to plan in sample space based on differentiable reachability map. " alt="" coords="301,9,471,51"/>
-<area shape="rect" id="node3" href="$classDiffRmap_1_1RmapPlanningFootstep.html" title="Class to plan footstep sequence based on differentiable reachability map. " alt="" coords="571,5,793,47"/>
-<area shape="rect" id="node4" href="$classDiffRmap_1_1RmapPlanningPlacement.html" title="Class to plan manipulator placement based on differentiable reachability map. " alt="" coords="565,71,799,112"/>
-<area shape="rect" id="node5" href="$classDiffRmap_1_1RmapPlanningPlacementBase.html" title="Virtual base class to plan manipulator placement based on differentiable reachability map..." alt="" coords="255,78,517,105"/>
+<area shape="rect" id="node1" href="$classDiffRmap_1_1RmapPlanningBase.html" title="Virtual base class to plan in sample space based on differentiable reachability map. " alt="" coords="5,17,224,43"/>
+<area shape="rect" id="node2" href="$classDiffRmap_1_1RmapPlanning.html" title="Class to plan in sample space based on differentiable reachability map. " alt="" coords="322,9,509,51"/>
+<area shape="rect" id="node3" href="$classDiffRmap_1_1RmapPlanningFootstep.html" title="Class to plan footstep sequence based on differentiable reachability map. " alt="" coords="613,5,855,47"/>
+<area shape="rect" id="node4" href="$classDiffRmap_1_1RmapPlanningPlacement.html" title="Class to plan manipulator placement based on differentiable reachability map. " alt="" coords="607,71,861,112"/>
+<area shape="rect" id="node5" href="$classDiffRmap_1_1RmapPlanningPlacementBase.html" title="Virtual base class to plan manipulator placement based on differentiable reachability map..." alt="" coords="272,78,559,105"/>
 </map>
