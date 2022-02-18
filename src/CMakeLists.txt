@@ -12,6 +12,9 @@ add_library(DiffRmap
   RmapPlanningMulticontact.cpp
   RmapPlanningLocomanip.cpp
   )
+# Library depends on message generation
+add_dependencies(DiffRmap
+  ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(DiffRmap PUBLIC
   SpaceVecAlg::SpaceVecAlg
   RBDyn::RBDyn
