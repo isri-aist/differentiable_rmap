@@ -121,5 +121,5 @@ jobs:
           rm -rf doxygen/
           cp -r ${GITHUB_WORKSPACE}/catkin_ws/build/differentiable_rmap/doc/html/ doxygen
           git add doxygen
-          git commit --quiet -m "hoge"
+          git commit --quiet -m "Update Doxygen HTML files from commit ${{ github.ref }}"
           git push origin gh-pages
