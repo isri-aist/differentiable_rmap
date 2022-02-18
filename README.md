@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/isri-aist/differentiable_rmap/actions/workflows/ci.yaml/badge.svg)](https://github.com/isri-aist/differentiable_rmap/actions/workflows/ci.yaml)
 
+![eval-all](doc/images/eval-all.gif)
+
 ## Summary
 This is a library for representing the kinematic reachability of robots: differentiable reachability map.
 
