@@ -11,7 +11,6 @@
 
 #include <differentiable_rmap/RmapVisualization.h>
 #include <differentiable_rmap/SVMUtils.h>
-#include <differentiable_rmap/libsvm_hotfix.h>
 
 using namespace DiffRmap;
 
