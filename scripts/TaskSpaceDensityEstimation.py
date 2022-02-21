@@ -18,6 +18,11 @@ class TaskSpaceDensityEstimation(object):
         plt.rcParams["font.size"] = 16
         plt.rcParams["image.origin"] = "lower"
 
+        # To avoid Type 3 fonts
+        # See http://phyletica.org/matplotlib-fonts/
+        plt.rcParams['pdf.fonttype'] = 42
+        plt.rcParams['ps.fonttype'] = 42
+
         # Load sampling result
         sample_path = "/tmp/uniform_joint_sampling.npz"
         print("Load sampling result from {}".format(sample_path))
