@@ -1,9 +1,5 @@
 /* Author: Masaki Murooka */
 
-/** \file SamplingUtils.h
-    Utilities for sampling.
- */
-
 #pragma once
 
 #include <stdexcept>

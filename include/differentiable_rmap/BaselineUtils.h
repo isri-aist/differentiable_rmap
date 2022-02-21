@@ -1,9 +1,5 @@
 /* Author: Masaki Murooka */
 
-/** \file BaselineUtils.h
-    Utilities for baseline methods.
- */
-
 #pragma once
 
 #include <memory>

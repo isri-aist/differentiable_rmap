@@ -1,9 +1,5 @@
 /* Author: Masaki Murooka */
 
-/** \file MathUtils.h
-    Math utilities.
- */
-
 #pragma once
 
 #include <cmath>

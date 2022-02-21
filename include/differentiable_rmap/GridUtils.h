@@ -1,9 +1,5 @@
 /* Author: Masaki Murooka */
 
-/** \file GridUtils.h
-    Utilities for grid.
- */
-
 #pragma once
 
 #include <algorithm>
