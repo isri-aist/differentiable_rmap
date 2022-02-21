@@ -1,6 +1,8 @@
 var searchData=
 [
-  ['feet',['feet',['../RobotUtils_8h.html#a4f727421d61273ab30891b99bc6719d1',1,'DiffRmap::Limbs']]],
+  ['falsereachable',['FalseReachable',['../namespaceDiffRmap.html#a0e2bf4ee70993dcad55eae92c75b23b9a081b26b1e82cf960e3ff866a4dd23f6e',1,'DiffRmap']]],
+  ['falseunreachable',['FalseUnreachable',['../namespaceDiffRmap.html#a0e2bf4ee70993dcad55eae92c75b23b9a5874df9ead3f6c5c6e1239460c4bc97d',1,'DiffRmap']]],
+  ['feet',['feet',['../namespaceDiffRmap_1_1Limbs.html#a4f727421d61273ab30891b99bc6719d1',1,'DiffRmap::Limbs']]],
   ['foot_5finput_5fdim_5f',['foot_input_dim_',['../classDiffRmap_1_1RmapPlanningMulticontact.html#a91b82e50e95a6d27c589e9d5e42e74a3',1,'DiffRmap::RmapPlanningMulticontact']]],
   ['foot_5fnum_5f',['foot_num_',['../classDiffRmap_1_1RmapPlanningMulticontact.html#a3a1d324e4a711ef51307d073e722de7c',1,'DiffRmap::RmapPlanningMulticontact']]],
   ['foot_5fpos_5flimits',['foot_pos_limits',['../structDiffRmap_1_1RmapPlanningMulticontact_1_1Configuration.html#a1634982fb5a324683fa1053129567b47',1,'DiffRmap::RmapPlanningMulticontact::Configuration']]],

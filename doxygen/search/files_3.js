@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['mathutils_2eh',['MathUtils.h',['../MathUtils_8h.html',1,'']]]
+  ['libsvm_5fhotfix_2eh',['libsvm_hotfix.h',['../libsvm__hotfix_8h.html',1,'']]]
 ];

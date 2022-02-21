@@ -1,6 +1,13 @@
 var searchData=
 [
-  ['posetosample',['poseToSample',['../SamplingUtils_8h.html#aa96db6419e0a59487640d9945fe32dd1',1,'DiffRmap']]],
+  ['placementsamplingspace',['placementSamplingSpace',['../namespaceDiffRmap.html#ae2bd1bab90c0275bf9a47a315d522bda',1,'DiffRmap']]],
+  ['posetosample',['poseToSample',['../namespaceDiffRmap.html#aa96db6419e0a59487640d9945fe32dd1',1,'DiffRmap']]],
+  ['posetosample_3c_20samplingspace_3a_3ar2_20_3e',['poseToSample&lt; SamplingSpace::R2 &gt;',['../namespaceDiffRmap.html#ad60857f848ee7fae5c8f08849b477430',1,'DiffRmap']]],
+  ['posetosample_3c_20samplingspace_3a_3ar3_20_3e',['poseToSample&lt; SamplingSpace::R3 &gt;',['../namespaceDiffRmap.html#a5653695231959851895ec4331b124bb9',1,'DiffRmap']]],
+  ['posetosample_3c_20samplingspace_3a_3ase2_20_3e',['poseToSample&lt; SamplingSpace::SE2 &gt;',['../namespaceDiffRmap.html#a45c20ecef9562319564c1e799f9da2be',1,'DiffRmap']]],
+  ['posetosample_3c_20samplingspace_3a_3ase3_20_3e',['poseToSample&lt; SamplingSpace::SE3 &gt;',['../namespaceDiffRmap.html#a30f6490b0526fc3f47dfedd49f9cb614',1,'DiffRmap']]],
+  ['posetosample_3c_20samplingspace_3a_3aso2_20_3e',['poseToSample&lt; SamplingSpace::SO2 &gt;',['../namespaceDiffRmap.html#a9d0647ad28f9bda106340e02e5caa495',1,'DiffRmap']]],
+  ['posetosample_3c_20samplingspace_3a_3aso3_20_3e',['poseToSample&lt; SamplingSpace::SO3 &gt;',['../namespaceDiffRmap.html#afbc65bc7216b119bbf2d218cb0048340',1,'DiffRmap']]],
   ['posturecallback',['postureCallback',['../classDiffRmap_1_1RmapPlanningPlacement.html#a9355329a5b0e724b44364904c26fbcd7',1,'DiffRmap::RmapPlanningPlacement']]],
   ['predictonceconvex',['predictOnceConvex',['../classDiffRmap_1_1RmapTraining.html#af65898e72ff3ffcc7a9950cd9442234a',1,'DiffRmap::RmapTraining']]],
   ['predictonceknn',['predictOnceKNN',['../classDiffRmap_1_1RmapTraining.html#ac5c7319448eb3250a4451003ae4f0bd5',1,'DiffRmap::RmapTraining']]],

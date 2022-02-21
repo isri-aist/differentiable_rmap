@@ -11,5 +11,6 @@ var searchData=
   ['taskset_5flist_5f',['taskset_list_',['../classDiffRmap_1_1RmapSamplingFootstep.html#a83c1d255660b872ff0771ced871b4356',1,'DiffRmap::RmapSamplingFootstep']]],
   ['topic_5fname_5f',['topic_name_',['../classDiffRmap_1_1SubscVariableManager.html#a8ae0c0303e36db6c415b1b2251cc488f',1,'DiffRmap::SubscVariableManager']]],
   ['train_5frequired_5f',['train_required_',['../classDiffRmap_1_1RmapTraining.html#adab1c2e3c3b1e6bc3f1d97ad8241ffb9',1,'DiffRmap::RmapTraining']]],
-  ['train_5fupdated_5f',['train_updated_',['../classDiffRmap_1_1RmapTraining.html#aef266511b845d89a9ad801adfe969ec3',1,'DiffRmap::RmapTraining']]]
+  ['train_5fupdated_5f',['train_updated_',['../classDiffRmap_1_1RmapTraining.html#aef266511b845d89a9ad801adfe969ec3',1,'DiffRmap::RmapTraining']]],
+  ['trans_5fsub_5f',['trans_sub_',['../classDiffRmap_1_1RmapPlanning.html#a5adab1e2b4d87b1f42e0546d38bff99a',1,'DiffRmap::RmapPlanning::trans_sub_()'],['../classDiffRmap_1_1RmapPlanningLocomanip.html#a9c468e440467347a1af44e7e095c1ace',1,'DiffRmap::RmapPlanningLocomanip::trans_sub_()'],['../classDiffRmap_1_1RmapPlanningMulticontact.html#ae3848de54a9be0641155edf42cfdf33a',1,'DiffRmap::RmapPlanningMulticontact::trans_sub_()']]]
 ];

@@ -4,6 +4,8 @@ var searchData=
   ['rb_5farr_5f',['rb_arr_',['../classDiffRmap_1_1RmapPlanningPlacement.html#a1f99199e695623c811b2c274020bdc5a',1,'DiffRmap::RmapPlanningPlacement::rb_arr_()'],['../classDiffRmap_1_1RmapSampling.html#a911e12c6c6ba4e9956f7ec7db91c588f',1,'DiffRmap::RmapSampling::rb_arr_()']]],
   ['rbc_5farr_5f',['rbc_arr_',['../classDiffRmap_1_1RmapSampling.html#abc884994a46aa3c1dcf6218bf04b7ac8',1,'DiffRmap::RmapSampling']]],
   ['reachability_5flist_5f',['reachability_list_',['../classDiffRmap_1_1RmapSampling.html#a0b5fdf14d318a4a2dcc04a6e852034c7',1,'DiffRmap::RmapSampling::reachability_list_()'],['../classDiffRmap_1_1RmapTraining.html#a972c4570b7c4743131c0b670ea3fc2dc',1,'DiffRmap::RmapTraining::reachability_list_()']]],
+  ['reachable_5fcloud_5fmsg_5f',['reachable_cloud_msg_',['../classDiffRmap_1_1RmapSampling.html#acb17babaa6c39efdbc1bf8ecbf866481',1,'DiffRmap::RmapSampling']]],
+  ['reachable_5fcloud_5fpub_5f',['reachable_cloud_pub_',['../classDiffRmap_1_1RmapSampling.html#a1d4ef4bfd158023cf4ff15a5466d4ce5',1,'DiffRmap::RmapSampling::reachable_cloud_pub_()'],['../classDiffRmap_1_1RmapTraining.html#aa0122cabf2acd07bb6324b0a0acf1e20',1,'DiffRmap::RmapTraining::reachable_cloud_pub_()']]],
   ['reachable_5fsample_5fnum_5f',['reachable_sample_num_',['../classDiffRmap_1_1RmapSamplingIK.html#ad6d5e7185eea2861164007e29e293d8a',1,'DiffRmap::RmapSamplingIK']]],
   ['reachable_5fsample_5fratio_5flimits',['reachable_sample_ratio_limits',['../structDiffRmap_1_1RmapSamplingIK_1_1Configuration.html#a850d1c90612335b5ca7bd8c111c31c46',1,'DiffRmap::RmapSamplingIK::Configuration']]],
   ['reaching_5fnum',['reaching_num',['../structDiffRmap_1_1RmapPlanningPlacement_1_1Configuration.html#a96ad1330f9bd7462caa08f67190fa579',1,'DiffRmap::RmapPlanningPlacement::Configuration']]],
@@ -11,5 +13,6 @@ var searchData=
   ['rel_5fhand_5ffoot_5fweight',['rel_hand_foot_weight',['../structDiffRmap_1_1RmapPlanningMulticontact_1_1Configuration.html#aa403d48bf029ec5bd5562469213d0a62',1,'DiffRmap::RmapPlanningMulticontact::Configuration']]],
   ['rmap_5fplanning_5flist_5f',['rmap_planning_list_',['../classDiffRmap_1_1RmapPlanningLocomanip.html#a7fa0b7d90145fb36a52bd7ca6ced7bb3',1,'DiffRmap::RmapPlanningLocomanip::rmap_planning_list_()'],['../classDiffRmap_1_1RmapPlanningMulticontact.html#a8d62fbdb470514959429f01fb4f2c581',1,'DiffRmap::RmapPlanningMulticontact::rmap_planning_list_()']]],
   ['root_5fpose',['root_pose',['../structDiffRmap_1_1RmapSampling_1_1Configuration.html#a9229e3360981c233cfba25a95a1f707a',1,'DiffRmap::RmapSampling::Configuration']]],
-  ['rot_5fresolution',['rot_resolution',['../structDiffRmap_1_1RmapVisualization_1_1Configuration.html#a4d47ed8ef485fbe6528d1542602cabcf',1,'DiffRmap::RmapVisualization::Configuration']]]
+  ['rot_5fresolution',['rot_resolution',['../structDiffRmap_1_1RmapVisualization_1_1Configuration.html#a4d47ed8ef485fbe6528d1542602cabcf',1,'DiffRmap::RmapVisualization::Configuration']]],
+  ['rs_5farr_5fpub_5f',['rs_arr_pub_',['../classDiffRmap_1_1RmapPlanningPlacement.html#a77db657d7d22f9b22a1d194b70cda82e',1,'DiffRmap::RmapPlanningPlacement::rs_arr_pub_()'],['../classDiffRmap_1_1RmapSampling.html#aedd58cd58b4d154c7920b026068ccfb6',1,'DiffRmap::RmapSampling::rs_arr_pub_()']]]
 ];

@@ -63,6 +63,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#namespaces">Namespaces</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
@@ -71,633 +72,88 @@ $(function() {
 <div class="contents">
 <div class="textblock"><code>#include &lt;libsvm/svm.h&gt;</code><br />
 <code>#include &lt;<a class="el" href="SamplingUtils_8h_source.html">differentiable_rmap/SamplingUtils.h</a>&gt;</code><br />
-<code>#include &lt;differentiable_rmap/SVMUtils.hpp&gt;</code><br />
+<code>#include &lt;<a class="el" href="SVMUtils_8hpp_source.html">differentiable_rmap/SVMUtils.hpp</a>&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for SVMUtils.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="SVMUtils_8h__incl.png" border="0" usemap="#_2home_2runner_2work_2differentiable__rmap_2differentiable__rmap_2catkin__ws_2src_2differentiable__rmap_2include_2differentiable__rmap_2SVMUtils_8h" alt=""/></div>
 <map name="_2home_2runner_2work_2differentiable__rmap_2differentiable__rmap_2catkin__ws_2src_2differentiable__rmap_2include_2differentiable__rmap_2SVMUtils_8h" id="_2home_2runner_2work_2differentiable__rmap_2differentiable__rmap_2catkin__ws_2src_2differentiable__rmap_2include_2differentiable__rmap_2SVMUtils_8h">
 <area shape="rect" id="node3" href="SamplingUtils_8h.html" title="differentiable_rmap\l/SamplingUtils.h" alt="" coords="189,124,340,165"/>
-<area shape="rect" id="node11" href="SVMUtils_8hpp_source.html" title="differentiable_rmap\l/SVMUtils.hpp" alt="" coords="364,124,515,165"/>
-<area shape="rect" id="node8" href="SamplingUtils_8hpp_source.html" title="differentiable_rmap\l/SamplingUtils.hpp" alt="" coords="573,213,724,255"/>
+<area shape="rect" id="node11" href="SVMUtils_8hpp.html" title="differentiable_rmap\l/SVMUtils.hpp" alt="" coords="364,124,515,165"/>
+<area shape="rect" id="node8" href="SamplingUtils_8hpp.html" title="differentiable_rmap\l/SamplingUtils.hpp" alt="" coords="573,213,724,255"/>
 <area shape="rect" id="node9" href="MathUtils_8h.html" title="differentiable_rmap\l/MathUtils.h" alt="" coords="573,303,724,344"/>
 </map>
 </div>
 </div>
 <p><a href="SVMUtils_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
+Namespaces</h2></td></tr>
+<tr class="memitem:namespaceDiffRmap"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html">DiffRmap</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:ae966bbe6b837aec67c8fb3e046c9022a"><td class="memTemplParams" colspan="2"><a id="ae966bbe6b837aec67c8fb3e046c9022a"></a>
-template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:ae966bbe6b837aec67c8fb3e046c9022a"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SVMUtils_8h.html#ae966bbe6b837aec67c8fb3e046c9022a">DiffRmap::InputToSampleMat</a> = Eigen::Matrix&lt; double, sampleDim&lt; SamplingSpaceType &gt;(), inputDim&lt; SamplingSpaceType &gt;()&gt;</td></tr>
-<tr class="memdesc:ae966bbe6b837aec67c8fb3e046c9022a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of matrix to represent the linear relation from input to sample. <br /></td></tr>
+<tr class="memitem:ae966bbe6b837aec67c8fb3e046c9022a"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
+<tr class="memitem:ae966bbe6b837aec67c8fb3e046c9022a"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#ae966bbe6b837aec67c8fb3e046c9022a">DiffRmap::InputToSampleMat</a> = Eigen::Matrix&lt; double, sampleDim&lt; SamplingSpaceType &gt;(), inputDim&lt; SamplingSpaceType &gt;()&gt;</td></tr>
+<tr class="memdesc:ae966bbe6b837aec67c8fb3e046c9022a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of matrix to represent the linear relation from input to sample.  <a href="namespaceDiffRmap.html#ae966bbe6b837aec67c8fb3e046c9022a">More...</a><br /></td></tr>
 <tr class="separator:ae966bbe6b837aec67c8fb3e046c9022a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:accc0db79354dcc86c87e843fb3080286"><td class="memTemplParams" colspan="2"><a id="accc0db79354dcc86c87e843fb3080286"></a>
-template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:accc0db79354dcc86c87e843fb3080286"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SVMUtils_8h.html#accc0db79354dcc86c87e843fb3080286">DiffRmap::SampleToVelMat</a> = Eigen::Matrix&lt; double, velDim&lt; SamplingSpaceType &gt;(), sampleDim&lt; SamplingSpaceType &gt;()&gt;</td></tr>
-<tr class="memdesc:accc0db79354dcc86c87e843fb3080286"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of matrix to represent the linear relation from sample to vel. <br /></td></tr>
+<tr class="memitem:accc0db79354dcc86c87e843fb3080286"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
+<tr class="memitem:accc0db79354dcc86c87e843fb3080286"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#accc0db79354dcc86c87e843fb3080286">DiffRmap::SampleToVelMat</a> = Eigen::Matrix&lt; double, velDim&lt; SamplingSpaceType &gt;(), sampleDim&lt; SamplingSpaceType &gt;()&gt;</td></tr>
+<tr class="memdesc:accc0db79354dcc86c87e843fb3080286"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of matrix to represent the linear relation from sample to vel.  <a href="namespaceDiffRmap.html#accc0db79354dcc86c87e843fb3080286">More...</a><br /></td></tr>
 <tr class="separator:accc0db79354dcc86c87e843fb3080286"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7208b591249b23472acfd76b78fcbad9"><td class="memTemplParams" colspan="2"><a id="a7208b591249b23472acfd76b78fcbad9"></a>
-template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:a7208b591249b23472acfd76b78fcbad9"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SVMUtils_8h.html#a7208b591249b23472acfd76b78fcbad9">DiffRmap::SampleToSampleMat</a> = Eigen::Matrix&lt; double, sampleDim&lt; SamplingSpaceType &gt;(), sampleDim&lt; SamplingSpaceType &gt;()&gt;</td></tr>
-<tr class="memdesc:a7208b591249b23472acfd76b78fcbad9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of matrix to represent the linear relation from sample to sample. <br /></td></tr>
+<tr class="memitem:a7208b591249b23472acfd76b78fcbad9"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
+<tr class="memitem:a7208b591249b23472acfd76b78fcbad9"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#a7208b591249b23472acfd76b78fcbad9">DiffRmap::SampleToSampleMat</a> = Eigen::Matrix&lt; double, sampleDim&lt; SamplingSpaceType &gt;(), sampleDim&lt; SamplingSpaceType &gt;()&gt;</td></tr>
+<tr class="memdesc:a7208b591249b23472acfd76b78fcbad9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of matrix to represent the linear relation from sample to sample.  <a href="namespaceDiffRmap.html#a7208b591249b23472acfd76b78fcbad9">More...</a><br /></td></tr>
 <tr class="separator:a7208b591249b23472acfd76b78fcbad9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a60d1afd6c395f688a4e6b6998d1dd77e"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:a60d1afd6c395f688a4e6b6998d1dd77e"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SVMUtils_8h.html#a60d1afd6c395f688a4e6b6998d1dd77e">DiffRmap::setSVMPredictionMat</a> (Eigen::Ref&lt; Eigen::VectorXd &gt; svm_coeff_vec, Eigen::Ref&lt; Eigen::Matrix&lt; double, inputDim&lt; SamplingSpaceType &gt;(), Eigen::Dynamic &gt;&gt; svm_sv_mat, svm_model *svm_mo)</td></tr>
-<tr class="memdesc:a60d1afd6c395f688a4e6b6998d1dd77e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set SVM matrix for prediction.  <a href="SVMUtils_8h.html#a60d1afd6c395f688a4e6b6998d1dd77e">More...</a><br /></td></tr>
+<tr class="memitem:a60d1afd6c395f688a4e6b6998d1dd77e"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#a60d1afd6c395f688a4e6b6998d1dd77e">DiffRmap::setSVMPredictionMat</a> (Eigen::Ref&lt; Eigen::VectorXd &gt; svm_coeff_vec, Eigen::Ref&lt; Eigen::Matrix&lt; double, inputDim&lt; SamplingSpaceType &gt;(), Eigen::Dynamic &gt;&gt; svm_sv_mat, svm_model *svm_mo)</td></tr>
+<tr class="memdesc:a60d1afd6c395f688a4e6b6998d1dd77e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set SVM matrix for prediction.  <a href="namespaceDiffRmap.html#a60d1afd6c395f688a4e6b6998d1dd77e">More...</a><br /></td></tr>
 <tr class="separator:a60d1afd6c395f688a4e6b6998d1dd77e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac31b616a4f7fffc0ba857a5e977320ba"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:ac31b616a4f7fffc0ba857a5e977320ba"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SVMUtils_8h.html#ac31b616a4f7fffc0ba857a5e977320ba">DiffRmap::setInputNode</a> (svm_node *input_node, const Input&lt; SamplingSpaceType &gt; &amp;input)</td></tr>
-<tr class="memdesc:ac31b616a4f7fffc0ba857a5e977320ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set SVM input to node (including index).  <a href="SVMUtils_8h.html#ac31b616a4f7fffc0ba857a5e977320ba">More...</a><br /></td></tr>
+<tr class="memitem:ac31b616a4f7fffc0ba857a5e977320ba"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#ac31b616a4f7fffc0ba857a5e977320ba">DiffRmap::setInputNode</a> (svm_node *input_node, const Input&lt; SamplingSpaceType &gt; &amp;input)</td></tr>
+<tr class="memdesc:ac31b616a4f7fffc0ba857a5e977320ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set SVM input to node (including index).  <a href="namespaceDiffRmap.html#ac31b616a4f7fffc0ba857a5e977320ba">More...</a><br /></td></tr>
 <tr class="separator:ac31b616a4f7fffc0ba857a5e977320ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad704280c84bf10bd498305faf7137586"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:ad704280c84bf10bd498305faf7137586"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SVMUtils_8h.html#ad704280c84bf10bd498305faf7137586">DiffRmap::setInputNodeOnlyValue</a> (svm_node *input_node, const Input&lt; SamplingSpaceType &gt; &amp;input)</td></tr>
-<tr class="memdesc:ad704280c84bf10bd498305faf7137586"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set SVM input to node (only value).  <a href="SVMUtils_8h.html#ad704280c84bf10bd498305faf7137586">More...</a><br /></td></tr>
+<tr class="memitem:ad704280c84bf10bd498305faf7137586"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#ad704280c84bf10bd498305faf7137586">DiffRmap::setInputNodeOnlyValue</a> (svm_node *input_node, const Input&lt; SamplingSpaceType &gt; &amp;input)</td></tr>
+<tr class="memdesc:ad704280c84bf10bd498305faf7137586"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set SVM input to node (only value).  <a href="namespaceDiffRmap.html#ad704280c84bf10bd498305faf7137586">More...</a><br /></td></tr>
 <tr class="separator:ad704280c84bf10bd498305faf7137586"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa44c5974ee58324f7730fb98dd988f37"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:aa44c5974ee58324f7730fb98dd988f37"><td class="memTemplItemLeft" align="right" valign="top">Input&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SVMUtils_8h.html#aa44c5974ee58324f7730fb98dd988f37">DiffRmap::svmNodeToEigenVec</a> (const svm_node *input_node)</td></tr>
-<tr class="memdesc:aa44c5974ee58324f7730fb98dd988f37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert SVM input node to Eigen::Vector.  <a href="SVMUtils_8h.html#aa44c5974ee58324f7730fb98dd988f37">More...</a><br /></td></tr>
+<tr class="memitem:aa44c5974ee58324f7730fb98dd988f37"><td class="memTemplItemLeft" align="right" valign="top">Input&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#aa44c5974ee58324f7730fb98dd988f37">DiffRmap::svmNodeToEigenVec</a> (const svm_node *input_node)</td></tr>
+<tr class="memdesc:aa44c5974ee58324f7730fb98dd988f37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert SVM input node to Eigen::Vector.  <a href="namespaceDiffRmap.html#aa44c5974ee58324f7730fb98dd988f37">More...</a><br /></td></tr>
 <tr class="separator:aa44c5974ee58324f7730fb98dd988f37"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0969767e3e1f983c8fcd304b8141c1c7"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:a0969767e3e1f983c8fcd304b8141c1c7"><td class="memTemplItemLeft" align="right" valign="top">double&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SVMUtils_8h.html#a0969767e3e1f983c8fcd304b8141c1c7">DiffRmap::calcSVMValue</a> (const Sample&lt; SamplingSpaceType &gt; &amp;sample, const svm_parameter &amp;svm_param, svm_model *svm_mo, const Eigen::VectorXd &amp;svm_coeff_vec, const Eigen::Matrix&lt; double, inputDim&lt; SamplingSpaceType &gt;(), Eigen::Dynamic &gt; &amp;svm_sv_mat)</td></tr>
-<tr class="memdesc:a0969767e3e1f983c8fcd304b8141c1c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate SVM value.  <a href="SVMUtils_8h.html#a0969767e3e1f983c8fcd304b8141c1c7">More...</a><br /></td></tr>
+<tr class="memitem:a0969767e3e1f983c8fcd304b8141c1c7"><td class="memTemplItemLeft" align="right" valign="top">double&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#a0969767e3e1f983c8fcd304b8141c1c7">DiffRmap::calcSVMValue</a> (const Sample&lt; SamplingSpaceType &gt; &amp;sample, const svm_parameter &amp;svm_param, svm_model *svm_mo, const Eigen::VectorXd &amp;svm_coeff_vec, const Eigen::Matrix&lt; double, inputDim&lt; SamplingSpaceType &gt;(), Eigen::Dynamic &gt; &amp;svm_sv_mat)</td></tr>
+<tr class="memdesc:a0969767e3e1f983c8fcd304b8141c1c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate SVM value.  <a href="namespaceDiffRmap.html#a0969767e3e1f983c8fcd304b8141c1c7">More...</a><br /></td></tr>
 <tr class="separator:a0969767e3e1f983c8fcd304b8141c1c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa630e24859e40d76874dba8216d33ff2"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:aa630e24859e40d76874dba8216d33ff2"><td class="memTemplItemLeft" align="right" valign="top">Sample&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SVMUtils_8h.html#aa630e24859e40d76874dba8216d33ff2">DiffRmap::calcSVMGrad</a> (const Sample&lt; SamplingSpaceType &gt; &amp;sample, const svm_parameter &amp;svm_param, svm_model *svm_mo, const Eigen::VectorXd &amp;svm_coeff_vec, const Eigen::Matrix&lt; double, inputDim&lt; SamplingSpaceType &gt;(), Eigen::Dynamic &gt; &amp;svm_sv_mat)</td></tr>
-<tr class="memdesc:aa630e24859e40d76874dba8216d33ff2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate gradient of SVM value.  <a href="SVMUtils_8h.html#aa630e24859e40d76874dba8216d33ff2">More...</a><br /></td></tr>
+<tr class="memitem:aa630e24859e40d76874dba8216d33ff2"><td class="memTemplItemLeft" align="right" valign="top">Sample&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#aa630e24859e40d76874dba8216d33ff2">DiffRmap::calcSVMGrad</a> (const Sample&lt; SamplingSpaceType &gt; &amp;sample, const svm_parameter &amp;svm_param, svm_model *svm_mo, const Eigen::VectorXd &amp;svm_coeff_vec, const Eigen::Matrix&lt; double, inputDim&lt; SamplingSpaceType &gt;(), Eigen::Dynamic &gt; &amp;svm_sv_mat)</td></tr>
+<tr class="memdesc:aa630e24859e40d76874dba8216d33ff2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate gradient of SVM value.  <a href="namespaceDiffRmap.html#aa630e24859e40d76874dba8216d33ff2">More...</a><br /></td></tr>
 <tr class="separator:aa630e24859e40d76874dba8216d33ff2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a33b2938a8ce7718111739dfb954bab8c"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:a33b2938a8ce7718111739dfb954bab8c"><td class="memTemplItemLeft" align="right" valign="top">InputToSampleMat&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SVMUtils_8h.html#a33b2938a8ce7718111739dfb954bab8c">DiffRmap::inputToSampleMat</a> (const Sample&lt; SamplingSpaceType &gt; &amp;sample)</td></tr>
-<tr class="memdesc:a33b2938a8ce7718111739dfb954bab8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get matrix to convert gradient for input to gradient for sample. Gradient is assumed to be column vector.  <a href="SVMUtils_8h.html#a33b2938a8ce7718111739dfb954bab8c">More...</a><br /></td></tr>
+<tr class="memitem:a33b2938a8ce7718111739dfb954bab8c"><td class="memTemplItemLeft" align="right" valign="top">InputToSampleMat&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#a33b2938a8ce7718111739dfb954bab8c">DiffRmap::inputToSampleMat</a> (const Sample&lt; SamplingSpaceType &gt; &amp;sample)</td></tr>
+<tr class="memdesc:a33b2938a8ce7718111739dfb954bab8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get matrix to convert gradient for input to gradient for sample. Gradient is assumed to be column vector.  <a href="namespaceDiffRmap.html#a33b2938a8ce7718111739dfb954bab8c">More...</a><br /></td></tr>
 <tr class="separator:a33b2938a8ce7718111739dfb954bab8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1670804f0941c30e7068211f78449f50"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:a1670804f0941c30e7068211f78449f50"><td class="memTemplItemLeft" align="right" valign="top">SampleToVelMat&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SVMUtils_8h.html#a1670804f0941c30e7068211f78449f50">DiffRmap::sampleToVelMat</a> (const Sample&lt; SamplingSpaceType &gt; &amp;sample)</td></tr>
-<tr class="memdesc:a1670804f0941c30e7068211f78449f50"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get matrix to convert gradient for sample to gradient for vel. Gradient is assumed to be column vector.  <a href="SVMUtils_8h.html#a1670804f0941c30e7068211f78449f50">More...</a><br /></td></tr>
+<tr class="memitem:a1670804f0941c30e7068211f78449f50"><td class="memTemplItemLeft" align="right" valign="top">SampleToVelMat&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#a1670804f0941c30e7068211f78449f50">DiffRmap::sampleToVelMat</a> (const Sample&lt; SamplingSpaceType &gt; &amp;sample)</td></tr>
+<tr class="memdesc:a1670804f0941c30e7068211f78449f50"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get matrix to convert gradient for sample to gradient for vel. Gradient is assumed to be column vector.  <a href="namespaceDiffRmap.html#a1670804f0941c30e7068211f78449f50">More...</a><br /></td></tr>
 <tr class="separator:a1670804f0941c30e7068211f78449f50"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adad17a20b9641d84c65ef0039df81a49"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:adad17a20b9641d84c65ef0039df81a49"><td class="memTemplItemLeft" align="right" valign="top">Sample&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SVMUtils_8h.html#adad17a20b9641d84c65ef0039df81a49">DiffRmap::relSample</a> (const Sample&lt; SamplingSpaceType &gt; &amp;pre_sample, const Sample&lt; SamplingSpaceType &gt; &amp;suc_sample)</td></tr>
-<tr class="memdesc:adad17a20b9641d84c65ef0039df81a49"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get relative sample between two samples which is represented in predecessor frame.  <a href="SVMUtils_8h.html#adad17a20b9641d84c65ef0039df81a49">More...</a><br /></td></tr>
+<tr class="memitem:adad17a20b9641d84c65ef0039df81a49"><td class="memTemplItemLeft" align="right" valign="top">Sample&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#adad17a20b9641d84c65ef0039df81a49">DiffRmap::relSample</a> (const Sample&lt; SamplingSpaceType &gt; &amp;pre_sample, const Sample&lt; SamplingSpaceType &gt; &amp;suc_sample)</td></tr>
+<tr class="memdesc:adad17a20b9641d84c65ef0039df81a49"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get relative sample between two samples which is represented in predecessor frame.  <a href="namespaceDiffRmap.html#adad17a20b9641d84c65ef0039df81a49">More...</a><br /></td></tr>
 <tr class="separator:adad17a20b9641d84c65ef0039df81a49"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa2295b185c541bfea24aed49511d5202"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:aa2295b185c541bfea24aed49511d5202"><td class="memTemplItemLeft" align="right" valign="top">Sample&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SVMUtils_8h.html#aa2295b185c541bfea24aed49511d5202">DiffRmap::midSample</a> (const Sample&lt; SamplingSpaceType &gt; &amp;sample1, const Sample&lt; SamplingSpaceType &gt; &amp;sample2)</td></tr>
-<tr class="memdesc:aa2295b185c541bfea24aed49511d5202"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get middle sample between two samples.  <a href="SVMUtils_8h.html#aa2295b185c541bfea24aed49511d5202">More...</a><br /></td></tr>
+<tr class="memitem:aa2295b185c541bfea24aed49511d5202"><td class="memTemplItemLeft" align="right" valign="top">Sample&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#aa2295b185c541bfea24aed49511d5202">DiffRmap::midSample</a> (const Sample&lt; SamplingSpaceType &gt; &amp;sample1, const Sample&lt; SamplingSpaceType &gt; &amp;sample2)</td></tr>
+<tr class="memdesc:aa2295b185c541bfea24aed49511d5202"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get middle sample between two samples.  <a href="namespaceDiffRmap.html#aa2295b185c541bfea24aed49511d5202">More...</a><br /></td></tr>
 <tr class="separator:aa2295b185c541bfea24aed49511d5202"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2a8fe3dd28db0c53cfffcaf35364b2af"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:a2a8fe3dd28db0c53cfffcaf35364b2af"><td class="memTemplItemLeft" align="right" valign="top">SampleToSampleMat&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SVMUtils_8h.html#a2a8fe3dd28db0c53cfffcaf35364b2af">DiffRmap::relSampleToSampleMat</a> (const Sample&lt; SamplingSpaceType &gt; &amp;pre_sample, const Sample&lt; SamplingSpaceType &gt; &amp;suc_sample, bool wrt_suc)</td></tr>
-<tr class="memdesc:a2a8fe3dd28db0c53cfffcaf35364b2af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get matrix to represent the linear relation from relative velocity to single velocity.  <a href="SVMUtils_8h.html#a2a8fe3dd28db0c53cfffcaf35364b2af">More...</a><br /></td></tr>
+<tr class="memitem:a2a8fe3dd28db0c53cfffcaf35364b2af"><td class="memTemplItemLeft" align="right" valign="top">SampleToSampleMat&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#a2a8fe3dd28db0c53cfffcaf35364b2af">DiffRmap::relSampleToSampleMat</a> (const Sample&lt; SamplingSpaceType &gt; &amp;pre_sample, const Sample&lt; SamplingSpaceType &gt; &amp;suc_sample, bool wrt_suc)</td></tr>
+<tr class="memdesc:a2a8fe3dd28db0c53cfffcaf35364b2af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get matrix to represent the linear relation from relative velocity to single velocity.  <a href="namespaceDiffRmap.html#a2a8fe3dd28db0c53cfffcaf35364b2af">More...</a><br /></td></tr>
 <tr class="separator:a2a8fe3dd28db0c53cfffcaf35364b2af"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Utilities for SVM. </p>
-
-<p class="definition">Definition in file <a class="el" href="SVMUtils_8h_source.html">SVMUtils.h</a>.</p>
-</div><h2 class="groupheader">Function Documentation</h2>
-<a id="file_aa630e24859e40d76874dba8216d33ff2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_aa630e24859e40d76874dba8216d33ff2">&#9670;&nbsp;</a></span>calcSVMGrad()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">Sample&lt; SamplingSpaceType &gt; DiffRmap::calcSVMGrad </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="SamplingUtils_8h.html#ad98771f5f3a7e74ccaa889cfe414d83a">Sample</a>&lt; SamplingSpaceType &gt; &amp;&#160;</td>
-          <td class="paramname"><em>sample</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const svm_parameter &amp;&#160;</td>
-          <td class="paramname"><em>svm_param</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">svm_model *&#160;</td>
-          <td class="paramname"><em>svm_mo</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const Eigen::VectorXd &amp;&#160;</td>
-          <td class="paramname"><em>svm_coeff_vec</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const Eigen::Matrix&lt; double, inputDim&lt; SamplingSpaceType &gt;(), Eigen::Dynamic &gt; &amp;&#160;</td>
-          <td class="paramname"><em>svm_sv_mat</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Calculate gradient of SVM value. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">sample</td><td>sample </td></tr>
-    <tr><td class="paramname">svm_param</td><td>SVM parameter </td></tr>
-    <tr><td class="paramname">svm_mo</td><td>SVM model </td></tr>
-    <tr><td class="paramname">svm_coeff_vec</td><td>support vector coefficients </td></tr>
-    <tr><td class="paramname">svm_sv_mat</td><td>support vector matrix </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>gradient of predicted SVM value (column vector) </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="SVMUtils_8hpp_source.html#l00083">83</a> of file <a class="el" href="SVMUtils_8hpp_source.html">SVMUtils.hpp</a>.</p>
-
-</div>
-</div>
-<a id="file_a0969767e3e1f983c8fcd304b8141c1c7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_a0969767e3e1f983c8fcd304b8141c1c7">&#9670;&nbsp;</a></span>calcSVMValue()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">double DiffRmap::calcSVMValue </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="SamplingUtils_8h.html#ad98771f5f3a7e74ccaa889cfe414d83a">Sample</a>&lt; SamplingSpaceType &gt; &amp;&#160;</td>
-          <td class="paramname"><em>sample</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const svm_parameter &amp;&#160;</td>
-          <td class="paramname"><em>svm_param</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">svm_model *&#160;</td>
-          <td class="paramname"><em>svm_mo</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const Eigen::VectorXd &amp;&#160;</td>
-          <td class="paramname"><em>svm_coeff_vec</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const Eigen::Matrix&lt; double, inputDim&lt; SamplingSpaceType &gt;(), Eigen::Dynamic &gt; &amp;&#160;</td>
-          <td class="paramname"><em>svm_sv_mat</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Calculate SVM value. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">sample</td><td>sample </td></tr>
-    <tr><td class="paramname">svm_param</td><td>SVM parameter </td></tr>
-    <tr><td class="paramname">svm_mo</td><td>SVM model </td></tr>
-    <tr><td class="paramname">svm_coeff_vec</td><td>support vector coefficients </td></tr>
-    <tr><td class="paramname">svm_sv_mat</td><td>support vector matrix </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>predicted SVM value </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="SVMUtils_8hpp_source.html#l00056">56</a> of file <a class="el" href="SVMUtils_8hpp_source.html">SVMUtils.hpp</a>.</p>
-
-</div>
-</div>
-<a id="file_a33b2938a8ce7718111739dfb954bab8c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_a33b2938a8ce7718111739dfb954bab8c">&#9670;&nbsp;</a></span>inputToSampleMat()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">InputToSampleMat&lt; SamplingSpaceType &gt; DiffRmap::inputToSampleMat </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="SamplingUtils_8h.html#ad98771f5f3a7e74ccaa889cfe414d83a">Sample</a>&lt; SamplingSpaceType &gt; &amp;&#160;</td>
-          <td class="paramname"><em>sample</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get matrix to convert gradient for input to gradient for sample. Gradient is assumed to be column vector. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">sample</td><td>sample </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="SVMUtils_8hpp_source.html#l00111">111</a> of file <a class="el" href="SVMUtils_8hpp_source.html">SVMUtils.hpp</a>.</p>
-
-</div>
-</div>
-<a id="file_aa2295b185c541bfea24aed49511d5202"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_aa2295b185c541bfea24aed49511d5202">&#9670;&nbsp;</a></span>midSample()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">Sample&lt; SamplingSpaceType &gt; DiffRmap::midSample </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="SamplingUtils_8h.html#ad98771f5f3a7e74ccaa889cfe414d83a">Sample</a>&lt; SamplingSpaceType &gt; &amp;&#160;</td>
-          <td class="paramname"><em>sample1</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="SamplingUtils_8h.html#ad98771f5f3a7e74ccaa889cfe414d83a">Sample</a>&lt; SamplingSpaceType &gt; &amp;&#160;</td>
-          <td class="paramname"><em>sample2</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get middle sample between two samples. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">sample1</td><td>first sample </td></tr>
-    <tr><td class="paramname">sample2</td><td>second sample </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="SVMUtils_8hpp_source.html#l00266">266</a> of file <a class="el" href="SVMUtils_8hpp_source.html">SVMUtils.hpp</a>.</p>
-
-</div>
-</div>
-<a id="file_adad17a20b9641d84c65ef0039df81a49"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_adad17a20b9641d84c65ef0039df81a49">&#9670;&nbsp;</a></span>relSample()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">Sample&lt; SamplingSpaceType &gt; DiffRmap::relSample </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="SamplingUtils_8h.html#ad98771f5f3a7e74ccaa889cfe414d83a">Sample</a>&lt; SamplingSpaceType &gt; &amp;&#160;</td>
-          <td class="paramname"><em>pre_sample</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="SamplingUtils_8h.html#ad98771f5f3a7e74ccaa889cfe414d83a">Sample</a>&lt; SamplingSpaceType &gt; &amp;&#160;</td>
-          <td class="paramname"><em>suc_sample</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get relative sample between two samples which is represented in predecessor frame. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">pre_sample</td><td>predecessor sample </td></tr>
-    <tr><td class="paramname">suc_sample</td><td>successor sample </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="SVMUtils_8hpp_source.html#l00211">211</a> of file <a class="el" href="SVMUtils_8hpp_source.html">SVMUtils.hpp</a>.</p>
-
-</div>
-</div>
-<a id="file_a2a8fe3dd28db0c53cfffcaf35364b2af"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_a2a8fe3dd28db0c53cfffcaf35364b2af">&#9670;&nbsp;</a></span>relSampleToSampleMat()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">SampleToSampleMat&lt; SamplingSpaceType &gt; DiffRmap::relSampleToSampleMat </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="SamplingUtils_8h.html#ad98771f5f3a7e74ccaa889cfe414d83a">Sample</a>&lt; SamplingSpaceType &gt; &amp;&#160;</td>
-          <td class="paramname"><em>pre_sample</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="SamplingUtils_8h.html#ad98771f5f3a7e74ccaa889cfe414d83a">Sample</a>&lt; SamplingSpaceType &gt; &amp;&#160;</td>
-          <td class="paramname"><em>suc_sample</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>wrt_suc</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get matrix to represent the linear relation from relative velocity to single velocity. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">pre_sample</td><td>predecessor sample </td></tr>
-    <tr><td class="paramname">suc_sample</td><td>successor sample </td></tr>
-    <tr><td class="paramname">wrt_suc</td><td>if true, the returned matrix is w.r.t. the successor sample. otherwise, it is w.r.t. predecessor sample. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="SVMUtils_8hpp_source.html#l00281">281</a> of file <a class="el" href="SVMUtils_8hpp_source.html">SVMUtils.hpp</a>.</p>
-
-</div>
-</div>
-<a id="file_a1670804f0941c30e7068211f78449f50"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_a1670804f0941c30e7068211f78449f50">&#9670;&nbsp;</a></span>sampleToVelMat()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">SampleToVelMat&lt; SamplingSpaceType &gt; DiffRmap::sampleToVelMat </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="SamplingUtils_8h.html#ad98771f5f3a7e74ccaa889cfe414d83a">Sample</a>&lt; SamplingSpaceType &gt; &amp;&#160;</td>
-          <td class="paramname"><em>sample</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get matrix to convert gradient for sample to gradient for vel. Gradient is assumed to be column vector. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">sample</td><td>sample </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="SVMUtils_8hpp_source.html#l00175">175</a> of file <a class="el" href="SVMUtils_8hpp_source.html">SVMUtils.hpp</a>.</p>
-
-</div>
-</div>
-<a id="file_ac31b616a4f7fffc0ba857a5e977320ba"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_ac31b616a4f7fffc0ba857a5e977320ba">&#9670;&nbsp;</a></span>setInputNode()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">void DiffRmap::setInputNode </td>
-          <td>(</td>
-          <td class="paramtype">svm_node *&#160;</td>
-          <td class="paramname"><em>input_node</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="SamplingUtils_8h.html#a84e9ef3ef65663a62f12bd9630ac83d8">Input</a>&lt; SamplingSpaceType &gt; &amp;&#160;</td>
-          <td class="paramname"><em>input</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Set SVM input to node (including index). </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">input_node</td><td>SVM input node </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">input</td><td>SVM input </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="SVMUtils_8hpp_source.html#l00019">19</a> of file <a class="el" href="SVMUtils_8hpp_source.html">SVMUtils.hpp</a>.</p>
-
-</div>
-</div>
-<a id="file_ad704280c84bf10bd498305faf7137586"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_ad704280c84bf10bd498305faf7137586">&#9670;&nbsp;</a></span>setInputNodeOnlyValue()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">void DiffRmap::setInputNodeOnlyValue </td>
-          <td>(</td>
-          <td class="paramtype">svm_node *&#160;</td>
-          <td class="paramname"><em>input_node</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="SamplingUtils_8h.html#a84e9ef3ef65663a62f12bd9630ac83d8">Input</a>&lt; SamplingSpaceType &gt; &amp;&#160;</td>
-          <td class="paramname"><em>input</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Set SVM input to node (only value). </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">input_node</td><td>SVM input node </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">input</td><td>SVM input </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="SVMUtils_8hpp_source.html#l00036">36</a> of file <a class="el" href="SVMUtils_8hpp_source.html">SVMUtils.hpp</a>.</p>
-
-</div>
-</div>
-<a id="file_a60d1afd6c395f688a4e6b6998d1dd77e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_a60d1afd6c395f688a4e6b6998d1dd77e">&#9670;&nbsp;</a></span>setSVMPredictionMat()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">void DiffRmap::setSVMPredictionMat </td>
-          <td>(</td>
-          <td class="paramtype">Eigen::Ref&lt; Eigen::VectorXd &gt;&#160;</td>
-          <td class="paramname"><em>svm_coeff_vec</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">Eigen::Ref&lt; Eigen::Matrix&lt; double, inputDim&lt; SamplingSpaceType &gt;(), Eigen::Dynamic &gt;&gt;&#160;</td>
-          <td class="paramname"><em>svm_sv_mat</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">svm_model *&#160;</td>
-          <td class="paramname"><em>svm_mo</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Set SVM matrix for prediction. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">svm_coeff_vec</td><td>support vector coefficients </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">svm_sv_mat</td><td>support vector matrix </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">svm_mo</td><td>SVM model </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="SVMUtils_8hpp_source.html#l00006">6</a> of file <a class="el" href="SVMUtils_8hpp_source.html">SVMUtils.hpp</a>.</p>
-
-</div>
-</div>
-<a id="file_aa44c5974ee58324f7730fb98dd988f37"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_aa44c5974ee58324f7730fb98dd988f37">&#9670;&nbsp;</a></span>svmNodeToEigenVec()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">Input&lt; SamplingSpaceType &gt; DiffRmap::svmNodeToEigenVec </td>
-          <td>(</td>
-          <td class="paramtype">const svm_node *&#160;</td>
-          <td class="paramname"><em>input_node</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Convert SVM input node to Eigen::Vector. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">input_node</td><td>SVM input node </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="SVMUtils_8hpp_source.html#l00045">45</a> of file <a class="el" href="SVMUtils_8hpp_source.html">SVMUtils.hpp</a>.</p>
-
-</div>
-</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

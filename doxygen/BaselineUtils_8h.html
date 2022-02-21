@@ -64,6 +64,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
+<a href="#namespaces">Namespaces</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">BaselineUtils.h File Reference</div>  </div>
@@ -72,13 +73,13 @@ $(function() {
 <div class="textblock"><code>#include &lt;memory&gt;</code><br />
 <code>#include &lt;vector&gt;</code><br />
 <code>#include &lt;Eigen/Core&gt;</code><br />
-<code>#include &lt;differentiable_rmap/BaselineUtils.hpp&gt;</code><br />
+<code>#include &lt;<a class="el" href="BaselineUtils_8hpp_source.html">differentiable_rmap/BaselineUtils.hpp</a>&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for BaselineUtils.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="BaselineUtils_8h__incl.png" border="0" usemap="#_2home_2runner_2work_2differentiable__rmap_2differentiable__rmap_2catkin__ws_2src_2differentiable__rmap_2include_2differentiable__rmap_2BaselineUtils_8h" alt=""/></div>
 <map name="_2home_2runner_2work_2differentiable__rmap_2differentiable__rmap_2catkin__ws_2src_2differentiable__rmap_2include_2differentiable__rmap_2BaselineUtils_8h" id="_2home_2runner_2work_2differentiable__rmap_2differentiable__rmap_2catkin__ws_2src_2differentiable__rmap_2include_2differentiable__rmap_2BaselineUtils_8h">
-<area shape="rect" id="node5" href="BaselineUtils_8hpp_source.html" title="differentiable_rmap\l/BaselineUtils.hpp" alt="" coords="310,124,461,165"/>
+<area shape="rect" id="node5" href="BaselineUtils_8hpp.html" title="differentiable_rmap\l/BaselineUtils.hpp" alt="" coords="310,124,461,165"/>
 </map>
 </div>
 </div>
@@ -90,140 +91,22 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Class that classifies whether a point is inside or outside a convex.  <a href="classDiffRmap_1_1ConvexInsideClassification.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
+Namespaces</h2></td></tr>
+<tr class="memitem:namespaceDiffRmap"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html">DiffRmap</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a1ea7237e8ec3b349202644ef8066962d"><td class="memTemplParams" colspan="2">template&lt;size_t N&gt; </td></tr>
-<tr class="memitem:a1ea7237e8ec3b349202644ef8066962d"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="BaselineUtils_8h.html#a1ea7237e8ec3b349202644ef8066962d">DiffRmap::oneClassNearestNeighbor</a> (const Eigen::Matrix&lt; double, N, 1 &gt; &amp;test_sample, double dist_ratio_thre, const std::vector&lt; Eigen::Matrix&lt; double, N, 1 &gt;&gt; &amp;train_sample_list)</td></tr>
-<tr class="memdesc:a1ea7237e8ec3b349202644ef8066962d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run one-class nearest neightbor binary classification.  <a href="BaselineUtils_8h.html#a1ea7237e8ec3b349202644ef8066962d">More...</a><br /></td></tr>
+<tr class="memitem:a1ea7237e8ec3b349202644ef8066962d"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#a1ea7237e8ec3b349202644ef8066962d">DiffRmap::oneClassNearestNeighbor</a> (const Eigen::Matrix&lt; double, N, 1 &gt; &amp;test_sample, double dist_ratio_thre, const std::vector&lt; Eigen::Matrix&lt; double, N, 1 &gt;&gt; &amp;train_sample_list)</td></tr>
+<tr class="memdesc:a1ea7237e8ec3b349202644ef8066962d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run one-class nearest neightbor binary classification.  <a href="namespaceDiffRmap.html#a1ea7237e8ec3b349202644ef8066962d">More...</a><br /></td></tr>
 <tr class="separator:a1ea7237e8ec3b349202644ef8066962d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3b3ae120db4ae6be4729f4a653d894cd"><td class="memTemplParams" colspan="2">template&lt;size_t N&gt; </td></tr>
-<tr class="memitem:a3b3ae120db4ae6be4729f4a653d894cd"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="BaselineUtils_8h.html#a3b3ae120db4ae6be4729f4a653d894cd">DiffRmap::kNearestNeighbor</a> (const Eigen::Matrix&lt; double, N, 1 &gt; &amp;test_sample, size_t K, const std::vector&lt; Eigen::Matrix&lt; double, N, 1 &gt;&gt; &amp;train_sample_list, const std::vector&lt; bool &gt; &amp;class_list)</td></tr>
-<tr class="memdesc:a3b3ae120db4ae6be4729f4a653d894cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run k-nearest neightbor binary classification.  <a href="BaselineUtils_8h.html#a3b3ae120db4ae6be4729f4a653d894cd">More...</a><br /></td></tr>
+<tr class="memitem:a3b3ae120db4ae6be4729f4a653d894cd"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#a3b3ae120db4ae6be4729f4a653d894cd">DiffRmap::kNearestNeighbor</a> (const Eigen::Matrix&lt; double, N, 1 &gt; &amp;test_sample, size_t K, const std::vector&lt; Eigen::Matrix&lt; double, N, 1 &gt;&gt; &amp;train_sample_list, const std::vector&lt; bool &gt; &amp;class_list)</td></tr>
+<tr class="memdesc:a3b3ae120db4ae6be4729f4a653d894cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run k-nearest neightbor binary classification.  <a href="namespaceDiffRmap.html#a3b3ae120db4ae6be4729f4a653d894cd">More...</a><br /></td></tr>
 <tr class="separator:a3b3ae120db4ae6be4729f4a653d894cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Utilities for baseline methods. </p>
-
-<p class="definition">Definition in file <a class="el" href="BaselineUtils_8h_source.html">BaselineUtils.h</a>.</p>
-</div><h2 class="groupheader">Function Documentation</h2>
-<a id="file_a3b3ae120db4ae6be4729f4a653d894cd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_a3b3ae120db4ae6be4729f4a653d894cd">&#9670;&nbsp;</a></span>kNearestNeighbor()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;size_t N&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">bool DiffRmap::kNearestNeighbor </td>
-          <td>(</td>
-          <td class="paramtype">const Eigen::Matrix&lt; double, N, 1 &gt; &amp;&#160;</td>
-          <td class="paramname"><em>test_sample</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>K</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::vector&lt; Eigen::Matrix&lt; double, N, 1 &gt;&gt; &amp;&#160;</td>
-          <td class="paramname"><em>train_sample_list</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::vector&lt; bool &gt; &amp;&#160;</td>
-          <td class="paramname"><em>class_list</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Run k-nearest neightbor binary classification. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">N</td><td>sample dimension </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">test_sample</td><td>test sample </td></tr>
-    <tr><td class="paramname">K</td><td>number of nearest points </td></tr>
-    <tr><td class="paramname">train_sample_list</td><td>training sample list </td></tr>
-    <tr><td class="paramname">class_list</td><td>training class list (true/false for positive/negative class) </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>true if test_sample is estimated to belong to the positive class </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="BaselineUtils_8hpp_source.html#l00059">59</a> of file <a class="el" href="BaselineUtils_8hpp_source.html">BaselineUtils.hpp</a>.</p>
-
-</div>
-</div>
-<a id="file_a1ea7237e8ec3b349202644ef8066962d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_a1ea7237e8ec3b349202644ef8066962d">&#9670;&nbsp;</a></span>oneClassNearestNeighbor()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;size_t N&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">bool DiffRmap::oneClassNearestNeighbor </td>
-          <td>(</td>
-          <td class="paramtype">const Eigen::Matrix&lt; double, N, 1 &gt; &amp;&#160;</td>
-          <td class="paramname"><em>test_sample</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>dist_ratio_thre</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::vector&lt; Eigen::Matrix&lt; double, N, 1 &gt;&gt; &amp;&#160;</td>
-          <td class="paramname"><em>train_sample_list</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Run one-class nearest neightbor binary classification. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">N</td><td>sample dimension </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">test_sample</td><td>test sample </td></tr>
-    <tr><td class="paramname">dist_ratio_thre</td><td>threshold of distaice ratio </td></tr>
-    <tr><td class="paramname">train_sample_list</td><td>training sample list </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>true if test_sample is estimated to belong to the positive class</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>See <a href="https://arxiv.org/abs/1604.01686">https://arxiv.org/abs/1604.01686</a> for algorithm </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="BaselineUtils_8hpp_source.html#l00043">43</a> of file <a class="el" href="BaselineUtils_8hpp_source.html">BaselineUtils.hpp</a>.</p>
-
-</div>
-</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

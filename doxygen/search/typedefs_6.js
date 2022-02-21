@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['vel',['Vel',['../SamplingUtils_8h.html#a6a1edb190df20d2feb9cf4cbe3d466e8',1,'DiffRmap']]],
-  ['veltype',['VelType',['../classDiffRmap_1_1RmapPlanning.html#ae83be82ce375e9fde4b8a838e828f34f',1,'DiffRmap::RmapPlanning::VelType()'],['../classDiffRmap_1_1RmapPlanningFootstep.html#a459084d35150c16758165252b9bb9911',1,'DiffRmap::RmapPlanningFootstep::VelType()'],['../classDiffRmap_1_1RmapPlanningLocomanip.html#adcfc67488029285e02fe21a3b5a237fd',1,'DiffRmap::RmapPlanningLocomanip::VelType()'],['../classDiffRmap_1_1RmapPlanningPlacement.html#a9c9b9bb2052a709730b3cfc2a6b2eb65',1,'DiffRmap::RmapPlanningPlacement::VelType()'],['../classDiffRmap_1_1RmapTraining.html#af45b393c1345319b17bd998d63e80c63',1,'DiffRmap::RmapTraining::VelType()']]]
+  ['type',['type',['../structboost_1_1geometry_1_1traits_1_1tag_3_01Eigen_1_1Vector2d_01_4.html#aeec5772a198b9fc68edce51df0648f74',1,'boost::geometry::traits::tag&lt; Eigen::Vector2d &gt;::type()'],['../structboost_1_1geometry_1_1traits_1_1coordinate__type_3_01Eigen_1_1Vector2d_01_4.html#a0c1d40a1a7b9ea2aa6029f3aea80f63a',1,'boost::geometry::traits::coordinate_type&lt; Eigen::Vector2d &gt;::type()'],['../structboost_1_1geometry_1_1traits_1_1coordinate__system_3_01Eigen_1_1Vector2d_01_4.html#af42fe4ff3bea7b799ced812b98e7f0f4',1,'boost::geometry::traits::coordinate_system&lt; Eigen::Vector2d &gt;::type()']]]
 ];

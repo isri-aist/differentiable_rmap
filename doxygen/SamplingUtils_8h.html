@@ -63,6 +63,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#namespaces">Namespaces</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
@@ -74,13 +75,13 @@ $(function() {
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;mc_rtc/logging.h&gt;</code><br />
 <code>#include &lt;SpaceVecAlg/SpaceVecAlg&gt;</code><br />
-<code>#include &lt;differentiable_rmap/SamplingUtils.hpp&gt;</code><br />
+<code>#include &lt;<a class="el" href="SamplingUtils_8hpp_source.html">differentiable_rmap/SamplingUtils.hpp</a>&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for SamplingUtils.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="SamplingUtils_8h__incl.png" border="0" usemap="#_2home_2runner_2work_2differentiable__rmap_2differentiable__rmap_2catkin__ws_2src_2differentiable__rmap_2include_2differentiable__rmap_2SamplingUtils_8h" alt=""/></div>
 <map name="_2home_2runner_2work_2differentiable__rmap_2differentiable__rmap_2catkin__ws_2src_2differentiable__rmap_2include_2differentiable__rmap_2SamplingUtils_8h" id="_2home_2runner_2work_2differentiable__rmap_2differentiable__rmap_2catkin__ws_2src_2differentiable__rmap_2include_2differentiable__rmap_2SamplingUtils_8h">
-<area shape="rect" id="node6" href="SamplingUtils_8hpp_source.html" title="differentiable_rmap\l/SamplingUtils.hpp" alt="" coords="573,124,724,165"/>
+<area shape="rect" id="node6" href="SamplingUtils_8hpp.html" title="differentiable_rmap\l/SamplingUtils.hpp" alt="" coords="573,124,724,165"/>
 <area shape="rect" id="node7" href="MathUtils_8h.html" title="differentiable_rmap\l/MathUtils.h" alt="" coords="573,213,724,255"/>
 </map>
 </div>
@@ -90,511 +91,112 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="center"><img src="SamplingUtils_8h__dep__incl.png" border="0" usemap="#_2home_2runner_2work_2differentiable__rmap_2differentiable__rmap_2catkin__ws_2src_2differentiable__rmap_2include_2differentiable__rmap_2SamplingUtils_8hdep" alt=""/></div>
 <map name="_2home_2runner_2work_2differentiable__rmap_2differentiable__rmap_2catkin__ws_2src_2differentiable__rmap_2include_2differentiable__rmap_2SamplingUtils_8hdep" id="_2home_2runner_2work_2differentiable__rmap_2differentiable__rmap_2catkin__ws_2src_2differentiable__rmap_2include_2differentiable__rmap_2SamplingUtils_8hdep">
 <area shape="rect" id="node2" href="GridUtils_8h.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/GridUtils.h" alt="" coords="469,124,724,195"/>
-<area shape="rect" id="node3" href="RmapVisualization_8h_source.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/RmapVisualization.h" alt="" coords="427,243,721,313"/>
-<area shape="rect" id="node4" href="RmapPlanning_8h_source.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/RmapPlanning.h" alt="" coords="745,243,1011,313"/>
-<area shape="rect" id="node9" href="RmapSampling_8h_source.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/RmapSampling.h" alt="" coords="1197,124,1468,195"/>
-<area shape="rect" id="node12" href="RmapTraining_8h_source.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/RmapTraining.h" alt="" coords="1035,243,1297,313"/>
+<area shape="rect" id="node3" href="RmapVisualization_8h.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/RmapVisualization.h" alt="" coords="427,243,721,313"/>
+<area shape="rect" id="node4" href="RmapPlanning_8h.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/RmapPlanning.h" alt="" coords="745,243,1011,313"/>
+<area shape="rect" id="node9" href="RmapSampling_8h.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/RmapSampling.h" alt="" coords="1197,124,1468,195"/>
+<area shape="rect" id="node12" href="RmapTraining_8h.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/RmapTraining.h" alt="" coords="1035,243,1297,313"/>
 <area shape="rect" id="node13" href="RosUtils_8h.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/RosUtils.h" alt="" coords="867,124,1121,195"/>
 <area shape="rect" id="node14" href="SVMUtils_8h.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/SVMUtils.h" alt="" coords="1492,124,1747,195"/>
-<area shape="rect" id="node5" href="RmapPlanningFootstep_8h_source.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/RmapPlanningFootstep.h" alt="" coords="364,361,685,432"/>
-<area shape="rect" id="node6" href="RmapPlanningLocomanip_8h_source.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/RmapPlanningLocomanip.h" alt="" coords="710,361,1046,432"/>
-<area shape="rect" id="node7" href="RmapPlanningMulticontact_8h_source.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/RmapPlanningMulticontact.h" alt="" coords="1071,361,1416,432"/>
-<area shape="rect" id="node8" href="RmapPlanningPlacement_8h_source.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/RmapPlanningPlacement.h" alt="" coords="5,361,340,432"/>
-<area shape="rect" id="node10" href="RmapSamplingIK_8h_source.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/RmapSamplingIK.h" alt="" coords="1391,243,1674,313"/>
-<area shape="rect" id="node11" href="RmapSamplingFootstep_8h_source.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/RmapSamplingFootstep.h" alt="" coords="1440,361,1767,432"/>
+<area shape="rect" id="node5" href="RmapPlanningFootstep_8h.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/RmapPlanningFootstep.h" alt="" coords="364,361,685,432"/>
+<area shape="rect" id="node6" href="RmapPlanningLocomanip_8h.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/RmapPlanningLocomanip.h" alt="" coords="710,361,1046,432"/>
+<area shape="rect" id="node7" href="RmapPlanningMulticontact_8h.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/RmapPlanningMulticontact.h" alt="" coords="1071,361,1416,432"/>
+<area shape="rect" id="node8" href="RmapPlanningPlacement_8h.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/RmapPlanningPlacement.h" alt="" coords="5,361,340,432"/>
+<area shape="rect" id="node10" href="RmapSamplingIK_8h.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/RmapSamplingIK.h" alt="" coords="1391,243,1674,313"/>
+<area shape="rect" id="node11" href="RmapSamplingFootstep_8h.html" title="/home/runner/work/differentiable\l_rmap/differentiable_rmap/catkin\l_ws/src/differentiable_rmap/include\l/differentiable_rmap/RmapSamplingFootstep.h" alt="" coords="1440,361,1767,432"/>
 </map>
 </div>
 </div>
 <p><a href="SamplingUtils_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
+Namespaces</h2></td></tr>
+<tr class="memitem:namespaceDiffRmap"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html">DiffRmap</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:namespacestd"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestd.html">std</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:ad98771f5f3a7e74ccaa889cfe414d83a"><td class="memTemplParams" colspan="2"><a id="ad98771f5f3a7e74ccaa889cfe414d83a"></a>
-template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:ad98771f5f3a7e74ccaa889cfe414d83a"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SamplingUtils_8h.html#ad98771f5f3a7e74ccaa889cfe414d83a">DiffRmap::Sample</a> = Eigen::Matrix&lt; double, sampleDim&lt; SamplingSpaceType &gt;(), 1 &gt;</td></tr>
-<tr class="memdesc:ad98771f5f3a7e74ccaa889cfe414d83a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of sample vector. <br /></td></tr>
+<tr class="memitem:ad98771f5f3a7e74ccaa889cfe414d83a"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
+<tr class="memitem:ad98771f5f3a7e74ccaa889cfe414d83a"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#ad98771f5f3a7e74ccaa889cfe414d83a">DiffRmap::Sample</a> = Eigen::Matrix&lt; double, sampleDim&lt; SamplingSpaceType &gt;(), 1 &gt;</td></tr>
+<tr class="memdesc:ad98771f5f3a7e74ccaa889cfe414d83a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of sample vector.  <a href="namespaceDiffRmap.html#ad98771f5f3a7e74ccaa889cfe414d83a">More...</a><br /></td></tr>
 <tr class="separator:ad98771f5f3a7e74ccaa889cfe414d83a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a84e9ef3ef65663a62f12bd9630ac83d8"><td class="memTemplParams" colspan="2"><a id="a84e9ef3ef65663a62f12bd9630ac83d8"></a>
-template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:a84e9ef3ef65663a62f12bd9630ac83d8"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SamplingUtils_8h.html#a84e9ef3ef65663a62f12bd9630ac83d8">DiffRmap::Input</a> = Eigen::Matrix&lt; double, inputDim&lt; SamplingSpaceType &gt;(), 1 &gt;</td></tr>
-<tr class="memdesc:a84e9ef3ef65663a62f12bd9630ac83d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of SVM input vector. <br /></td></tr>
+<tr class="memitem:a84e9ef3ef65663a62f12bd9630ac83d8"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
+<tr class="memitem:a84e9ef3ef65663a62f12bd9630ac83d8"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#a84e9ef3ef65663a62f12bd9630ac83d8">DiffRmap::Input</a> = Eigen::Matrix&lt; double, inputDim&lt; SamplingSpaceType &gt;(), 1 &gt;</td></tr>
+<tr class="memdesc:a84e9ef3ef65663a62f12bd9630ac83d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of SVM input vector.  <a href="namespaceDiffRmap.html#a84e9ef3ef65663a62f12bd9630ac83d8">More...</a><br /></td></tr>
 <tr class="separator:a84e9ef3ef65663a62f12bd9630ac83d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6a1edb190df20d2feb9cf4cbe3d466e8"><td class="memTemplParams" colspan="2"><a id="a6a1edb190df20d2feb9cf4cbe3d466e8"></a>
-template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:a6a1edb190df20d2feb9cf4cbe3d466e8"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SamplingUtils_8h.html#a6a1edb190df20d2feb9cf4cbe3d466e8">DiffRmap::Vel</a> = Eigen::Matrix&lt; double, velDim&lt; SamplingSpaceType &gt;(), 1 &gt;</td></tr>
-<tr class="memdesc:a6a1edb190df20d2feb9cf4cbe3d466e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of sample vector. <br /></td></tr>
+<tr class="memitem:a6a1edb190df20d2feb9cf4cbe3d466e8"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
+<tr class="memitem:a6a1edb190df20d2feb9cf4cbe3d466e8"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#a6a1edb190df20d2feb9cf4cbe3d466e8">DiffRmap::Vel</a> = Eigen::Matrix&lt; double, velDim&lt; SamplingSpaceType &gt;(), 1 &gt;</td></tr>
+<tr class="memdesc:a6a1edb190df20d2feb9cf4cbe3d466e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of sample vector.  <a href="namespaceDiffRmap.html#a6a1edb190df20d2feb9cf4cbe3d466e8">More...</a><br /></td></tr>
 <tr class="separator:a6a1edb190df20d2feb9cf4cbe3d466e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr class="memitem:a0ce71fdc35432876559f769b8b1b5f82"><td class="memItemLeft" align="right" valign="top"><a id="a0ce71fdc35432876559f769b8b1b5f82"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="SamplingUtils_8h.html#a0ce71fdc35432876559f769b8b1b5f82">DiffRmap::SamplingSpace</a> { <br />
-&#160;&#160;<b>R2</b> = 21, 
-<b>SO2</b> = 22, 
-<b>SE2</b> = 23, 
-<b>R3</b> = 31, 
+<tr class="memitem:a0ce71fdc35432876559f769b8b1b5f82"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#a0ce71fdc35432876559f769b8b1b5f82">DiffRmap::SamplingSpace</a> { <br />
+&#160;&#160;<a class="el" href="namespaceDiffRmap.html#a0ce71fdc35432876559f769b8b1b5f82a8c6d22ff6f63fc6711cfa315cb80b314">DiffRmap::SamplingSpace::R2</a> = 21, 
+<a class="el" href="namespaceDiffRmap.html#a0ce71fdc35432876559f769b8b1b5f82a260405714079916446757f62e0feeca8">DiffRmap::SamplingSpace::SO2</a> = 22, 
+<a class="el" href="namespaceDiffRmap.html#a0ce71fdc35432876559f769b8b1b5f82a47cf61adc363abd73299adab75ebbf3f">DiffRmap::SamplingSpace::SE2</a> = 23, 
+<a class="el" href="namespaceDiffRmap.html#a0ce71fdc35432876559f769b8b1b5f82a5c108ce0fe89d0632cfce75f650b36c2">DiffRmap::SamplingSpace::R3</a> = 31, 
 <br />
-&#160;&#160;<b>SO3</b> = 32, 
-<b>SE3</b> = 33
+&#160;&#160;<a class="el" href="namespaceDiffRmap.html#a0ce71fdc35432876559f769b8b1b5f82a954c8ed8efbceb3a1b9495e4a1acf3a0">DiffRmap::SamplingSpace::SO3</a> = 32, 
+<a class="el" href="namespaceDiffRmap.html#a0ce71fdc35432876559f769b8b1b5f82af011f2d250cf1ccf9b7f39e9f2ff3c2b">DiffRmap::SamplingSpace::SE3</a> = 33
 <br />
- }<tr class="memdesc:a0ce71fdc35432876559f769b8b1b5f82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sampling space. <br /></td></tr>
+ }<tr class="memdesc:a0ce71fdc35432876559f769b8b1b5f82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sampling space.  <a href="namespaceDiffRmap.html#a0ce71fdc35432876559f769b8b1b5f82">More...</a><br /></td></tr>
 </td></tr>
 <tr class="separator:a0ce71fdc35432876559f769b8b1b5f82"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:acc83fddae62b71b90126e46041b42232"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:acc83fddae62b71b90126e46041b42232"><td class="memTemplItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SamplingUtils_8h.html#acc83fddae62b71b90126e46041b42232">DiffRmap::sampleDim</a> ()</td></tr>
-<tr class="memdesc:acc83fddae62b71b90126e46041b42232"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get dimension of sample.  <a href="SamplingUtils_8h.html#acc83fddae62b71b90126e46041b42232">More...</a><br /></td></tr>
+<tr class="memitem:acc83fddae62b71b90126e46041b42232"><td class="memTemplItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#acc83fddae62b71b90126e46041b42232">DiffRmap::sampleDim</a> ()</td></tr>
+<tr class="memdesc:acc83fddae62b71b90126e46041b42232"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get dimension of sample.  <a href="namespaceDiffRmap.html#acc83fddae62b71b90126e46041b42232">More...</a><br /></td></tr>
 <tr class="separator:acc83fddae62b71b90126e46041b42232"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af705ee8749622f74c014b41d7f168cf6"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:af705ee8749622f74c014b41d7f168cf6"><td class="memTemplItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SamplingUtils_8h.html#af705ee8749622f74c014b41d7f168cf6">DiffRmap::inputDim</a> ()</td></tr>
-<tr class="memdesc:af705ee8749622f74c014b41d7f168cf6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get dimension of SVM input.  <a href="SamplingUtils_8h.html#af705ee8749622f74c014b41d7f168cf6">More...</a><br /></td></tr>
+<tr class="memitem:af705ee8749622f74c014b41d7f168cf6"><td class="memTemplItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#af705ee8749622f74c014b41d7f168cf6">DiffRmap::inputDim</a> ()</td></tr>
+<tr class="memdesc:af705ee8749622f74c014b41d7f168cf6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get dimension of SVM input.  <a href="namespaceDiffRmap.html#af705ee8749622f74c014b41d7f168cf6">More...</a><br /></td></tr>
 <tr class="separator:af705ee8749622f74c014b41d7f168cf6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a89159e316437ddfaece2c0f14c2d4af7"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:a89159e316437ddfaece2c0f14c2d4af7"><td class="memTemplItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SamplingUtils_8h.html#a89159e316437ddfaece2c0f14c2d4af7">DiffRmap::velDim</a> ()</td></tr>
-<tr class="memdesc:a89159e316437ddfaece2c0f14c2d4af7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get dimension of sample velocity.  <a href="SamplingUtils_8h.html#a89159e316437ddfaece2c0f14c2d4af7">More...</a><br /></td></tr>
+<tr class="memitem:a89159e316437ddfaece2c0f14c2d4af7"><td class="memTemplItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#a89159e316437ddfaece2c0f14c2d4af7">DiffRmap::velDim</a> ()</td></tr>
+<tr class="memdesc:a89159e316437ddfaece2c0f14c2d4af7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get dimension of sample velocity.  <a href="namespaceDiffRmap.html#a89159e316437ddfaece2c0f14c2d4af7">More...</a><br /></td></tr>
 <tr class="separator:a89159e316437ddfaece2c0f14c2d4af7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa96db6419e0a59487640d9945fe32dd1"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:aa96db6419e0a59487640d9945fe32dd1"><td class="memTemplItemLeft" align="right" valign="top">Sample&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SamplingUtils_8h.html#aa96db6419e0a59487640d9945fe32dd1">DiffRmap::poseToSample</a> (const sva::PTransformd &amp;pose)</td></tr>
-<tr class="memdesc:aa96db6419e0a59487640d9945fe32dd1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert pose to sample.  <a href="SamplingUtils_8h.html#aa96db6419e0a59487640d9945fe32dd1">More...</a><br /></td></tr>
+<tr class="memitem:aa96db6419e0a59487640d9945fe32dd1"><td class="memTemplItemLeft" align="right" valign="top">Sample&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#aa96db6419e0a59487640d9945fe32dd1">DiffRmap::poseToSample</a> (const sva::PTransformd &amp;pose)</td></tr>
+<tr class="memdesc:aa96db6419e0a59487640d9945fe32dd1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert pose to sample.  <a href="namespaceDiffRmap.html#aa96db6419e0a59487640d9945fe32dd1">More...</a><br /></td></tr>
 <tr class="separator:aa96db6419e0a59487640d9945fe32dd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b661f008b253c5321481dcddfc70f09"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:a6b661f008b253c5321481dcddfc70f09"><td class="memTemplItemLeft" align="right" valign="top">sva::PTransformd&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SamplingUtils_8h.html#a6b661f008b253c5321481dcddfc70f09">DiffRmap::sampleToPose</a> (const Sample&lt; SamplingSpaceType &gt; &amp;sample)</td></tr>
-<tr class="memdesc:a6b661f008b253c5321481dcddfc70f09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert sample to pose.  <a href="SamplingUtils_8h.html#a6b661f008b253c5321481dcddfc70f09">More...</a><br /></td></tr>
+<tr class="memitem:a6b661f008b253c5321481dcddfc70f09"><td class="memTemplItemLeft" align="right" valign="top">sva::PTransformd&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#a6b661f008b253c5321481dcddfc70f09">DiffRmap::sampleToPose</a> (const Sample&lt; SamplingSpaceType &gt; &amp;sample)</td></tr>
+<tr class="memdesc:a6b661f008b253c5321481dcddfc70f09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert sample to pose.  <a href="namespaceDiffRmap.html#a6b661f008b253c5321481dcddfc70f09">More...</a><br /></td></tr>
 <tr class="separator:a6b661f008b253c5321481dcddfc70f09"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa31aaf844f8991c7fb334171dcd6dd64"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:aa31aaf844f8991c7fb334171dcd6dd64"><td class="memTemplItemLeft" align="right" valign="top">Eigen::Vector3d&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SamplingUtils_8h.html#aa31aaf844f8991c7fb334171dcd6dd64">DiffRmap::sampleToCloudPos</a> (const Sample&lt; SamplingSpaceType &gt; &amp;sample)</td></tr>
-<tr class="memdesc:aa31aaf844f8991c7fb334171dcd6dd64"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert sample to pointcloud position.  <a href="SamplingUtils_8h.html#aa31aaf844f8991c7fb334171dcd6dd64">More...</a><br /></td></tr>
+<tr class="memitem:aa31aaf844f8991c7fb334171dcd6dd64"><td class="memTemplItemLeft" align="right" valign="top">Eigen::Vector3d&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#aa31aaf844f8991c7fb334171dcd6dd64">DiffRmap::sampleToCloudPos</a> (const Sample&lt; SamplingSpaceType &gt; &amp;sample)</td></tr>
+<tr class="memdesc:aa31aaf844f8991c7fb334171dcd6dd64"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert sample to pointcloud position.  <a href="namespaceDiffRmap.html#aa31aaf844f8991c7fb334171dcd6dd64">More...</a><br /></td></tr>
 <tr class="separator:aa31aaf844f8991c7fb334171dcd6dd64"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8fce7210706a167113838dc3b92cb22b"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:a8fce7210706a167113838dc3b92cb22b"><td class="memTemplItemLeft" align="right" valign="top">Input&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SamplingUtils_8h.html#a8fce7210706a167113838dc3b92cb22b">DiffRmap::sampleToInput</a> (const Sample&lt; SamplingSpaceType &gt; &amp;sample)</td></tr>
-<tr class="memdesc:a8fce7210706a167113838dc3b92cb22b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert sample to SVM input.  <a href="SamplingUtils_8h.html#a8fce7210706a167113838dc3b92cb22b">More...</a><br /></td></tr>
+<tr class="memitem:a8fce7210706a167113838dc3b92cb22b"><td class="memTemplItemLeft" align="right" valign="top">Input&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#a8fce7210706a167113838dc3b92cb22b">DiffRmap::sampleToInput</a> (const Sample&lt; SamplingSpaceType &gt; &amp;sample)</td></tr>
+<tr class="memdesc:a8fce7210706a167113838dc3b92cb22b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert sample to SVM input.  <a href="namespaceDiffRmap.html#a8fce7210706a167113838dc3b92cb22b">More...</a><br /></td></tr>
 <tr class="separator:a8fce7210706a167113838dc3b92cb22b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a43c63b507cb117915aa1802d5cfd95d7"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:a43c63b507cb117915aa1802d5cfd95d7"><td class="memTemplItemLeft" align="right" valign="top">Sample&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SamplingUtils_8h.html#a43c63b507cb117915aa1802d5cfd95d7">DiffRmap::inputToSample</a> (const Input&lt; SamplingSpaceType &gt; &amp;input)</td></tr>
-<tr class="memdesc:a43c63b507cb117915aa1802d5cfd95d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert SVM input to sample.  <a href="SamplingUtils_8h.html#a43c63b507cb117915aa1802d5cfd95d7">More...</a><br /></td></tr>
+<tr class="memitem:a43c63b507cb117915aa1802d5cfd95d7"><td class="memTemplItemLeft" align="right" valign="top">Sample&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#a43c63b507cb117915aa1802d5cfd95d7">DiffRmap::inputToSample</a> (const Input&lt; SamplingSpaceType &gt; &amp;input)</td></tr>
+<tr class="memdesc:a43c63b507cb117915aa1802d5cfd95d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert SVM input to sample.  <a href="namespaceDiffRmap.html#a43c63b507cb117915aa1802d5cfd95d7">More...</a><br /></td></tr>
 <tr class="separator:a43c63b507cb117915aa1802d5cfd95d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9db9bae238ee5313fc4880621a8379ee"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:a9db9bae238ee5313fc4880621a8379ee"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SamplingUtils_8h.html#a9db9bae238ee5313fc4880621a8379ee">DiffRmap::integrateVelToSample</a> (Eigen::Ref&lt; Sample&lt; SamplingSpaceType &gt;&gt; sample, const Vel&lt; SamplingSpaceType &gt; &amp;vel)</td></tr>
-<tr class="memdesc:a9db9bae238ee5313fc4880621a8379ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Integrate velocity to sample. (duration is assumed to be one)  <a href="SamplingUtils_8h.html#a9db9bae238ee5313fc4880621a8379ee">More...</a><br /></td></tr>
+<tr class="memitem:a9db9bae238ee5313fc4880621a8379ee"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#a9db9bae238ee5313fc4880621a8379ee">DiffRmap::integrateVelToSample</a> (Eigen::Ref&lt; Sample&lt; SamplingSpaceType &gt;&gt; sample, const Vel&lt; SamplingSpaceType &gt; &amp;vel)</td></tr>
+<tr class="memdesc:a9db9bae238ee5313fc4880621a8379ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Integrate velocity to sample. (duration is assumed to be one)  <a href="namespaceDiffRmap.html#a9db9bae238ee5313fc4880621a8379ee">More...</a><br /></td></tr>
 <tr class="separator:a9db9bae238ee5313fc4880621a8379ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a648f78ae0f2134034f84f92266d30507"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:a648f78ae0f2134034f84f92266d30507"><td class="memTemplItemLeft" align="right" valign="top">Vel&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SamplingUtils_8h.html#a648f78ae0f2134034f84f92266d30507">DiffRmap::sampleError</a> (const Sample&lt; SamplingSpaceType &gt; &amp;pre_sample, const Sample&lt; SamplingSpaceType &gt; &amp;suc_sample)</td></tr>
-<tr class="memdesc:a648f78ae0f2134034f84f92266d30507"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate error between two samples.  <a href="SamplingUtils_8h.html#a648f78ae0f2134034f84f92266d30507">More...</a><br /></td></tr>
+<tr class="memitem:a648f78ae0f2134034f84f92266d30507"><td class="memTemplItemLeft" align="right" valign="top">Vel&lt; SamplingSpaceType &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#a648f78ae0f2134034f84f92266d30507">DiffRmap::sampleError</a> (const Sample&lt; SamplingSpaceType &gt; &amp;pre_sample, const Sample&lt; SamplingSpaceType &gt; &amp;suc_sample)</td></tr>
+<tr class="memdesc:a648f78ae0f2134034f84f92266d30507"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate error between two samples.  <a href="namespaceDiffRmap.html#a648f78ae0f2134034f84f92266d30507">More...</a><br /></td></tr>
 <tr class="separator:a648f78ae0f2134034f84f92266d30507"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac42e0a9599aa35ba935c9d8ba474d1a6"><td class="memTemplParams" colspan="2">template&lt;SamplingSpace SamplingSpaceType&gt; </td></tr>
-<tr class="memitem:ac42e0a9599aa35ba935c9d8ba474d1a6"><td class="memTemplItemLeft" align="right" valign="top">sva::PTransformd&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="SamplingUtils_8h.html#ac42e0a9599aa35ba935c9d8ba474d1a6">DiffRmap::getRandomPose</a> ()</td></tr>
-<tr class="memdesc:ac42e0a9599aa35ba935c9d8ba474d1a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get random pose in sampling space.  <a href="SamplingUtils_8h.html#ac42e0a9599aa35ba935c9d8ba474d1a6">More...</a><br /></td></tr>
+<tr class="memitem:ac42e0a9599aa35ba935c9d8ba474d1a6"><td class="memTemplItemLeft" align="right" valign="top">sva::PTransformd&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#ac42e0a9599aa35ba935c9d8ba474d1a6">DiffRmap::getRandomPose</a> ()</td></tr>
+<tr class="memdesc:ac42e0a9599aa35ba935c9d8ba474d1a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get random pose in sampling space.  <a href="namespaceDiffRmap.html#ac42e0a9599aa35ba935c9d8ba474d1a6">More...</a><br /></td></tr>
 <tr class="separator:ac42e0a9599aa35ba935c9d8ba474d1a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4652ee95bebbf3c59c24d899826c9674"><td class="memItemLeft" align="right" valign="top"><a id="a4652ee95bebbf3c59c24d899826c9674"></a>
-SamplingSpace&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="SamplingUtils_8h.html#a4652ee95bebbf3c59c24d899826c9674">DiffRmap::strToSamplingSpace</a> (const std::string &amp;sampling_space_str)</td></tr>
-<tr class="memdesc:a4652ee95bebbf3c59c24d899826c9674"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert string to sampling space. <br /></td></tr>
+<tr class="memitem:a4652ee95bebbf3c59c24d899826c9674"><td class="memItemLeft" align="right" valign="top">SamplingSpace&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceDiffRmap.html#a4652ee95bebbf3c59c24d899826c9674">DiffRmap::strToSamplingSpace</a> (const std::string &amp;sampling_space_str)</td></tr>
+<tr class="memdesc:a4652ee95bebbf3c59c24d899826c9674"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert string to sampling space.  <a href="namespaceDiffRmap.html#a4652ee95bebbf3c59c24d899826c9674">More...</a><br /></td></tr>
 <tr class="separator:a4652ee95bebbf3c59c24d899826c9674"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a327829d831aced488cf95c4515fd35ff"><td class="memItemLeft" align="right" valign="top"><a id="a327829d831aced488cf95c4515fd35ff"></a>
-string&#160;</td><td class="memItemRight" valign="bottom"><b>std::to_string</b> (SamplingSpace sampling_space)</td></tr>
+<tr class="memitem:a327829d831aced488cf95c4515fd35ff"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestd.html#a327829d831aced488cf95c4515fd35ff">std::to_string</a> (SamplingSpace sampling_space)</td></tr>
 <tr class="separator:a327829d831aced488cf95c4515fd35ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Utilities for sampling. </p>
-
-<p class="definition">Definition in file <a class="el" href="SamplingUtils_8h_source.html">SamplingUtils.h</a>.</p>
-</div><h2 class="groupheader">Function Documentation</h2>
-<a id="file_ac42e0a9599aa35ba935c9d8ba474d1a6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_ac42e0a9599aa35ba935c9d8ba474d1a6">&#9670;&nbsp;</a></span>getRandomPose()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">sva::PTransformd DiffRmap::getRandomPose </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get random pose in sampling space. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="SamplingUtils_8hpp_source.html#l00434">434</a> of file <a class="el" href="SamplingUtils_8hpp_source.html">SamplingUtils.hpp</a>.</p>
-
-</div>
-</div>
-<a id="file_af705ee8749622f74c014b41d7f168cf6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_af705ee8749622f74c014b41d7f168cf6">&#9670;&nbsp;</a></span>inputDim()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr int DiffRmap::inputDim </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get dimension of SVM input. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="SamplingUtils_8hpp_source.html#l00051">51</a> of file <a class="el" href="SamplingUtils_8hpp_source.html">SamplingUtils.hpp</a>.</p>
-
-</div>
-</div>
-<a id="file_a43c63b507cb117915aa1802d5cfd95d7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_a43c63b507cb117915aa1802d5cfd95d7">&#9670;&nbsp;</a></span>inputToSample()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">Sample&lt; SamplingSpaceType &gt; DiffRmap::inputToSample </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="SamplingUtils_8h.html#a84e9ef3ef65663a62f12bd9630ac83d8">Input</a>&lt; SamplingSpaceType &gt; &amp;&#160;</td>
-          <td class="paramname"><em>input</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Convert SVM input to sample. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">input</td><td>SVM input </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>sample (fixed size Eigen::Vector) </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="SamplingUtils_8hpp_source.html#l00297">297</a> of file <a class="el" href="SamplingUtils_8hpp_source.html">SamplingUtils.hpp</a>.</p>
-
-</div>
-</div>
-<a id="file_a9db9bae238ee5313fc4880621a8379ee"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_a9db9bae238ee5313fc4880621a8379ee">&#9670;&nbsp;</a></span>integrateVelToSample()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">void DiffRmap::integrateVelToSample </td>
-          <td>(</td>
-          <td class="paramtype">Eigen::Ref&lt; <a class="el" href="SamplingUtils_8h.html#ad98771f5f3a7e74ccaa889cfe414d83a">Sample</a>&lt; SamplingSpaceType &gt;&gt;&#160;</td>
-          <td class="paramname"><em>sample</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="SamplingUtils_8h.html#a6a1edb190df20d2feb9cf4cbe3d466e8">Vel</a>&lt; SamplingSpaceType &gt; &amp;&#160;</td>
-          <td class="paramname"><em>vel</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Integrate velocity to sample. (duration is assumed to be one) </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">sample</td><td>sample </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">vel</td><td>velocity </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="SamplingUtils_8hpp_source.html#l00355">355</a> of file <a class="el" href="SamplingUtils_8hpp_source.html">SamplingUtils.hpp</a>.</p>
-
-</div>
-</div>
-<a id="file_aa96db6419e0a59487640d9945fe32dd1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_aa96db6419e0a59487640d9945fe32dd1">&#9670;&nbsp;</a></span>poseToSample()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">Sample&lt; SamplingSpaceType &gt; DiffRmap::poseToSample </td>
-          <td>(</td>
-          <td class="paramtype">const sva::PTransformd &amp;&#160;</td>
-          <td class="paramname"><em>pose</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Convert pose to sample. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">pose</td><td>pose </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>sample (fixed size Eigen::Vector) </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="SamplingUtils_8hpp_source.html#l00112">112</a> of file <a class="el" href="SamplingUtils_8hpp_source.html">SamplingUtils.hpp</a>.</p>
-
-</div>
-</div>
-<a id="file_acc83fddae62b71b90126e46041b42232"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_acc83fddae62b71b90126e46041b42232">&#9670;&nbsp;</a></span>sampleDim()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr int DiffRmap::sampleDim </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get dimension of sample. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="SamplingUtils_8hpp_source.html#l00008">8</a> of file <a class="el" href="SamplingUtils_8hpp_source.html">SamplingUtils.hpp</a>.</p>
-
-</div>
-</div>
-<a id="file_a648f78ae0f2134034f84f92266d30507"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_a648f78ae0f2134034f84f92266d30507">&#9670;&nbsp;</a></span>sampleError()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">Vel&lt; SamplingSpaceType &gt; DiffRmap::sampleError </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="SamplingUtils_8h.html#ad98771f5f3a7e74ccaa889cfe414d83a">Sample</a>&lt; SamplingSpaceType &gt; &amp;&#160;</td>
-          <td class="paramname"><em>pre_sample</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="SamplingUtils_8h.html#ad98771f5f3a7e74ccaa889cfe414d83a">Sample</a>&lt; SamplingSpaceType &gt; &amp;&#160;</td>
-          <td class="paramname"><em>suc_sample</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Calculate error between two samples. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">pre_sample</td><td>predecessor sample </td></tr>
-    <tr><td class="paramname">suc_sample</td><td>successor sample </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>velocity corresponding to the error from pre_sample to suc_sample </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="SamplingUtils_8hpp_source.html#l00382">382</a> of file <a class="el" href="SamplingUtils_8hpp_source.html">SamplingUtils.hpp</a>.</p>
-
-</div>
-</div>
-<a id="file_aa31aaf844f8991c7fb334171dcd6dd64"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_aa31aaf844f8991c7fb334171dcd6dd64">&#9670;&nbsp;</a></span>sampleToCloudPos()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">Eigen::Vector3d DiffRmap::sampleToCloudPos </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="SamplingUtils_8h.html#ad98771f5f3a7e74ccaa889cfe414d83a">Sample</a>&lt; SamplingSpaceType &gt; &amp;&#160;</td>
-          <td class="paramname"><em>sample</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Convert sample to pointcloud position. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">sample</td><td>sample </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>pointcloud position (Eigen::Vector3d) </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="SamplingUtils_8hpp_source.html#l00214">214</a> of file <a class="el" href="SamplingUtils_8hpp_source.html">SamplingUtils.hpp</a>.</p>
-
-</div>
-</div>
-<a id="file_a8fce7210706a167113838dc3b92cb22b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_a8fce7210706a167113838dc3b92cb22b">&#9670;&nbsp;</a></span>sampleToInput()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">Input&lt; SamplingSpaceType &gt; DiffRmap::sampleToInput </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="SamplingUtils_8h.html#ad98771f5f3a7e74ccaa889cfe414d83a">Sample</a>&lt; SamplingSpaceType &gt; &amp;&#160;</td>
-          <td class="paramname"><em>sample</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Convert sample to SVM input. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">sample</td><td>sample </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>SVM input (fixed size Eigen::Vector) </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="SamplingUtils_8hpp_source.html#l00239">239</a> of file <a class="el" href="SamplingUtils_8hpp_source.html">SamplingUtils.hpp</a>.</p>
-
-</div>
-</div>
-<a id="file_a6b661f008b253c5321481dcddfc70f09"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_a6b661f008b253c5321481dcddfc70f09">&#9670;&nbsp;</a></span>sampleToPose()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">sva::PTransformd DiffRmap::sampleToPose </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="SamplingUtils_8h.html#ad98771f5f3a7e74ccaa889cfe414d83a">Sample</a>&lt; SamplingSpaceType &gt; &amp;&#160;</td>
-          <td class="paramname"><em>sample</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Convert sample to pose. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">sample</td><td>sample </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>pose </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="SamplingUtils_8hpp_source.html#l00164">164</a> of file <a class="el" href="SamplingUtils_8hpp_source.html">SamplingUtils.hpp</a>.</p>
-
-</div>
-</div>
-<a id="file_a89159e316437ddfaece2c0f14c2d4af7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#file_a89159e316437ddfaece2c0f14c2d4af7">&#9670;&nbsp;</a></span>velDim()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;SamplingSpace SamplingSpaceType&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr int DiffRmap::velDim </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get dimension of sample velocity. </p>
-<dl class="tparams"><dt>Template Parameters</dt><dd>
-  <table class="tparams">
-    <tr><td class="paramname">SamplingSpaceType</td><td>sampling space </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="SamplingUtils_8hpp_source.html#l00094">94</a> of file <a class="el" href="SamplingUtils_8hpp_source.html">SamplingUtils.hpp</a>.</p>
-
-</div>
-</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

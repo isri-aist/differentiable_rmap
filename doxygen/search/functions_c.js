@@ -1,8 +1,14 @@
 var searchData=
 [
   ['rbarr',['rbArr',['../classDiffRmap_1_1RmapSampling.html#aecd7ef5554b0d9aa7caafb5d955bd6ce',1,'DiffRmap::RmapSampling']]],
-  ['relsample',['relSample',['../SVMUtils_8h.html#adad17a20b9641d84c65ef0039df81a49',1,'DiffRmap']]],
-  ['relsampletosamplemat',['relSampleToSampleMat',['../SVMUtils_8h.html#a2a8fe3dd28db0c53cfffcaf35364b2af',1,'DiffRmap']]],
+  ['relsample',['relSample',['../namespaceDiffRmap.html#adad17a20b9641d84c65ef0039df81a49',1,'DiffRmap']]],
+  ['relsample_3c_20samplingspace_3a_3ase2_20_3e',['relSample&lt; SamplingSpace::SE2 &gt;',['../namespaceDiffRmap.html#a92ab1f4c0fc77d2ab05bf35a53c4e444',1,'DiffRmap']]],
+  ['relsample_3c_20samplingspace_3a_3ase3_20_3e',['relSample&lt; SamplingSpace::SE3 &gt;',['../namespaceDiffRmap.html#ad0218931f6240ba99c03a6bbbd25d3bb',1,'DiffRmap']]],
+  ['relsample_3c_20samplingspace_3a_3aso3_20_3e',['relSample&lt; SamplingSpace::SO3 &gt;',['../namespaceDiffRmap.html#a5e8fac4a94a090ceb0b697543e22d6a7',1,'DiffRmap']]],
+  ['relsampletosamplemat',['relSampleToSampleMat',['../namespaceDiffRmap.html#a2a8fe3dd28db0c53cfffcaf35364b2af',1,'DiffRmap']]],
+  ['relsampletosamplemat_3c_20samplingspace_3a_3ase2_20_3e',['relSampleToSampleMat&lt; SamplingSpace::SE2 &gt;',['../namespaceDiffRmap.html#af83623760f5a18c52b80f21af8bfe92d',1,'DiffRmap']]],
+  ['relsampletosamplemat_3c_20samplingspace_3a_3ase3_20_3e',['relSampleToSampleMat&lt; SamplingSpace::SE3 &gt;',['../namespaceDiffRmap.html#a3bf2f705b1e53e7deb2a423b2b2f78c5',1,'DiffRmap']]],
+  ['relsampletosamplemat_3c_20samplingspace_3a_3aso3_20_3e',['relSampleToSampleMat&lt; SamplingSpace::SO3 &gt;',['../namespaceDiffRmap.html#a605f14be8908a76b3b530e6144394ebd',1,'DiffRmap']]],
   ['rmapplanning',['rmapPlanning',['../classDiffRmap_1_1RmapPlanningLocomanip.html#a32434492cd32b805cd305002444afb82',1,'DiffRmap::RmapPlanningLocomanip::rmapPlanning()'],['../classDiffRmap_1_1RmapPlanningMulticontact.html#ae99343b7b4be8472105d87651fadf6a2',1,'DiffRmap::RmapPlanningMulticontact::rmapPlanning()'],['../classDiffRmap_1_1RmapPlanning.html#aa00e06688ca3c7a5e9bc2480ed066c66',1,'DiffRmap::RmapPlanning::RmapPlanning(const std::string &amp;svm_path=&quot;/tmp/rmap_svm_model.libsvm&quot;, const std::string &amp;bag_path=&quot;/tmp/rmap_grid_set.bag&quot;)'],['../classDiffRmap_1_1RmapPlanning.html#a4cfc6b17e994a14af41cb35218025e3f',1,'DiffRmap::RmapPlanning::RmapPlanning(const std::string &amp;svm_path, const std::string &amp;bag_path, bool setup_ros)']]],
   ['rmapplanningfootstep',['RmapPlanningFootstep',['../classDiffRmap_1_1RmapPlanningFootstep.html#ae7755f4f696f991f7f0fdca0c26356f5',1,'DiffRmap::RmapPlanningFootstep']]],
   ['rmapplanninglocomanip',['RmapPlanningLocomanip',['../classDiffRmap_1_1RmapPlanningLocomanip.html#a1f51b32f357c697f46efa8166b511d61',1,'DiffRmap::RmapPlanningLocomanip']]],
