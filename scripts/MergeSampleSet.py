@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 
-import sys
 import numpy as np
 
 import rospy
@@ -74,8 +73,9 @@ class MergeSampleSet(object):
 
 
 if __name__ == "__main__":
-    rospy.init_node("merge_sample_set", anonymous=False)
+    import sys
     if len(sys.argv) < 3:
-        print("usage: merge_sample_set <bag_path1> <bag_path2> ...")
+        print("usage: {} <bag_path1> <bag_path2> ...".format(sys.argv[0]))
         sys.exit(1)
+    rospy.init_node("merge_sample_set", anonymous=False)
     merge = MergeSampleSet(sys.argv[1:])

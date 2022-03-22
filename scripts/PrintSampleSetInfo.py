@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 
-import sys
 import numpy as np
 
 import rospy
@@ -45,8 +44,9 @@ class PrintSampleSetInfo(object):
 
 
 if __name__ == "__main__":
-    rospy.init_node("print_sample_set_info", anonymous=False)
+    import sys
     if len(sys.argv) < 2:
-        print("usage: print_sample_set_info <bag_path>")
+        print("usage: {} <bag_path>".format(sys.argv[0]))
         sys.exit(1)
+    rospy.init_node("print_sample_set_info", anonymous=False)
     print_info = PrintSampleSetInfo(sys.argv[1])
