@@ -5,7 +5,7 @@
     Differentiable reachability map
   </description>
   <maintainer email="m-murooka@aist.go.jp">Masaki Murooka</maintainer>
-  <license>GPL</license>
+  <license>BSD</license>
 
   <url>http://ros.org/wiki/differentiable_rmap</url>
   <author>Masaki Murooka</author>
