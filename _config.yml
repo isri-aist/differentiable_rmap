@@ -1,3 +1,4 @@
 name: differentiable_rmap documentation
 gems:
   - jekyll-redirect-from
+  - jekyll-sitemap
