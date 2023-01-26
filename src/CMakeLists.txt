@@ -24,5 +24,8 @@ target_link_libraries(DiffRmap PUBLIC
   svm
   ${catkin_LIBRARIES}
   )
+
+target_compile_definitions(DiffRmap PUBLIC OPTMOTIONGEN_V2) # for optmotiongen-ver2
+
 # target_compile_options(DiffRmap PUBLIC -march=native)
 # target_link_options(DiffRmap PUBLIC -march=native)

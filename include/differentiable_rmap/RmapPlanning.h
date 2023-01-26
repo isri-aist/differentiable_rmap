@@ -11,8 +11,11 @@
 #include <grid_map_ros/grid_map_ros.hpp>
 
 #include <libsvm/svm.h>
-
-#include <optmotiongen/Utils/QpUtils.h>
+#ifdef OPTMOTIONGEN_V2
+  #include <optmotiongen_core/Utils/QpUtils.h>
+#else
+  #include <optmotiongen/Utils/QpUtils.h>
+#endif
 
 #include <differentiable_rmap/RosUtils.h>
 #include <differentiable_rmap/SamplingUtils.h>

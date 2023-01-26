@@ -15,7 +15,7 @@
     </rosparam>
   </node>
 
-  <node pkg="optmotiongen" type="InteractiveMarkerManager.py" name="rviz_server"
+  <node pkg="optmotiongen_core" type="InteractiveMarkerManager.py" name="rviz_server"
         clear_params="true">
     <rosparam>
       enable_initial_publish: true

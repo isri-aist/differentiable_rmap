@@ -4,9 +4,15 @@
 
 #include <std_srvs/Empty.h>
 
-#include <optmotiongen/Problem/IterativeQpProblem.h>
-#include <optmotiongen/Task/BodyTask.h>
-#include <optmotiongen/Utils/RobotUtils.h>
+#ifdef OPTMOTIONGEN_V2
+  #include <optmotiongen_core/Problem/IterativeQpProblem.h>
+  #include <optmotiongen_core/Task/BodyTask.h>
+  #include <optmotiongen_core/Utils/RobotUtils.h>
+#else
+  #include <optmotiongen/Problem/IterativeQpProblem.h>
+  #include <optmotiongen/Task/BodyTask.h>
+  #include <optmotiongen/Utils/RobotUtils.h>
+#endif
 
 #include <differentiable_rmap/RmapPlanning.h>
 

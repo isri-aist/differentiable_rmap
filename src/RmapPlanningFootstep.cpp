@@ -10,8 +10,13 @@
 #include <jsk_recognition_msgs/PolygonArray.h>
 #include <visualization_msgs/MarkerArray.h>
 
-#include <optmotiongen/Func/CollisionFunc.h>
-#include <optmotiongen/Utils/RosUtils.h>
+#ifdef OPTMOTIONGEN_V2
+  #include <optmotiongen_core/Func/CollisionFunc.h>
+  #include <optmotiongen_core/Utils/RosUtils.h>
+#else
+  #include <optmotiongen/Func/CollisionFunc.h>
+  #include <optmotiongen/Utils/RosUtils.h>
+#endif
 
 #include <differentiable_rmap/GridUtils.h>
 #include <differentiable_rmap/RmapPlanningFootstep.h>

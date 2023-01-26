@@ -24,7 +24,7 @@
   <depend>visualization_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>grid_map_ros</depend>
-  <depend>optmotiongen</depend>
+  <depend>optmotiongen_core</depend>
   <depend>libsvm-dev</depend>
 
   <build_depend>message_generation</build_depend>

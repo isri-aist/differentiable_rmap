@@ -9,7 +9,11 @@
 #include <sensor_msgs/PointCloud.h>
 #include <visualization_msgs/MarkerArray.h>
 
-#include <optmotiongen/Utils/RosUtils.h>
+#ifdef OPTMOTIONGEN_V2
+  #include <optmotiongen_core/Utils/RosUtils.h>
+#else
+  #include <optmotiongen/Utils/RosUtils.h>
+#endif
 
 #include <differentiable_rmap/GridUtils.h>
 #include <differentiable_rmap/RmapPlanningMulticontact.h>
