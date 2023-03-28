@@ -11,7 +11,7 @@ on:
 jobs:
 
   clang-format:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
@@ -28,9 +28,9 @@ jobs:
       fail-fast: false
       matrix:
         build-type: [Debug, RelWithDebInfo]
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     env:
-      ROS_DISTRO: melodic
+      ROS_DISTRO: noetic
     steps:
       - name: Install mc_rtc
         run: |
