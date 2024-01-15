@@ -7,8 +7,8 @@
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud.h>
 
-#include <optmotiongen/Task/CollisionTask.h>
-#include <optmotiongen/Utils/RobotUtils.h>
+#include <optmotiongen_core/Task/CollisionTask.h>
+#include <optmotiongen_core/Utils/RobotUtils.h>
 
 #include <differentiable_rmap/SamplingUtils.h>
 

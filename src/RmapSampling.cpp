@@ -10,7 +10,7 @@
 
 #include <sch/S_Polyhedron/S_Polyhedron.h>
 
-#include <optmotiongen/Utils/RosUtils.h>
+#include <optmotiongen_core/Utils/RosUtils.h>
 
 #include <differentiable_rmap/RmapSampling.h>
 

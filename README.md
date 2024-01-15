@@ -43,7 +43,7 @@ $ make install
 $ mkdir -p ~/ros/ws_differentiable_rmap/src
 $ cd ~/ros/ws_differentiable_rmap
 $ wstool init src
-$ wstool set -t src isri-aist/optmotiongen git@github.com:isri-aist/optmotiongen.git -v ver2 --git -y
+$ wstool set -t src isri-aist/optmotiongen git@github.com:isri-aist/optmotiongen.git -v ver2-public --git -y
 $ wstool set -t src isri-aist/differentiable_rmap git@github.com:isri-aist/differentiable_rmap.git --git -y
 $ wstool update -t src
 

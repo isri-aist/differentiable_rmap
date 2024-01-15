@@ -12,7 +12,7 @@
 
 #include <libsvm/svm.h>
 
-#include <optmotiongen/Utils/QpUtils.h>
+#include <optmotiongen_core/Utils/QpUtils.h>
 
 #include <differentiable_rmap/RosUtils.h>
 #include <differentiable_rmap/SamplingUtils.h>

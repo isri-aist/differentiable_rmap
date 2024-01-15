@@ -17,7 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   visualization_msgs
   sensor_msgs
   grid_map_ros
-  optmotiongen
+  optmotiongen_core
   )
 
 # Boost
@@ -71,7 +71,7 @@ catkin_package(
   visualization_msgs
   sensor_msgs
   grid_map_ros
-  optmotiongen
+  optmotiongen_core
   DEPENDS EIGEN3
   INCLUDE_DIRS include
   LIBRARIES OmgCore

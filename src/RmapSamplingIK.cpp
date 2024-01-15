@@ -2,7 +2,7 @@
 
 #include <optmotiongen_msgs/RobotStateArray.h>
 
-#include <optmotiongen/Utils/RosUtils.h>
+#include <optmotiongen_core/Utils/RosUtils.h>
 
 #include <differentiable_rmap/RmapSamplingIK.h>
 

@@ -10,7 +10,7 @@
 #include <optmotiongen_msgs/RobotStateArray.h>
 #include <visualization_msgs/MarkerArray.h>
 
-#include <optmotiongen/Utils/RosUtils.h>
+#include <optmotiongen_core/Utils/RosUtils.h>
 
 #include <differentiable_rmap/GridUtils.h>
 #include <differentiable_rmap/RmapPlanningPlacement.h>

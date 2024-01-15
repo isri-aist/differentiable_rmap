@@ -9,7 +9,7 @@
 #include <visualization_msgs/MarkerArray.h>
 #include <differentiable_rmap/RmapSampleSet.h>
 
-#include <optmotiongen/Utils/RosUtils.h>
+#include <optmotiongen_core/Utils/RosUtils.h>
 
 #include <differentiable_rmap/BaselineUtils.h>
 #include <differentiable_rmap/EvalUtils.h>

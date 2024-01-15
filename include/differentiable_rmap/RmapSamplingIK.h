@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <optmotiongen/Problem/IterativeQpProblem.h>
-#include <optmotiongen/Task/BodyTask.h>
+#include <optmotiongen_core/Problem/IterativeQpProblem.h>
+#include <optmotiongen_core/Task/BodyTask.h>
 
 #include <differentiable_rmap/RmapSampling.h>
 
