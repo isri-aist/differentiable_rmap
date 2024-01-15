@@ -106,7 +106,8 @@ public:
       mc_rtc_config("reg_weight", reg_weight);
       if(mc_rtc_config.has("placement_weight_vec"))
       {
-        placement_weight_vec = static_cast<Eigen::VectorXd>(mc_rtc_config("placement_weight_vec"));
+        Eigen::VectorXd placement_weight_vec_ = mc_rtc_config("placement_weight_vec");
+        placement_weight_vec = placement_weight_vec_;
       }
       else if(mc_rtc_config.has("placement_weight"))
       {
